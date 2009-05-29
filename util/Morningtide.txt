@@ -1,0 +1,1384 @@
+Gatherer - The Official Magic: The Gathering Card Database
+
+
+*1. Enter a search term* 	*2. Choose fields               * 	*3. Apply
+filters* 	*4. Select output* 	*Go!*
+
+/Enter a search term/ 	Search card name
+Search rules text
+Search card type
+Search flavor text
+Search artist
+Search mana cost
+Search Power
+Search Toughness 	/Show only this format or set:/
+
+
+/Show only cards of this color:/
+
+
+/Show only cards in this group:/
+
+	/Select output type:/
+
+
+/Select sort order:/
+
+
+
+
+	Search <javascript:buildQueryString();>
+/ Clear Form </Gatherer/Index.aspx> /
+
+
+
+
+*Gatherer Search Results Statistics*
+Number: 150 cards total
+
+CardName:	Ambassador Oak
+Cost:	3G
+Type:	Creature - Treefolk Warrior
+Pow/Tgh:	3/3
+Rules Text:	When Ambassador Oak comes into play, put a 1/1 green Elf
+Warrior creature token into play.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Auntie's Snitch
+Cost:	2B
+Type:	Creature - Goblin Rogue
+Pow/Tgh:	3/1
+Rules Text:	Auntie's Snitch can't block. Prowl 1B (You may play this for
+its prowl cost if you dealt combat damage to a player this turn with a
+Goblin or Rogue.) Whenever a Goblin or Rogue you control deals combat
+damage to a player, if Auntie's Snitch is in your graveyard, you may
+return Auntie's Snitch to your hand.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Ballyrush Banneret
+Cost:	1W
+Type:	Creature - Kithkin Soldier
+Pow/Tgh:	2/1
+Rules Text:	Kithkin spells and Soldier spells you play cost 1 less to play.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Battletide Alchemist
+Cost:	3WW
+Type:	Creature - Kithkin Cleric
+Pow/Tgh:	3/4
+Rules Text:	If a source would deal damage to a player, you may prevent X
+of that damage, where X is the number of Clerics you control.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Bitterblossom
+Cost:	1B
+Type:	Tribal Enchantment - Faerie
+Pow/Tgh:	/
+Rules Text:	At the beginning of your upkeep, you lose 1 life and put a
+1/1 black Faerie Rogue creature token with flying into play.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Blightsoil Druid
+Cost:	1B
+Type:	Creature - Elf Druid
+Pow/Tgh:	1/2
+Rules Text:	T, Pay 1 life: Add G to your mana pool.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Boldwyr Heavyweights
+Cost:	2RR
+Type:	Creature - Giant Warrior
+Pow/Tgh:	8/8
+Rules Text:	Trample When Boldwyr Heavyweights comes into play, each
+opponent may search his or her library for a creature card and put it
+into play. Then each player who searched his or her library this way
+shuffles it.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Boldwyr Intimidator
+Cost:	5RR
+Type:	Creature - Giant Warrior
+Pow/Tgh:	5/5
+Rules Text:	Cowards can't block Warriors. R: Target creature becomes a
+Coward until end of turn. 2R: Target creature becomes a Warrior until
+end of turn.
+Set/Rarity:	Morningtide Uncommon, Future Sight Uncommon
+ 	 
+CardName:	Borderland Behemoth
+Cost:	5RR
+Type:	Creature - Giant Warrior
+Pow/Tgh:	4/4
+Rules Text:	Trample Borderland Behemoth gets +4/+4 for each other Giant
+you control.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Bosk Banneret
+Cost:	1G
+Type:	Creature - Treefolk Shaman
+Pow/Tgh:	1/3
+Rules Text:	Treefolk spells and Shaman spells you play cost 1 less to play.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Bramblewood Paragon
+Cost:	1G
+Type:	Creature - Elf Warrior
+Pow/Tgh:	2/2
+Rules Text:	Each other Warrior creature you control comes into play with
+an additional +1/+1 counter on it. Each creature you control with a
++1/+1 counter on it has trample.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Brighthearth Banneret
+Cost:	1R
+Type:	Creature - Elemental Warrior
+Pow/Tgh:	1/1
+Rules Text:	Elemental spells and Warrior spells you play cost 1 less to
+play. Reinforce 1-1R (1R, Discard this card: Put a +1/+1 counter on
+target creature.)
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Burrenton Bombardier
+Cost:	2W
+Type:	Creature - Kithkin Soldier
+Pow/Tgh:	2/2
+Rules Text:	Flying Reinforce 2-2W (2W, Discard this card: Put two +1/+1
+counters on target creature.)
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Burrenton Shield-Bearers
+Cost:	4W
+Type:	Creature - Kithkin Soldier
+Pow/Tgh:	3/3
+Rules Text:	Whenever Burrenton Shield-Bearers attacks, target creature
+gets +0/+3 until end of turn.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Cenn's Tactician
+Cost:	W
+Type:	Creature - Kithkin Soldier
+Pow/Tgh:	1/1
+Rules Text:	W, T Put a +1/+1 counter on target Soldier creature. Each
+creature you control with a +1/+1 counter on it can block an additional
+creature.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Chameleon Colossus
+Cost:	2GG
+Type:	Creature - Shapeshifter
+Pow/Tgh:	4/4
+Rules Text:	Changeling (This card is every creature type at all times.)
+Protection from black 2GG: Chameleon Colossus gets +X/+X until end of
+turn, where X is its power.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Changeling Sentinel
+Cost:	3W
+Type:	Creature - Shapeshifter
+Pow/Tgh:	3/2
+Rules Text:	Changeling (This card is every creature type at all times.)
+Vigilance
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Cloak and Dagger
+Cost:	2
+Type:	Tribal Artifact - Rogue Equipment
+Pow/Tgh:	/
+Rules Text:	Equipped creature gets +2/+0 and has shroud. (It can't be
+the target of spells or abilities.) Whenever a Rogue creature comes into
+play, you may attach Cloak and Dagger to it. Equip 3
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Coordinated Barrage
+Cost:	W
+Type:	Instant
+Pow/Tgh:	/
+Rules Text:	Choose a creature type. Coordinated Barrage deals damage to
+target attacking or blocking creature equal to the number of permanents
+you control of the chosen type.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Countryside Crusher
+Cost:	1RR
+Type:	Creature - Giant Warrior
+Pow/Tgh:	3/3
+Rules Text:	At the beginning of your upkeep, reveal the top card of your
+library. If it's a land card, put it into your graveyard and repeat this
+process. Whenever a land card is put into your graveyard from anywhere,
+put a +1/+1 counter on Countryside Crusher.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Cream of the Crop
+Cost:	1G
+Type:	Enchantment
+Pow/Tgh:	/
+Rules Text:	Whenever a creature comes into play under your control, you
+may look at the top X cards of your library, where X is that creature's
+power. If you do, put one of those cards on top of your library and the
+rest on the bottom of your library in any order.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Daily Regimen
+Cost:	W
+Type:	Enchantment - Aura
+Pow/Tgh:	/
+Rules Text:	Enchant creature 1W: Put a +1/+1 counter on enchanted creature.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Declaration of Naught
+Cost:	UU
+Type:	Enchantment
+Pow/Tgh:	/
+Rules Text:	As Declaration of Naught comes into play, name a card. U:
+Counter target spell with that name.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Deglamer
+Cost:	1G
+Type:	Instant
+Pow/Tgh:	/
+Rules Text:	Choose target artifact or enchantment. Its owner shuffles it
+into his or her library.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Dewdrop Spy
+Cost:	1UU
+Type:	Creature - Faerie Rogue
+Pow/Tgh:	2/2
+Rules Text:	Flash Flying When Dewdrop Spy comes into play, look at the
+top card of target player's library.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Disperse
+Cost:	1U
+Type:	Instant
+Pow/Tgh:	/
+Rules Text:	Return target nonland permanent to its owner's hand.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Distant Melody
+Cost:	3U
+Type:	Sorcery
+Pow/Tgh:	/
+Rules Text:	Choose a creature type. Draw a card for each permanent you
+control of that type.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Diviner's Wand
+Cost:	3
+Type:	Tribal Artifact - Wizard Equipment
+Pow/Tgh:	/
+Rules Text:	Equipped creature has "Whenever you draw a card, this
+creature gets +1/+1 and gains flying until end of turn" and "4: Draw a
+card." Whenever a Wizard creature comes into play, you may attach
+Diviner's Wand to it. Equip 3
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Door of Destinies
+Cost:	4
+Type:	Artifact
+Pow/Tgh:	/
+Rules Text:	As Door of Destinies comes into play, choose a creature
+type. Whenever you play a spell of that type, put a charge counter on
+Door of Destinies. Creatures you control of that type get +1/+1 for each
+charge counter on Door of Destinies.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Earthbrawn
+Cost:	1G
+Type:	Instant
+Pow/Tgh:	/
+Rules Text:	Target creature gets +3/+3 until end of turn. Reinforce 1-1G
+(1G, Discard this card: Put a +1/+1 counter on target creature.)
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Earwig Squad
+Cost:	3BB
+Type:	Creature - Goblin Rogue
+Pow/Tgh:	5/3
+Rules Text:	Prowl 2B (You may play this for its prowl cost if you dealt
+combat damage to a player this turn with a Goblin or Rogue.) When Earwig
+Squad comes into play, if its prowl cost was paid, search target
+opponent's library for three cards and remove them from the game. Then
+that player shuffles his or her library.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Elvish Warrior
+Cost:	GG
+Type:	Creature - Elf Warrior
+Pow/Tgh:	2/3
+Rules Text:	
+Set/Rarity:	Morningtide Common, Ninth Edition Common, Onslaught Common
+ 	 
+CardName:	Everbark Shaman
+Cost:	4G
+Type:	Creature - Treefolk Shaman
+Pow/Tgh:	3/5
+Rules Text:	T, Remove a Treefolk card in your graveyard from the game:
+Search your library for two Forest cards and put them into play tapped.
+Then shuffle your library.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Fencer Clique
+Cost:	2UU
+Type:	Creature - Faerie Soldier
+Pow/Tgh:	3/2
+Rules Text:	Flying U: Put Fencer Clique on top of its owner's library.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Fendeep Summoner
+Cost:	4B
+Type:	Creature - Treefolk Shaman
+Pow/Tgh:	3/5
+Rules Text:	T Up to two target Swamps each become 3/5 Treefolk Warrior
+creatures in addition to their other types until end of turn.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Fertilid
+Cost:	2G
+Type:	Creature - Elemental
+Pow/Tgh:	0/0
+Rules Text:	Fertilid comes into play with two +1/+1 counters on it. 1G,
+Remove a +1/+1 counter from Fertilid: Target player searches his or her
+library for a basic land card and puts it into play tapped. Then that
+player shuffles his or her library.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Festercreep
+Cost:	1B
+Type:	Creature - Elemental
+Pow/Tgh:	0/0
+Rules Text:	Festercreep comes into play with a +1/+1 counter on it. 1B,
+Remove a +1/+1 counter from Festercreep: All other creatures get -1/-1
+until end of turn.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Feudkiller's Verdict
+Cost:	4WW
+Type:	Tribal Sorcery - Giant
+Pow/Tgh:	/
+Rules Text:	You gain 10 life. Then if you have more life than an
+opponent, put a 5/5 white Giant Warrior creature token into play.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Final-Sting Faerie
+Cost:	3B
+Type:	Creature - Faerie Assassin
+Pow/Tgh:	2/2
+Rules Text:	Flying When Final-Sting Faerie comes into play, destroy
+target creature that was dealt damage this turn.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Fire Juggler
+Cost:	2R
+Type:	Creature - Goblin Shaman
+Pow/Tgh:	2/2
+Rules Text:	Whenever Fire Juggler becomes blocked, clash with an
+opponent. If you win, Fire Juggler deals 4 damage to each creature
+blocking it. (Each clashing player reveals the top card of his or her
+library, then puts that card on the top or bottom. A player wins if his
+or her card had a higher converted mana cost.)
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Floodchaser
+Cost:	5U
+Type:	Creature - Elemental
+Pow/Tgh:	0/0
+Rules Text:	Floodchaser comes into play with six +1/+1 counters on it.
+Floodchaser can't attack unless defending player controls an Island. U,
+Remove a +1/+1 counter from Floodchaser: Target land becomes an Island
+until end of turn.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Forfend
+Cost:	1W
+Type:	Instant
+Pow/Tgh:	/
+Rules Text:	Prevent all damage that would be dealt to creatures this turn.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Frogtosser Banneret
+Cost:	1B
+Type:	Creature - Goblin Rogue
+Pow/Tgh:	1/1
+Rules Text:	Haste Goblin spells and Rogue spells you play cost 1 less to
+play.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Game-Trail Changeling
+Cost:	3GG
+Type:	Creature - Shapeshifter
+Pow/Tgh:	4/4
+Rules Text:	Changeling (This card is every creature type at all times.)
+Trample
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Gilt-Leaf Archdruid
+Cost:	3GG
+Type:	Creature - Elf Druid
+Pow/Tgh:	3/3
+Rules Text:	Whenever you play a Druid spell, you may draw a card. Tap
+seven untapped Druids you control: Gain control of all lands target
+player controls.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Graceful Reprieve
+Cost:	1W
+Type:	Instant
+Pow/Tgh:	/
+Rules Text:	When target creature is put into a graveyard this turn,
+return that card to play under its owner's control.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Greatbow Doyen
+Cost:	4G
+Type:	Creature - Elf Archer
+Pow/Tgh:	2/4
+Rules Text:	Other Archer creatures you control get +1/+1. Whenever an
+Archer you control deals damage to a creature, that Archer deals that
+much damage to that creature's controller.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Grimoire Thief
+Cost:	UU
+Type:	Creature - Merfolk Rogue
+Pow/Tgh:	2/2
+Rules Text:	Whenever Grimoire Thief becomes tapped, remove the top three
+cards of target opponent's library from the game face down. You may look
+at cards removed from the game with Grimoire Thief. U, Sacrifice
+Grimoire Thief: Turn all cards removed from the game with Grimoire Thief
+face up. Counter all spells with those names.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Heritage Druid
+Cost:	G
+Type:	Creature - Elf Druid
+Pow/Tgh:	1/1
+Rules Text:	Tap three untapped Elves you control: Add GGG to your mana pool.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Hostile Realm
+Cost:	2R
+Type:	Enchantment - Aura
+Pow/Tgh:	/
+Rules Text:	Enchant land Enchanted land has "T Target creature can't
+block this turn."
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Hunting Triad
+Cost:	3G
+Type:	Tribal Sorcery - Elf
+Pow/Tgh:	/
+Rules Text:	Put three 1/1 green Elf Warrior creature tokens into play.
+Reinforce 3-3G (3G, Discard this card: Put three +1/+1 counters on
+target creature.)
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Idyllic Tutor
+Cost:	2W
+Type:	Sorcery
+Pow/Tgh:	/
+Rules Text:	Search your library for an enchantment card, reveal it, and
+put it into your hand. Then shuffle your library.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Indomitable Ancients
+Cost:	2WW
+Type:	Creature - Treefolk Warrior
+Pow/Tgh:	2/10
+Rules Text:	
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Ink Dissolver
+Cost:	1U
+Type:	Creature - Merfolk Wizard
+Pow/Tgh:	2/1
+Rules Text:	Kinship - At the beginning of your upkeep, you may look at
+the top card of your library. If it shares a creature type with Ink
+Dissolver, you may reveal it. If you do, each opponent puts the top
+three cards of his or her library into his or her graveyard.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Inspired Sprite
+Cost:	3U
+Type:	Creature - Faerie Wizard
+Pow/Tgh:	2/2
+Rules Text:	Flash Flying Whenever you play a Wizard spell, you may untap
+Inspired Sprite. T Draw a card, then discard a card.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Kindled Fury
+Cost:	R
+Type:	Instant
+Pow/Tgh:	/
+Rules Text:	Target creature gets +1/+0 and gains first strike until end
+of turn.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Kinsbaile Borderguard
+Cost:	1WW
+Type:	Creature - Kithkin Soldier
+Pow/Tgh:	1/1
+Rules Text:	Kinsbaile Borderguard comes into play with a +1/+1 counter
+on it for each other Kithkin you control. When Kinsbaile Borderguard is
+put into a graveyard from play, put a 1/1 white Kithkin Soldier creature
+token into play for each counter on it.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Kinsbaile Cavalier
+Cost:	3W
+Type:	Creature - Kithkin Knight
+Pow/Tgh:	2/2
+Rules Text:	Knight creatures you control have double strike.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Kithkin Zephyrnaut
+Cost:	2W
+Type:	Creature - Kithkin Soldier
+Pow/Tgh:	2/2
+Rules Text:	Kinship - At the beginning of your upkeep, you may look at
+the top card of your library. If it shares a creature type with Kithkin
+Zephyrnaut, you may reveal it. If you do, Kithkin Zephyrnaut gets +2/+2
+and gains flying and vigilance until end of turn.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Knowledge Exploitation
+Cost:	5UU
+Type:	Tribal Sorcery - Rogue
+Pow/Tgh:	/
+Rules Text:	Prowl 3U (You may play this for its prowl cost if you dealt
+combat damage to a player this turn with a Rogue.) Search target
+opponent's library for an instant or sorcery card. You may play that
+card without paying its mana cost. Then that player shuffles his or her
+library.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Latchkey Faerie
+Cost:	3U
+Type:	Creature - Faerie Rogue
+Pow/Tgh:	3/1
+Rules Text:	Flying Prowl 2U (You may play this for its prowl cost if you
+dealt combat damage to a player this turn with a Faerie or Rogue.) When
+Latchkey Faerie comes into play, if its prowl cost was paid, draw a card.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Leaf-Crowned Elder
+Cost:	2GG
+Type:	Creature - Treefolk Shaman
+Pow/Tgh:	3/5
+Rules Text:	Kinship - At the beginning of your upkeep, you may look at
+the top card of your library. If it shares a creature type with
+Leaf-Crowned Elder, you may reveal it. If you do, you may play that card
+without paying its mana cost.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Lightning Crafter
+Cost:	3R
+Type:	Creature - Goblin Shaman
+Pow/Tgh:	3/3
+Rules Text:	Champion a Goblin or Shaman (When this comes into play,
+sacrifice it unless you remove another Goblin or Shaman you control from
+the game. When this leaves play, that card returns to play.) T Lightning
+Crafter deals 3 damage to target creature or player.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Luminescent Rain
+Cost:	2G
+Type:	Instant
+Pow/Tgh:	/
+Rules Text:	Choose a creature type. You gain 2 life for each permanent
+you control of that type.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Lunk Errant
+Cost:	5R
+Type:	Creature - Giant Warrior
+Pow/Tgh:	4/4
+Rules Text:	Whenever Lunk Errant attacks alone, it gets +1/+1 and gains
+trample until end of turn.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Lys Alana Bowmaster
+Cost:	2G
+Type:	Creature - Elf Archer
+Pow/Tgh:	2/2
+Rules Text:	Reach (This can block creatures with flying.) Whenever you
+play an Elf spell, you may have Lys Alana Bowmaster deal 2 damage to
+target creature with flying.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Maralen of the Mornsong
+Cost:	1BB
+Type:	Legendary Creature - Elf Wizard
+Pow/Tgh:	2/3
+Rules Text:	Players can't draw cards. At the beginning of each player's
+draw step, that player loses 3 life, searches his or her library for a
+card, puts it into his or her hand, then shuffles his or her library.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Meadowboon
+Cost:	2WW
+Type:	Creature - Elemental
+Pow/Tgh:	3/3
+Rules Text:	When Meadowboon leaves play, put a +1/+1 counter on each
+creature target player controls. Evoke 3W (You may play this spell for
+its evoke cost. If you do, it's sacrificed when it comes into play.)
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Merrow Witsniper
+Cost:	U
+Type:	Creature - Merfolk Rogue
+Pow/Tgh:	1/1
+Rules Text:	When Merrow Witsniper comes into play, target player puts
+the top card of his or her library into his or her graveyard.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Mind Shatter
+Cost:	XBB
+Type:	Sorcery
+Pow/Tgh:	/
+Rules Text:	Target player discards X cards at random.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Mind Spring
+Cost:	XUU
+Type:	Sorcery
+Pow/Tgh:	/
+Rules Text:	Draw X cards.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Moonglove Changeling
+Cost:	2B
+Type:	Creature - Shapeshifter
+Pow/Tgh:	2/2
+Rules Text:	Changeling (This card is every creature type at all times.)
+B: Moonglove Changeling gains deathtouch until end of turn. (Whenever it
+deals damage to a creature, destroy that creature.)
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Morsel Theft
+Cost:	2BB
+Type:	Tribal Sorcery - Rogue
+Pow/Tgh:	/
+Rules Text:	Prowl 1B (You may play this for its prowl cost if you dealt
+combat damage to a player this turn with a Rogue.) Target player loses 3
+life and you gain 3 life. If Morsel Theft's prowl cost was paid, draw a
+card.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Mosquito Guard
+Cost:	W
+Type:	Creature - Kithkin Soldier
+Pow/Tgh:	1/1
+Rules Text:	First strike Reinforce 1-1W (1W, Discard this card: Put a
++1/+1 counter on target creature.)
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Mothdust Changeling
+Cost:	U
+Type:	Creature - Shapeshifter
+Pow/Tgh:	1/1
+Rules Text:	Changeling (This card is every creature type at all times.)
+Tap an untapped creature you control: Mothdust Changeling gains flying
+until end of turn.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Mudbutton Clanger
+Cost:	R
+Type:	Creature - Goblin Warrior
+Pow/Tgh:	1/1
+Rules Text:	Kinship - At the beginning of your upkeep, you may look at
+the top card of your library. If it shares a creature type with
+Mudbutton Clanger, you may reveal it. If you do, Mudbutton Clanger gets
++1/+1 until end of turn.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Murmuring Bosk
+Cost:	
+Type:	Land - Forest
+Pow/Tgh:	/
+Rules Text:	(T Add G to your mana pool.) As Murmuring Bosk comes into
+play, you may reveal a Treefolk card from your hand. If you don't,
+Murmuring Bosk comes into play tapped. T Add W or B to your mana pool.
+Murmuring Bosk deals 1 damage to you.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Mutavault
+Cost:	
+Type:	Land
+Pow/Tgh:	/
+Rules Text:	T Add 1 to your mana pool. 1: Mutavault becomes a 2/2
+creature with all creature types until end of turn. It's still a land.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Negate
+Cost:	1U
+Type:	Instant
+Pow/Tgh:	/
+Rules Text:	Counter target noncreature spell.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Nevermaker
+Cost:	3U
+Type:	Creature - Elemental
+Pow/Tgh:	2/3
+Rules Text:	Flying When Nevermaker leaves play, put target nonland
+permanent on top of its owner's library. Evoke 3U (You may play this
+spell for its evoke cost. If you do, it's sacrificed when it comes into
+play.)
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Nightshade Schemers
+Cost:	4B
+Type:	Creature - Faerie Wizard
+Pow/Tgh:	3/2
+Rules Text:	Flying Kinship - At the beginning of your upkeep, you may
+look at the top card of your library. If it shares a creature type with
+Nightshade Schemers, you may reveal it. If you do, each opponent loses 2
+life.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Noggin Whack
+Cost:	2BB
+Type:	Tribal Sorcery - Rogue
+Pow/Tgh:	/
+Rules Text:	Prowl 1B (You may play this for its prowl cost if you dealt
+combat damage to a player this turn with a Rogue.) Target player reveals
+three cards from his or her hand. You choose two of them. That player
+discards those cards.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Notorious Throng
+Cost:	3U
+Type:	Tribal Sorcery - Rogue
+Pow/Tgh:	/
+Rules Text:	Prowl 5U (You may play this for its prowl cost if you dealt
+combat damage to a player this turn with a Rogue.) Put X 1/1 black
+Faerie Rogue creature tokens with flying into play, where X is the
+damage dealt to your opponents this turn. If Notorious Throng's prowl
+cost was paid, take an extra turn after this one.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Obsidian Battle-Axe
+Cost:	3
+Type:	Tribal Artifact - Warrior Equipment
+Pow/Tgh:	/
+Rules Text:	Equipped creature gets +2/+1 and has haste. Whenever a
+Warrior creature comes into play, you may attach Obsidian Battle-Axe to
+it. Equip 3
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Offalsnout
+Cost:	2B
+Type:	Creature - Elemental
+Pow/Tgh:	2/2
+Rules Text:	Flash When Offalsnout leaves play, remove target card in a
+graveyard from the game. Evoke B (You may play this spell for its evoke
+cost. If you do, it's sacrificed when it comes into play.)
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Oona's Blackguard
+Cost:	1B
+Type:	Creature - Faerie Rogue
+Pow/Tgh:	1/1
+Rules Text:	Flying Each other Rogue creature you control comes into play
+with an additional +1/+1 counter on it. Whenever a creature you control
+with a +1/+1 counter on it deals combat damage to a player, that player
+discards a card.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Orchard Warden
+Cost:	4GG
+Type:	Creature - Treefolk Shaman
+Pow/Tgh:	4/6
+Rules Text:	Whenever another Treefolk creature comes into play under
+your control, you may gain life equal to that creature's toughness.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Order of the Golden Cricket
+Cost:	1W
+Type:	Creature - Kithkin Knight
+Pow/Tgh:	2/2
+Rules Text:	Whenever Order of the Golden Cricket attacks, you may pay W.
+If you do, it gains flying until end of turn.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Pack's Disdain
+Cost:	1B
+Type:	Instant
+Pow/Tgh:	/
+Rules Text:	Choose a creature type. Target creature gets -1/-1 until end
+of turn for each permanent of the chosen type you control.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Preeminent Captain
+Cost:	2W
+Type:	Creature - Kithkin Soldier
+Pow/Tgh:	2/2
+Rules Text:	First strike Whenever Preeminent Captain attacks, you may
+put a Soldier creature card from your hand into play tapped and attacking.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Prickly Boggart
+Cost:	B
+Type:	Creature - Goblin Rogue
+Pow/Tgh:	1/1
+Rules Text:	Fear
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Primal Beyond
+Cost:	
+Type:	Land
+Pow/Tgh:	/
+Rules Text:	As Primal Beyond comes into play, you may reveal an
+Elemental card from your hand. If you don't, Primal Beyond comes into
+play tapped. T Add 1 to your mana pool. T Add one mana of any color to
+your mana pool. Spend this mana only to play Elemental spells or
+activated abilities of Elementals.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Pulling Teeth
+Cost:	1B
+Type:	Sorcery
+Pow/Tgh:	/
+Rules Text:	Clash with an opponent. If you win, target player discards
+two cards. Otherwise, that player discards a card. (Each clashing player
+reveals the top card of his or her library, then puts that card on the
+top or bottom. A player wins if his or her card had a higher converted
+mana cost.)
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Pyroclast Consul
+Cost:	3RR
+Type:	Creature - Elemental Shaman
+Pow/Tgh:	3/3
+Rules Text:	Kinship - At the beginning of your upkeep, you may look at
+the top card of your library. If it shares a creature type with
+Pyroclast Consul, you may reveal it. If you do, Pyroclast Consul deals 2
+damage to each creature.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Rage Forger
+Cost:	2R
+Type:	Creature - Elemental Shaman
+Pow/Tgh:	2/2
+Rules Text:	When Rage Forger comes into play, put a +1/+1 counter on
+each other Shaman creature you control. Whenever a creature you control
+with a +1/+1 counter on it attacks, you may have that creature deal 1
+damage to target player.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Reach of Branches
+Cost:	4G
+Type:	Tribal Instant - Treefolk
+Pow/Tgh:	/
+Rules Text:	Put a 2/5 green Treefolk Shaman creature token into play.
+Whenever a Forest comes into play under your control, you may return
+Reach of Branches from your graveyard to your hand.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Recross the Paths
+Cost:	2G
+Type:	Sorcery
+Pow/Tgh:	/
+Rules Text:	Reveal cards from the top of your library until you reveal a
+land card. Put that card into play and the rest on the bottom of your
+library in any order. Clash with an opponent. If you win, return Recross
+the Paths to its owner's hand. (Each clashing player reveals the top
+card of his or her library, then puts that card on the top or bottom. A
+player wins if his or her card had a higher converted mana cost.)
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Redeem the Lost
+Cost:	1W
+Type:	Instant
+Pow/Tgh:	/
+Rules Text:	Target creature you control gains protection from the color
+of your choice until end of turn. Clash with an opponent. If you win,
+return Redeem the Lost to its owner's hand. (Each clashing player
+reveals the top card of his or her library, then puts that card on the
+top or bottom. A player wins if his or her card had a higher converted
+mana cost.)
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Reins of the Vinesteed
+Cost:	3G
+Type:	Enchantment - Aura
+Pow/Tgh:	/
+Rules Text:	Enchant creature Enchanted creature gets +2/+2. When
+enchanted creature is put into a graveyard, you may return Reins of the
+Vinesteed from your graveyard to play attached to a creature that shares
+a creature type with that creature.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Release the Ants
+Cost:	1R
+Type:	Instant
+Pow/Tgh:	/
+Rules Text:	Release the Ants deals 1 damage to target creature or
+player. Clash with an opponent. If you win, return Release the Ants to
+its owner's hand. (Each clashing player reveals the top card of his or
+her library, then puts that card on the top or bottom. A player wins if
+his or her card had a higher converted mana cost.)
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Research the Deep
+Cost:	1U
+Type:	Sorcery
+Pow/Tgh:	/
+Rules Text:	Draw a card. Clash with an opponent. If you win, return
+Research the Deep to its owner's hand. (Each clashing player reveals the
+top card of his or her library, then puts that card on the top or
+bottom. A player wins if his or her card had a higher converted mana cost.)
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Reveillark
+Cost:	4W
+Type:	Creature - Elemental
+Pow/Tgh:	4/3
+Rules Text:	Flying When Reveillark leaves play, return up to two target
+creature cards with power 2 or less from your graveyard to play. Evoke
+5W (You may play this spell for its evoke cost. If you do, it's
+sacrificed when it comes into play.)
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Revive the Fallen
+Cost:	1B
+Type:	Sorcery
+Pow/Tgh:	/
+Rules Text:	Return target creature card in a graveyard to its owner's
+hand. Clash with an opponent. If you win, return Revive the Fallen to
+its owner's hand. (Each clashing player reveals the top card of his or
+her library, then puts that card on the top or bottom. A player wins if
+his or her card had a higher converted mana cost.)
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Rhys the Exiled
+Cost:	2G
+Type:	Legendary Creature - Elf Warrior
+Pow/Tgh:	3/2
+Rules Text:	Whenever Rhys the Exiled attacks, you gain 1 life for each
+Elf you control. B, Sacrifice an Elf: Regenerate Rhys the Exiled.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Rivals' Duel
+Cost:	3R
+Type:	Sorcery
+Pow/Tgh:	/
+Rules Text:	Choose two target creatures that share no creature types.
+Each of those creatures deals damage equal to its power to the other.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Roar of the Crowd
+Cost:	3R
+Type:	Sorcery
+Pow/Tgh:	/
+Rules Text:	Choose a creature type. Roar of the Crowd deals damage to
+target creature or player equal to the number of permanents you control
+of the chosen type.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Rustic Clachan
+Cost:	
+Type:	Land
+Pow/Tgh:	/
+Rules Text:	As Rustic Clachan comes into play, you may reveal a Kithkin
+card from your hand. If you don't, Rustic Clachan comes into play
+tapped. T Add W to your mana pool. Reinforce 1-1W (1W, Discard this
+card: Put a +1/+1 counter on target creature.)
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Sage of Fables
+Cost:	2U
+Type:	Creature - Merfolk Wizard
+Pow/Tgh:	2/2
+Rules Text:	Each other Wizard creature you control comes into play with
+an additional +1/+1 counter on it. 2, Remove a +1/+1 counter from a
+creature you control: Draw a card.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Sage's Dousing
+Cost:	2U
+Type:	Tribal Instant - Wizard
+Pow/Tgh:	/
+Rules Text:	Counter target spell unless its controller pays 3. If you
+control a Wizard, draw a card.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Scapeshift
+Cost:	2GG
+Type:	Sorcery
+Pow/Tgh:	/
+Rules Text:	Sacrifice any number of lands. Search your library for that
+many land cards, put them into play tapped, then shuffle your library.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Scarblade Elite
+Cost:	BB
+Type:	Creature - Elf Assassin
+Pow/Tgh:	2/2
+Rules Text:	T, Remove an Assassin card in your graveyard from the game:
+Destroy target creature.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Seething Pathblazer
+Cost:	2R
+Type:	Creature - Elemental Warrior
+Pow/Tgh:	2/2
+Rules Text:	Sacrifice an Elemental: Seething Pathblazer gets +2/+0 and
+gains first strike until end of turn.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Sensation Gorger
+Cost:	1RR
+Type:	Creature - Goblin Shaman
+Pow/Tgh:	2/2
+Rules Text:	Kinship - At the beginning of your upkeep, you may look at
+the top card of your library. If it shares a creature type with
+Sensation Gorger, you may reveal it. If you do, each player discards his
+or her hand and draws four cards.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Shard Volley
+Cost:	R
+Type:	Instant
+Pow/Tgh:	/
+Rules Text:	As an additional cost to play Shard Volley, sacrifice a
+land. Shard Volley deals 3 damage to target creature or player.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Shared Animosity
+Cost:	2R
+Type:	Enchantment
+Pow/Tgh:	/
+Rules Text:	Whenever a creature you control attacks, it gets +1/+0 until
+end of turn for each other attacking creature that shares a creature
+type with it.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Shinewend
+Cost:	1W
+Type:	Creature - Elemental
+Pow/Tgh:	0/0
+Rules Text:	Flying Shinewend comes into play with a +1/+1 counter on it.
+1W, Remove a +1/+1 counter from Shinewend: Destroy target enchantment.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Sigil Tracer
+Cost:	1UU
+Type:	Creature - Merfolk Wizard
+Pow/Tgh:	2/2
+Rules Text:	1U, Tap two untapped Wizards you control: Copy target
+instant or sorcery spell. You may choose new targets for the copy.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Slithermuse
+Cost:	2UU
+Type:	Creature - Elemental
+Pow/Tgh:	3/3
+Rules Text:	When Slithermuse leaves play, choose an opponent. If that
+player has more cards in hand than you, draw cards equal to the
+difference. Evoke 3U (You may play this spell for its evoke cost. If you
+do, it's sacrificed when it comes into play.)
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Spitebellows
+Cost:	5R
+Type:	Creature - Elemental
+Pow/Tgh:	6/1
+Rules Text:	When Spitebellows leaves play, it deals 6 damage to target
+creature. Evoke 1RR (You may play this spell for its evoke cost. If you
+do, it's sacrificed when it comes into play.)
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Squeaking Pie Grubfellows
+Cost:	3B
+Type:	Creature - Goblin Shaman
+Pow/Tgh:	3/2
+Rules Text:	Kinship - At the beginning of your upkeep, you may look at
+the top card of your library. If it shares a creature type with
+Squeaking Pie Grubfellows, you may reveal it. If you do, each opponent
+discards a card.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Stenchskipper
+Cost:	3B
+Type:	Creature - Elemental
+Pow/Tgh:	6/5
+Rules Text:	Flying At end of turn, if you control no Goblins, sacrifice
+Stenchskipper.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Stingmoggie
+Cost:	3R
+Type:	Creature - Elemental
+Pow/Tgh:	0/0
+Rules Text:	Stingmoggie comes into play with two +1/+1 counters on it.
+3R, Remove a +1/+1 counter from Stingmoggie: Destroy target artifact or
+land.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Stinkdrinker Bandit
+Cost:	3B
+Type:	Creature - Goblin Rogue
+Pow/Tgh:	2/1
+Rules Text:	Prowl 1B (You may play this for its prowl cost if you dealt
+combat damage to a player this turn with a Goblin or Rogue.) Whenever a
+Rogue you control attacks and isn't blocked, it gets +2/+1 until end of
+turn.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Stomping Slabs
+Cost:	2R
+Type:	Sorcery
+Pow/Tgh:	/
+Rules Text:	Reveal the top seven cards of your library, then put those
+cards on the bottom of your library in any order. If a card named
+Stomping Slabs was revealed this way, Stomping Slabs deals 7 damage to
+target creature or player.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Stonehewer Giant
+Cost:	3WW
+Type:	Creature - Giant Warrior
+Pow/Tgh:	4/4
+Rules Text:	Vigilance 1W, T Search your library for an Equipment card
+and put it into play. Attach it to a creature you control. Then shuffle
+your library.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Stonybrook Banneret
+Cost:	1U
+Type:	Creature - Merfolk Wizard
+Pow/Tgh:	1/1
+Rules Text:	Islandwalk Merfolk spells and Wizard spells you play cost 1
+less to play.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Stonybrook Schoolmaster
+Cost:	2W
+Type:	Creature - Merfolk Wizard
+Pow/Tgh:	1/2
+Rules Text:	Whenever Stonybrook Schoolmaster becomes tapped, you may put
+a 1/1 blue Merfolk Wizard creature token into play.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Stream of Unconsciousness
+Cost:	U
+Type:	Tribal Instant - Wizard
+Pow/Tgh:	/
+Rules Text:	Target creature gets -4/-0 until end of turn. If you control
+a Wizard, draw a card.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Sunflare Shaman
+Cost:	1R
+Type:	Creature - Elemental Shaman
+Pow/Tgh:	2/1
+Rules Text:	1R, T Sunflare Shaman deals X damage to target creature or
+player and X damage to itself, where X is the number of Elemental cards
+in your graveyard.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Supreme Exemplar
+Cost:	6U
+Type:	Creature - Elemental
+Pow/Tgh:	10/10
+Rules Text:	Flying Champion an Elemental (When this comes into play,
+sacrifice it unless you remove another Elemental you control from the
+game. When this leaves play, that card returns to play.)
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Swell of Courage
+Cost:	3WW
+Type:	Instant
+Pow/Tgh:	/
+Rules Text:	Creatures you control get +2/+2 until end of turn. Reinforce
+X-XWW (XWW, Discard this card: Put X +1/+1 counters on target creature.)
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Taurean Mauler
+Cost:	2R
+Type:	Creature - Shapeshifter
+Pow/Tgh:	2/2
+Rules Text:	Changeling (This card is every creature type at all times.)
+Whenever an opponent plays a spell, you may put a +1/+1 counter on
+Taurean Mauler.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Thieves' Fortune
+Cost:	2U
+Type:	Tribal Instant - Rogue
+Pow/Tgh:	/
+Rules Text:	Prowl U (You may play this for its prowl cost if you dealt
+combat damage to a player this turn with a Rogue.) Look at the top four
+cards of your library. Put one of them into your hand and the rest on
+the bottom of your library in any order.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Thornbite Staff
+Cost:	2
+Type:	Tribal Artifact - Shaman Equipment
+Pow/Tgh:	/
+Rules Text:	Equipped creature has "2, T This creature deals 1 damage to
+target creature or player" and "Whenever a creature is put into a
+graveyard from play, untap this creature." Whenever a Shaman creature
+comes into play, you may attach Thornbite Staff to it. Equip 4
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Titan's Revenge
+Cost:	XRR
+Type:	Sorcery
+Pow/Tgh:	/
+Rules Text:	Titan's Revenge deals X damage to target creature or player.
+Clash with an opponent. If you win, return Titan's Revenge to its
+owner's hand. (Each clashing player reveals the top card of his or her
+library, then puts that card on the top or bottom. A player wins if his
+or her card had a higher converted mana cost.)
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Unstoppable Ash
+Cost:	3G
+Type:	Creature - Treefolk Warrior
+Pow/Tgh:	5/5
+Rules Text:	Trample Champion a Treefolk or Warrior (When this comes into
+play, sacrifice it unless you remove another Treefolk or Warrior you
+control from the game. When this leaves play, that card returns to
+play.) Whenever a creature you control becomes blocked, it gets +0/+5
+until end of turn.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Vendilion Clique
+Cost:	1UU
+Type:	Legendary Creature - Faerie Wizard
+Pow/Tgh:	3/1
+Rules Text:	Flash Flying When Vendilion Clique comes into play, look at
+target player's hand. You may choose a nonland card from it. If you do,
+that player reveals the chosen card, puts it on the bottom of his or her
+library, then draws a card.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Vengeful Firebrand
+Cost:	3R
+Type:	Creature - Elemental Warrior
+Pow/Tgh:	5/2
+Rules Text:	Vengeful Firebrand has haste as long as a Warrior card is in
+your graveyard. R: Vengeful Firebrand gets +1/+0 until end of turn.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Veteran's Armaments
+Cost:	2
+Type:	Tribal Artifact - Soldier Equipment
+Pow/Tgh:	/
+Rules Text:	Equipped creature has "Whenever this creature attacks or
+blocks, it gets +1/+1 until end of turn for each attacking creature."
+Whenever a Soldier creature comes into play, you may attach Veteran's
+Armaments to it. Equip 2
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Violet Pall
+Cost:	4B
+Type:	Tribal Instant - Faerie
+Pow/Tgh:	/
+Rules Text:	Destroy target nonblack creature. Put a 1/1 black Faerie
+Rogue creature token with flying into play.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Walker of the Grove
+Cost:	6GG
+Type:	Creature - Elemental
+Pow/Tgh:	7/7
+Rules Text:	When Walker of the Grove leaves play, put a 4/4 green
+Elemental creature token into play. Evoke 4G (You may play this spell
+for its evoke cost. If you do, it's sacrificed when it comes into play.)
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Wandering Graybeard
+Cost:	3WW
+Type:	Creature - Giant Wizard
+Pow/Tgh:	4/4
+Rules Text:	Kinship - At the beginning of your upkeep, you may look at
+the top card of your library. If it shares a creature type with
+Wandering Graybeard, you may reveal it. If you do, you gain 4 life.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Warren Weirding
+Cost:	1B
+Type:	Tribal Sorcery - Goblin
+Pow/Tgh:	/
+Rules Text:	Target player sacrifices a creature. If a Goblin is
+sacrificed this way, that player puts two 1/1 black Goblin Rogue
+creature tokens into play, and those tokens gain haste until end of turn.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	War-Spike Changeling
+Cost:	3R
+Type:	Creature - Shapeshifter
+Pow/Tgh:	3/3
+Rules Text:	Changeling (This card is every creature type at all times.)
+R: War-Spike Changeling gains first strike until end of turn.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Waterspout Weavers
+Cost:	3UU
+Type:	Creature - Merfolk Wizard
+Pow/Tgh:	3/3
+Rules Text:	Kinship - At the beginning of your upkeep, you may look at
+the top card of your library. If it shares a creature type with
+Waterspout Weavers, you may reveal it. If you do, each creature you
+control gains flying until end of turn.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+CardName:	Weed-Pruner Poplar
+Cost:	4B
+Type:	Creature - Treefolk Assassin
+Pow/Tgh:	3/3
+Rules Text:	At the beginning of your upkeep, target creature other than
+Weed-Pruner Poplar gets -1/-1 until end of turn.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Weight of Conscience
+Cost:	1W
+Type:	Enchantment - Aura
+Pow/Tgh:	/
+Rules Text:	Enchant creature Enchanted creature can't attack. Tap two
+untapped creatures you control that share a creature type: Remove
+enchanted creature from the game.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Weirding Shaman
+Cost:	1B
+Type:	Creature - Goblin Shaman
+Pow/Tgh:	2/1
+Rules Text:	3B, Sacrifice a Goblin: Put two 1/1 black Goblin Rogue
+creature tokens into play.
+Set/Rarity:	Morningtide Rare
+ 	 
+CardName:	Winnower Patrol
+Cost:	2G
+Type:	Creature - Elf Warrior
+Pow/Tgh:	3/2
+Rules Text:	Kinship - At the beginning of your upkeep, you may look at
+the top card of your library. If it shares a creature type with Winnower
+Patrol, you may reveal it. If you do, put a +1/+1 counter on Winnower
+Patrol.
+Set/Rarity:	Morningtide Common
+ 	 
+CardName:	Wolf-Skull Shaman
+Cost:	1G
+Type:	Creature - Elf Shaman
+Pow/Tgh:	2/2
+Rules Text:	Kinship - At the beginning of your upkeep, you may look at
+the top card of your library. If it shares a creature type with
+Wolf-Skull Shaman, you may reveal it. If you do, put a 2/2 green Wolf
+creature token into play.
+Set/Rarity:	Morningtide Uncommon
+ 	 
+
+	 
+
+
+© 1995-2008 Wizards of the Coast, Inc., a subsidiary of Hasbro, Inc. All
+Rights Reserved. </Company/Default.aspx?doc=CopyrightNotice>
+Privacy Statement </Company/Default.aspx?doc=Privacy> - Terms of Use
+</Company/Default.aspx?doc=CopyrightNotice>
+
