@@ -9,6 +9,8 @@ class Deck {
   public $sideboard_cards = array(); // Has many sideboard_cards through deckcontents (issideboard = 1)
   public $maindeck_cards = array(); // Has many maindeck_cards through deckcontente (issideboard = 0)
 
+  public $cardcount = 0;
+
   public $playername; // Belongs to player through entries
   public $eventname; // Belongs to event thorugh entries
 
@@ -42,9 +44,11 @@ class Deck {
     $stmt->execute(); 
     $stmt->bind_result($cardname, $cardqty, $isside);
 
+    $this->cardcount = 0;
     while ($stmt->fetch()) { 
       if ($isside == 0) {
         $this->maindeck_cards[$cardname] = $cardqty;
+        $this->cardcount += $cardqty;
       } else { 
         $this->sideboard_cards[$cardname] = $cardqty;
       }

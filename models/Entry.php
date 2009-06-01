@@ -6,6 +6,24 @@ class Entry {
   public $deck; 
   public $medal;
 
+  static function findByEventAndPlayer($eventname, $playername) { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT deck, medal FROM entries WHERE event = ? AND player = ?"); 
+    $stmt->bind_param("ss", $eventname, $playername); 
+    $stmt->store_result();
+    $found = false;
+    if ($stmt->num_rows > 0) { 
+      $found = true;
+    } 
+    $stmt->close(); 
+
+    if ($found) { 
+      return new Entry($eventname, $playername); 
+    } else { 
+      return NULL; 
+    } 
+  } 
+
   function __construct($eventname, $playername) { 
     $db = Database::getConnection(); 
     $stmt = $db->prepare("SELECT deck, medal FROM entries WHERE event = ? AND player = ?"); 

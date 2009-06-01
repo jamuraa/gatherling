@@ -30,72 +30,46 @@ else {linkToLogin();}
 
 <?php 
 function content() {
-	if(isset($_GET['name'])) {
-		eventForm($_GET['name']);
-	}
-	elseif(strcmp($_POST['mode'], "Parse DCI Files") == 0) {
-		if(authCheck($_POST['name'])) {
-			dciInput();
-            eventForm($_POST['name']);
-        }
-        else {authFailed();}
-	}
-	elseif(strcmp($_POST['mode'], "Auto-Input Event Data") == 0) {
-		if(authCheck($_POST['name'])) {
-			autoInput();
-			eventForm($_POST['name']);
-		}
-		else {authFailed();}
-	}
-	elseif(strcmp($_POST['mode'], "Update Registration") == 0) {
-		if(authCheck($_POST['name'])) {
-			updateReg();
-			eventForm($_POST['name']);
-		}
-		else {authFailed();}
-	}	
-	elseif(strcmp($_POST['mode'], "Update Match Listing") == 0) {
-		if(authCheck($_POST['name'])) {
-			updateMatches();
-			eventForm($_POST['name']);
-		}
-		else {authFailed();}
-	}
-	elseif(strcmp($_POST['mode'], "Update Medals") == 0) {
-		if(authCheck($_POST['name'])) {
-			updateMedals();
-			eventForm($_POST['name']);
-		}
-		else {authFailed();}
-	}
-	elseif(strcmp($_POST['mode'], "Upload Trophy") == 0) {
-		if(authCheck($_POST['name'])) {
-			insertTrophy();
-			eventForm($_POST['name']);
-		}
-		else {authFailed();}
-	}
-	elseif(strcmp($_POST['mode'], "Update Event Info") == 0) {
-		if(authCheck($_POST['name'])) {
-			updateEvent();
-			eventForm($_POST['name']);
-		}
-		else {authFailed();}
-	}
-	elseif(strcmp($_POST['mode'], "Create New Event") == 0) {
-		if(hostCheck()) {
+  $event = NULL;
+  if(isset($_GET['name'])) {
+    $event = new Event($_GET['name']);
+		eventForm($event);
+	} elseif (strcmp($_POST['mode'], "Create New Event") == 0) {
+		if(Player::getSessionPlayer()->hostCheck()) {
 			if(isset($_POST['insert'])) {
 				insertEvent();
 				eventList();
-			}
-			else {eventForm();}	
-		}
-		else {authFailed();}
-	}
-	elseif(strcmp($_GET['mode'], "create") == 0) {
+      } else {
+        eventForm();
+      }	
+    } else {
+      authFailed();
+    }
+	} elseif(strcmp($_GET['mode'], "create") == 0) {
 		eventForm();
-	}
-	else {
+  } elseif (isset($_POST['name'])) { 
+    $event = new Event($_POST['name']); 
+    if (!$event->authCheck($_SESSION['username'])) { 
+      authFailed(); 
+    } else { 
+      if (strcmp($_POST['mode'], "Parse DCI Files") == 0) {
+        dciInput();
+      } elseif (strcmp($_POST['mode'], "Auto-Input Event Data") == 0) {
+        autoInput();
+      } elseif(strcmp($_POST['mode'], "Update Registration") == 0) { 
+        updateReg(); 
+      } elseif(strcmp($_POST['mode'], "Update Match Listing") == 0) {
+        updateMatches(); 
+      } elseif(strcmp($_POST['mode'], "Update Medals") == 0) {
+        updateMedals(); 
+      } elseif(strcmp($_POST['mode'], "Upload Trophy") == 0) {
+        insertTrophy(); 
+      } elseif(strcmp($_POST['mode'], "Update Event Info") == 0) {
+        updateEvent(); 
+      } 
+      eventForm($event);
+    }
+	} else {
 		echo "<table style=\"border-width: 0px;\" align=\"center\">";
 		echo "<tr><td>";
 		echo "<form action=\"event.php\" method=\"post\">";
@@ -110,7 +84,7 @@ function content() {
 }
 
 function eventList($series = "", $season = "") {
-	$db = dbcon();
+	$db = Database::getConnection(); 
 	$query = "SELECT e.name AS name, e.format AS format,
 		COUNT(DISTINCT n.player) AS players, e.host AS host, e.start AS start,
 		e.finalized, e.cohost
@@ -118,17 +92,16 @@ function eventList($series = "", $season = "") {
 		LEFT OUTER JOIN entries AS n ON n.event = e.name 
 		WHERE 1=1";
 	if(isset($_POST['format']) && strcmp($_POST['format'], "") != 0) {
-		$query = $query . " AND e.format=\"{$_POST['format']}\" ";
+		$query = $query . " AND e.format=\"{$db->escape_string($_POST['format'])}\" ";
 	}
 	if(isset($_POST['series']) && strcmp($_POST['series'], "") != 0) {
-		$query = $query . " AND e.series=\"{$_POST['series']}\" ";
+		$query = $query . " AND e.series=\"{$db->escape_string($_POST['series'])}\" ";
 	}
 	if(isset($_POST['season']) && strcmp($_POST['season'], "") != 0) {
-		$query = $query . " AND e.season=\"{$_POST['season']}\" ";
+		$query = $query . " AND e.season=\"{$db->escape_string($_POST['season'])}\" ";
 	}
 	$query = $query . " GROUP BY e.name ORDER BY e.start DESC LIMIT 100";
-	$result = mysql_query($query, $db);
-	mysql_close($db);
+	$result = $db->query($query);
 
 	echo "<form action=\"event.php\" method=\"post\">";
 	echo "<table style=\"border-width: 0px\" align=\"center\">";
@@ -155,7 +128,7 @@ function eventList($series = "", $season = "") {
 	#echo "<td><b>Date</td>";
 	echo "<td align=\"center\"><b>Finalized</td></tr>";
 	
-	while($thisEvent = mysql_fetch_assoc($result)) {
+	while($thisEvent = $result->fetch_assoc()) {
 		$dateStr = $thisEvent['start'];
 		$dateArr = split(" ", $dateStr);
 		$date = $dateArr[0];
@@ -175,14 +148,14 @@ function eventList($series = "", $season = "") {
 		echo "</tr>";
 	}
 
-	if(mysql_num_rows($result) == 100) {
+	if($result->num_rows == 100) {
 		echo "<tr><td colspan=\"5\" width=\"500\">&nbsp;</td></tr>";
 		echo "<tr><td colspan=\"5\" align=\"center\">";
 		echo "<i>This list only shows the 100 most recent results. ";
 		echo "Please use the filters at the top of this page to find older ";
 		echo "results.</i></td></tr>";
 	}
-	mysql_free_result($result);
+	$result->close(); 
 	
 	echo "<tr><td colspan=\"5\" width=\"500\">&nbsp;</td></tr>";
 #	echo "<tr><td colspan=\"5\" align=\"center\">";
@@ -191,42 +164,24 @@ function eventList($series = "", $season = "") {
 	echo "</table></form>";
 }
 
-function eventForm($event = "") {
-	$edit = (strcmp($event, "") == 0) ? 0 : 1;
-	$vals = array("name" => $event);
-	if($edit) {
-		$db = dbcon();
-		$query = "SELECT * FROM events WHERE name=\"$event\"";
-		$result = mysql_query($query, $db) or die(mysql_error());
-		if(mysql_num_rows($result) == 0) {die(noEvent($event));}
-		$vals = mysql_fetch_assoc($result);
-		mysql_free_result($result);
-		$query = "SELECT rounds, type, id FROM subevents
-			WHERE parent=\"{$vals['name']}\" ORDER BY timing ASC";
-		$result = mysql_query($query, $db) or die(mysql_error());
-		$arr = mysql_fetch_assoc($result);
-		$mainrounds = $arr['rounds'];
-		$mainstruct = $arr['type'];
-		$mainid = $arr['id'];
-		$arr = mysql_fetch_assoc($result);
-		$finalrounds = $arr['rounds'];
-		$finalstruct = $arr['type'];
-		$finalid = $arr['id'];
-		mysql_close($db);
-	}
+function eventForm($event = NULL) {
+	$edit = ($event != NULL);
+  if (is_null($event)) {
+    $event = new Event("");
+  }
 	echo "<form action=\"event.php\" method=\"post\" ";
 	echo "enctype=\"multipart/form-data\">";
 	echo "<table style=\"border-width: 0px\" align=\"center\">";
-	if($edit) {
-		$date = $vals['start'];
+	if ($edit) {
+		$date = $event->start;
 		preg_match('/([0-9]+)-([0-9]+)-([0-9]+) ([0-9]+):.*/', $date, $datearr);
 		$year = $datearr[1];
 		$month = $datearr[2];
 		$day = $datearr[3];
 		$hour = $datearr[4];
 		echo "<tr><td><b>Currently Editing</td>";
-		echo "<td><i>{$vals['name']}</td>";
-		echo "<input type=\"hidden\" name=\"name\" value=\"{$vals['name']}\">";
+		echo "<td><i>{$event->name}</td>";
+		echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
 		echo "</tr><tr><td>&nbsp;</td></tr>";
 	}
 	else {
@@ -235,9 +190,10 @@ function eventForm($event = "") {
 		echo "Automatically name this event based on Series, Season, and Number.";
 		echo "<br><input type=\"radio\" name=\"naming\" value=\"custom\">";
 		echo "Use a custom name: ";
-		echo "<input type=\"text\" name=\"name\" value=\"{$vals['name']}\" ";
+		echo "<input type=\"text\" name=\"name\" value=\"{$event->name}\" ";
 		echo "size=\"40\">";
-		echo "</td></tr>";
+    echo "</td></tr>";
+    $year = strftime('Y', time());
 	}
 	echo "<tr><td><b>Date & Time</td><td>";
 	numDropMenu("year", "- Year -", 2010, $year, 2005);
@@ -246,43 +202,43 @@ function eventForm($event = "") {
 	hourDropMenu($hour);
 	echo "</td></tr>";
 	echo "<tr><td><b>Series</td><td>";
-	seriesDropMenu($vals['series']);
+	seriesDropMenu($event->series);
 	echo "</td></tr>";
 	echo "<tr><td><b>Season</td><td>";
-	seasonDropMenu($vals['season']);
+	seasonDropMenu($event->season);
 	echo "</td></tr>";
 	echo "<tr><td><b>Number</td><td>";
-	numDropMenu("number", "- Event Number -", 20, $vals['number'], 0, "Custom");
+	numDropMenu("number", "- Event Number -", 20, $event->number, 0, "Custom");
 	echo "</td><tr>";
 	echo "<tr><td><b>Format</td><td>";
-	formatDropMenu($vals['format']);
+	formatDropMenu($event->format);
 	echo "</td></tr>";
 	echo "<tr><td><b>K-Value:</td><td>";
-	kValueDropMenu($vals['kvalue']);
+	kValueDropMenu($event->kvalue);
 	echo "</td></tr>";
 	echo "<tr><td><b>Host/Cohost</td><td>";
-	stringField("host", $vals['host'], 20);
+	stringField("host", $event->host, 20);
 	echo "&nbsp;/&nbsp;";
-	stringField("cohost", $vals['cohost'], 20);
+	stringField("cohost", $event->cohost, 20);
 	echo "</td></tr>";
 	echo "<tr><td><b>Event Thread URL</td><td>";
-	stringField("threadurl", $vals['threadurl'], 60);
+	stringField("threadurl", $event->threadurl, 60);
 	echo "</td></tr>";
 	echo "<tr><td><b>Metagame URL</td><td>";
-	stringField("metaurl", $vals['metaurl'], 60);
+	stringField("metaurl", $event->metaurl, 60);
 	echo "</td></tr>";
 	echo "<tr><td><b>Report URL</td><td>";
-	stringField("reporturl", $vals['reporturl'], 60);
+	stringField("reporturl", $event->reporturl, 60);
 	echo "</td></tr>";
 	echo "<tr><td><b>Main Event Structure</td><td>";
-	numDropMenu("mainrounds", "- No. of Rounds -", 10, $mainrounds, 0);
+	numDropMenu("mainrounds", "- No. of Rounds -", 10, $event->mainrounds, 0);
 	echo " rounds of ";
-	structDropMenu("mainstruct", $mainstruct);
+	structDropMenu("mainstruct", $event->mainstruct);
 	echo "</td></tr>";
 	echo "<tr><td><b>Finals Structure</td><td>";
-	numDropMenu("finalrounds", "- No. of Rounds -", 10, $finalrounds, 0);
+	numDropMenu("finalrounds", "- No. of Rounds -", 10, $event->finalrounds, 0);
 	echo " rounds of ";
-	structDropMenu("finalstruct", $finalstruct);
+	structDropMenu("finalstruct", $event->finalstruct);
 	echo "</td></tr>";
 	if($edit == 0) {
 		echo "<tr><td>&nbsp;</td></tr>";
@@ -290,13 +246,12 @@ function eventForm($event = "") {
 		echo "<input type=\"submit\" name=\"mode\" value=\"Create New Event\">";
 		echo "<input type=\"hidden\" name=\"insert\" value=\"1\">";
 		echo "</td></tr>";
-	}
-	else {
+	} else {
 		echo "<tr><td><b>Finalize Event</td>";
 		echo "<td><input type=\"checkbox\" name=\"finalize\" value=\"1\" ";
-		if($vals['finalized'] == 1) {echo "checked";}
+		if($event->finalized == 1) {echo "checked";}
 		echo "></td></tr>";
-		trophyField($vals['name']);	
+		trophyField($event->name);	
 		echo "<tr><td>&nbsp;</td></tr>";
 		echo "<tr><td colspan=\"2\" align=\"center\">";
 		echo "<input type=\"submit\" name=\"mode\" value=\"Update Event Info\">";
@@ -306,70 +261,58 @@ function eventForm($event = "") {
 		$view = isset($_GET['view']) ? $_GET['view'] : $view;
 		$view = isset($_POST['view']) ? $_POST['view'] : $view;
 		echo "<tr><td colspan=\"2\">&nbsp;</td></tr>";
-		controlPanel($vals['name'], $view);
+		controlPanel($event, $view);
 		echo "<tr><td colspan=\"2\">&nbsp;</td></tr>";
-		if(strcmp($view, "reg") == 0) {
-			playerList($vals['name']);
-		}
-		elseif(strcmp($view, "match") == 0) {
-			matchList($vals['name']);
-		}
-		elseif(strcmp($view, "medal") == 0) {
-			medalList($vals['name']);
-		}
-		elseif(strcmp($view, "autoinput") == 0) {
-			autoInputForm($vals['name']);
-		}
-		elseif(strcmp($view, "fileinput") == 0) {
-			fileInputForm($vals['name']);
+		if (strcmp($view, "reg") == 0) {
+			playerList($event);
+		} elseif (strcmp($view, "match") == 0) {
+			matchList($event);
+		} elseif (strcmp($view, "medal") == 0) {
+			medalList($event);
+		} elseif (strcmp($view, "autoinput") == 0) {
+			autoInputForm($event);
+		} elseif (strcmp($view, "fileinput") == 0) {
+			fileInputForm($event);
 		}
 	}
 	echo "</table></form>";
 }
 
 function playerList($event) {
-	$db = dbcon();
-	$query = "SELECT e.deck, e.medal, e.player, d.name, SUM(dc.qty) AS cnt
-		FROM entries e
-		LEFT OUTER JOIN decks AS d ON d.id=e.deck
-		LEFT OUTER JOIN deckcontents AS dc ON dc.deck=d.id
-		WHERE event=\"$event\" 
-		GROUP BY e.player
-		ORDER BY medal, player";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	
+  $entries = $event->getEntries();
+
 	echo "<tr><td colspan=\"2\" align=\"center\">";
 	echo "<table align=\"center\" style=\"border-width: 0px;\">";
 	echo "<tr><td colspan=\"4\" align=\"center\">";
 	echo "<b>Registered Players</td></tr>";
 	echo "<tr><td>&nbsp;</td><tr>";
 	echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
-	if(mysql_num_rows($result) > 0) {
+	if(count($entries) > 0) {
 		echo "<tr><td><b>Player</td><td align=\"center\"><b>Medal</td>";
 		echo "<td><b>Deck</td><td align=\"center\"><b>Delete</td></tr>";
-	}
-	else {
+	} else {
 		echo "<tr><td align=\"center\" colspan=\"4\"><i>";
 		echo "No players are currently registered for this event.</td></tr>";
-	}
-	while($thisPlayer = mysql_fetch_assoc($result)) {
-		echo "<tr><td>{$thisPlayer['player']}</td>";
-		if(strcmp("", $thisPlayer['medal']) != 0) {
-			$img = "<img src=\"/images/{$thisPlayer['medal']}.gif\">";
+  }
+  foreach ($entries as $entry) { 
+		echo "<tr><td>{$entry->player->name}</td>";
+		if(strcmp("", $entry->medal) != 0) {
+			$img = "<img src=\"/images/{$entry->medal}.gif\">";
 		}
 		echo "<td align=\"center\">$img</td>";
-		$decklink = "<a style=\"color: #D28950\" href=\"deck.php?player={$thisPlayer['player']}&event=$event&mode=create\">Create Deck</a>";
-		if($thisPlayer['deck'] > 0) {
-			if($thisPlayer['name'] == "") {$thisPlayer['name'] = "* NO NAME *";}
-			$decklink = "<a href=\"deck.php?id={$thisPlayer['deck']}&mode=view\">{$thisPlayer['name']}</a>";
+		$decklink = "<a style=\"color: #D28950\" href=\"deck.php?player={$entry->player->name}&event={$event->name}&mode=create\">Create Deck</a>";
+    if($entry->deck) {
+      $deckname = $entry->deck->name;
+			if ($deckname == "") {$deckname = "* NO NAME *";}
+			$decklink = "<a href=\"deck.php?id={$entry->deck->id}&mode=view\">{$deckname}</a>";
 		}
 		$rstar = "<font color=\"#FF0000\">*</font>";
-		if($thisPlayer['cnt'] < 60) {$decklink .= $rstar;}
-		if($thisPlayer['cnt'] < 6) {$decklink .= $rstar;}
+		if($entry->deck->cardcount < 60) {$decklink .= $rstar;}
+		if($entry->deck->cardcount < 6) {$decklink .= $rstar;}
 		echo "<td>$decklink</td>";
 		echo "<td align=\"center\">";
 		echo "<input type=\"checkbox\" name=\"delentries[]\" ";
-		echo "value=\"{$thisPlayer['player']}\"></td></tr>";
+		echo "value=\"{$entry->player->name}\"></td></tr>";
 	}
 	echo "<tr><td>&nbsp;</td></tr>";
 	echo "<tr><td colspan=\"4\" align=\"center\">";
@@ -385,20 +328,10 @@ function playerList($event) {
 	echo "</td></tr>";
 	echo "</table>";
 	echo "</td></tr>";
-	mysql_free_result($result);
-	mysql_close($db);
 }
 
 function matchList($event) {
-	$db = dbcon();
-	$query = "SELECT m.round, m.playera, m.playerb, m.result, s.timing, 
-		s.rounds, m.id
-		FROM matches m
-		LEFT OUTER JOIN subevents AS s ON s.id=m.subevent
-		WHERE s.parent=\"$event\"
-		ORDER BY s.timing, m.round";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	mysql_close($db);
+  $matches = $event->getMatches();
 
 	echo "<tr><td align=\"center\" colspan=\"2\">";
 	echo "<table align=\"center\" style=\"border-width: 0px;\">";
@@ -408,7 +341,7 @@ function matchList($event) {
 	echo "<i>* denotes a playoff/finals match.</td></tr>";
 	echo "<input type=\"hidden\" name=\"view\" value=\"match\">";
 	echo "<tr><td>&nbsp;</td></tr>";
-	if(mysql_num_rows($result) > 0) {
+	if(count($matches) > 0) {
 		echo "<tr><td align=\"center\"><b>Round</td><td><b>Player A</td>";
 		echo "<td><b>Player B</td>";
 		echo "<td><b>Winner</td><td align=\"center\"><b>Delete</td></tr>";
@@ -419,29 +352,26 @@ function matchList($event) {
 	}
 	$first = 1;
 	$rndadd = 0;
-	while($thisMatch = mysql_fetch_assoc($result)) {
-		if($first && $thisMatch['timing'] == 1) {
-			$rndadd = $thisMatch['rounds'];
+  foreach ($matches as $match) { 
+		if( $first && $match->timing == 1) {
+			$rndadd = $match->rounds;
 		}
 		$first = 0;
-		$printrnd = ($thisMatch['timing'] == 2) ? 
-			$thisMatch['round'] + $rndadd : $thisMatch['round'];
-		$printplr = "Draw";
-		if(strcmp($thisMatch['result'], "A") == 0) {
-			$printplr = $thisMatch['playera'];
-		}
-		if(strcmp($thisMatch['result'], "B") == 0) {
-			$printplr = $thisMatch['playerb'];
-		}
-		$star = ($printrnd > $rndadd) ? "*" : "";
+		$printrnd = ($match->timing == 2) ? 
+			$match->round + $rndadd : $match->round;
+    $printplr = $match->getWinner();
+    if (is_null($printplr)) { 
+      $printplr = "* Draw *"; 
+    } 
+    
+    $star = ($match->timing > 1) ? "*" : "";
 		echo "<tr><td align=\"center\">$printrnd$star</td>";
-		echo "<td>{$thisMatch['playera']}</td>";
-		echo "<td>{$thisMatch['playerb']}</td><td>$printplr</td>";
+		echo "<td>{$match->playera}</td>";
+		echo "<td>{$match->playerb}</td><td>$printplr</td>";
 		echo "<td align=\"center\">";
 		echo "<input type=\"checkbox\" name=\"matchdelete[]\" ";		
-		echo "value=\"{$thisMatch['id']}\"></td></tr>";
+		echo "value=\"{$match->id}\"></td></tr>";
 	}
-	mysql_free_result($result);
 	echo "<tr><td>&nbsp;</td></tr>";
 	echo "<tr><td align=\"center\" colspan=\"5\">";
 	echo "<b>Add a Match</b></td></tr>";
@@ -465,44 +395,21 @@ function medalList($event) {
 	$def4 = array("", "");
 	$def8 = array("", "", "", "");
 
-	$db = dbcon();
-	$query = "SELECT player FROM entries WHERE event=\"$event\"
-		AND medal=\"1st\" LIMIT 1";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	if(mysql_num_rows($result) > 0) {
-		$tp = mysql_fetch_assoc($result);
-		$def1 = $tp['player'];
-	}
-	mysql_free_result($result);
-	$query = "SELECT player FROM entries WHERE event=\"$event\"
-		AND medal=\"2nd\" LIMIT 1";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	if(mysql_num_rows($result) > 0) {
-		$tp = mysql_fetch_assoc($result);
-		$def2 = $tp['player'];
-	}
-	mysql_free_result($result);
-	$query = "SELECT player FROM entries WHERE event=\"$event\"
-		AND medal=\"t4\" LIMIT 2";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	for($i = 0; $i < 2; $i++) {
-		if(mysql_num_rows($result) > $i) {
-			$tp = mysql_fetch_assoc($result);
-			$def4[$i] = $tp['player'];	
-		}
-	}
-	mysql_free_result($result);
-	$query = "SELECT player FROM entries WHERE event=\"$event\"
-		AND medal=\"t8\" LIMIT 4";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	for($i = 0; $i < 4; $i++) {
-		if(mysql_num_rows($result) > $i) {
-			$tp = mysql_fetch_assoc($result);
-			$def8[$i] = $tp['player'];	
-		}
-	}
-	mysql_free_result($result);
-	mysql_close($db);
+  $finalists = $event->getFinalists(); 
+
+  $t4used = 0; 
+  $t8used = 0;
+  foreach ($finalists as $finalist) { 
+    if ($finalist['medal'] == '1st') { 
+      $def1 = $finalist['player']; 
+    } elseif ($finalist['medal'] == '2nd') { 
+      $def2 = $finalist['player'];
+    } elseif ($finalist['medal'] == 't4') { 
+      $def4[$t4used++] = $finalist['player']; 
+    } elseif ($finalist['medal'] == 't8') { 
+      $def8[$t8used++] = $finalist['player']; 
+    } 
+  } 
 
 	echo "<tr><td colspan=\"2\">";
 	echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
@@ -604,90 +511,79 @@ function noEvent($event) {
 }
 
 function insertEvent() {
-	$date = "{$_POST['year']}-{$_POST['month']}-{$_POST['day']} {$_POST['hour']}:00:00";
-	if(strcmp($_POST['naming'], "auto") == 0) {
-		$name = sprintf("%s %d.%02d",$_POST['series'], $_POST['season'], 
+  $event = new Event("");
+  $event->start = "{$_POST['year']}-{$_POST['month']}-{$_POST['day']} {$_POST['hour']}:00:00";
+	if (strcmp($_POST['naming'], "auto") == 0) {
+		$event->name = sprintf("%s %d.%02d",$_POST['series'], $_POST['season'], 
 			$_POST['number']);
-	}
-	else $name = $_POST['name'];
-	$db = dbcon();
-	$query = "INSERT INTO events VALUES(\"$date\", \"{$_POST['format']}\", 
-		\"{$_POST['host']}\", {$_POST['kvalue']}, \"{$_POST['metaurl']}\",
-		\"$name\", {$_POST['number']}, \"{$_POST['season']}\",
-		\"{$_POST['series']}\", \"{$_POST['threadurl']}\", 
-		\"{$_POST['reporturl']}\", 0, \"{$_POST['cohost']}\")";
-	mysql_query($query, $db) or die(mysql_error());
-	if($_POST['mainrounds'] == "") {$_POST['mainrounds'] = 3;}
+  } else {
+    $event->name = $_POST['name'];
+  }
+  $event->format = $_POST['format']; 
+  $event->host = $_POST['host'];
+  $event->cohost = $_POST['cohost']; 
+  $event->kvalue = $_POST['kvalue']; 
+  $event->series = $_POST['series']; 
+  $event->season = $_POST['season']; 
+  $event->number = $_POST['number']; 
+  $event->threadurl = $_POST['threadurl']; 
+  $event->metaurl = $_POST['metaurl']; 
+  $event->reporturl = $_POST['reporturl']; 
+  
+  if($_POST['mainrounds'] == "") {$_POST['mainrounds'] = 3;}
 	if($_POST['mainstruct'] == "") {$_POST['mainstruct'] = "Swiss";}
-	$query = "INSERT INTO subevents(parent, rounds, timing, type)
-		 VALUES(\"$name\",
-		{$_POST['mainrounds']}, 1, \"{$_POST['mainstruct']}\")";
-	mysql_query($query, $db) or die(mysql_error());
+  $event->mainrounds = $_POST['mainrounds'];
+  $event->mainstruct = $_POST['mainstruct'];
 	if($_POST['finalrounds'] == "") {$_POST['finalrounds'] = 3;}
-	if($_POST['finalstruct'] == "") {$_POST['finalstruct'] = "Single Elimination";}
-	$query = "INSERT INTO subevents(parent, rounds, timing, type)
-		 VALUES(\"$name\",
-		{$_POST['finalrounds']}, 2, \"{$_POST['finalstruct']}\")";
-	mysql_query($query, $db) or die(mysql_error());
+  if($_POST['finalstruct'] == "") {$_POST['finalstruct'] = "Single Elimination";}
+  $event->finalrounds = $_POST['finalrounds'];
+  $event->finalstruct = $_POST['finalstruct'];
+
+  $event->save(); 
+
 	if(strcmp($_POST['host'], $_SESSION['username']) != 0) {
-		$query = "INSERT INTO stewards(event, player) VALUES(
-			\"$name\", \"{$_SESSION['username']}\")";
-		mysql_query($query, $db) or die(mysql_error());
+    $event->addSteward($_SESSION['username']);
 	}
-	mysql_close($db);
 }
 
 function updateEvent() {
-    $date = "{$_POST['year']}-{$_POST['month']}-{$_POST['day']} {$_POST['hour']}:00:00";
-	if($_POST['finalize'] != 1) {$_POST['finalize'] = 0;}
-    $name = $_POST['name'];
-    $db = dbcon();
+  $event = new Event($_POST['name']); 
+  $event->start = "{$_POST['year']}-{$_POST['month']}-{$_POST['day']} {$_POST['hour']}:00:00";
+  $event->finalize = $_POST['finalize'] == 1 ? 1 : 0;
+   
+  $event->format = $_POST['format']; 
+  $event->host = $_POST['host'];
+  $event->cohost = $_POST['cohost']; 
+  $event->kvalue = $_POST['kvalue']; 
+  $event->series = $_POST['series']; 
+  $event->season = $_POST['season']; 
+  $event->number = $_POST['number']; 
+  $event->threadurl = $_POST['threadurl']; 
+  $event->metaurl = $_POST['metaurl']; 
+  $event->reporturl = $_POST['reporturl']; 
+  
+  if($_POST['mainrounds'] == "") {$_POST['mainrounds'] = 3;}
+	if($_POST['mainstruct'] == "") {$_POST['mainstruct'] = "Swiss";}
+  $event->mainrounds = $_POST['mainrounds'];
+  $event->mainstruct = $_POST['mainstruct'];
+	if($_POST['finalrounds'] == "") {$_POST['finalrounds'] = 3;}
+  if($_POST['finalstruct'] == "") {$_POST['finalstruct'] = "Single Elimination";}
+  $event->finalrounds = $_POST['finalrounds'];
+  $event->finalstruct = $_POST['finalstruct'];
 
-	$query = "UPDATE events SET
-		start=\"$date\",
-		format=\"{$_POST['format']}\",
-		host=\"{$_POST['host']}\",
-		kvalue={$_POST['kvalue']},
-		metaurl=\"{$_POST['metaurl']}\",
-		number={$_POST['number']},
-		season={$_POST['season']},
-		series=\"{$_POST['series']}\",
-		threadurl=\"{$_POST['threadurl']}\",
-		reporturl=\"{$_POST['reporturl']}\",
-		finalized={$_POST['finalize']},
-		cohost=\"{$_POST['cohost']}\"
-		WHERE name=\"$name\"";
-    mysql_query($query, $db) or die(mysql_error());
-
-	$query = "UPDATE subevents SET
-		rounds={$_POST['mainrounds']},
-		type=\"{$_POST['mainstruct']}\"
-		WHERE timing=1 AND parent=\"$name\"";
-    mysql_query($query, $db) or die(mysql_error());
-	$query = "UPDATE subevents SET
-		rounds={$_POST['finalrounds']},
-		type=\"{$_POST['finalstruct']}\"
-		WHERE timing=2 AND parent=\"$name\"";
-    mysql_query($query, $db) or die(mysql_error());
+  $event->save(); 
 }
 
 function trophyField($event) {
-	$db = dbcon();
-	$query = "SELECT COUNT(*) AS cnt FROM trophies WHERE event=\"$event\"";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	$arr = mysql_fetch_assoc($result);
-	mysql_free_result($result);
-	if($arr['cnt'] > 0) {
+	if($event->hastrophy) {
 		echo "<tr><td>&nbsp;</td></tr>";
 		echo "<tr><td colspan=\"2\" align=\"center\">";
 		echo "<img src=\"displayTrophy.php?event=$event\"></td></tr>";
 	}
-	else {
-		echo "<tr><td valign=\"top\"><b>Trophy Image</td><td>";
-		echo "<input type=\"file\" id=\"trophy\" name=\"trophy\">&nbsp";
-		echo "<input type=\"submit\" name=\"mode\" value=\"Upload Trophy\">";
-		echo "</tr>";
-	}
+  echo "<tr><td valign=\"top\"><b>Trophy Image</td><td>";
+  echo "<input type=\"file\" id=\"trophy\" name=\"trophy\">&nbsp";
+  echo "<input type=\"submit\" name=\"mode\" value=\"Upload Trophy\">";
+  echo "</tr>";
 }
 
 function insertTrophy() {
@@ -696,20 +592,21 @@ function insertTrophy() {
 		$event = $_POST['name'];
 		
 		$name = $file['name'];
-    	$tmp = $file['tmp_name'];
-    	$size = $file['size'];
-    	$type = $file['type'];
+    $tmp = $file['tmp_name'];
+    $size = $file['size'];
+    $type = $file['type'];
 
 		$f = fopen($tmp, 'r');
-    	$content = fread($f, filesize($tmp));
-    	$content = addslashes($content);
-    	fclose($f);
+    $content = fread($f, filesize($tmp));
+    $content = addslashes($content);
+    fclose($f);
 
-    	$query = "INSERT INTO trophies(event, size, type, image) VALUES(
-        	'$event', $size, '$type', '$content')";
-    	$db = dbcon();
-    	mysql_query($query, $db) or die(mysql_error());
-    	mysql_close($db);
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("INSERT INTO trophies(event, size, type, image) 
+      VALUES(?, ?, ?, ?)");
+    $stmt->bind_param("sdsb", $name, $size, $type, $content); 
+    $stmt->execute() or die($stmt->error); 
+    $stmt->close(); 
 	}
 }
 
@@ -725,45 +622,26 @@ function medalDropMenu() {
 }
 
 function playerDropMenu($event, $letter, $def="\n") {
-	$db = dbcon();
-	$query = "SELECT player FROM entries WHERE event=\"$event\"
-		ORDER BY player";
-	$result = mysql_query($query, $db) or die(mysql_error());
-
+  $playernames = $event->getPlayers();
 	echo "<select name=\"newmatchplayer$letter\">";
 	if(strcmp("\n", $def) == 0) {
 		echo "<option value=\"\">- Player $letter -</option>";
-	}
-	else {
+	} else {
 		echo "<option value=\"\">- None -</option>";
-	}
-	while($thisPlayer = mysql_fetch_assoc($result)) {
-		$selstr = (strcmp($thisPlayer['player'], $def) == 0) ? "selected" : "";
-		echo "<option value=\"{$thisPlayer['player']}\" $selstr>";
-		echo "{$thisPlayer['player']}</option>";
+  }
+  foreach ($playernames as $player) { 
+		$selstr = (strcmp($player, $def) == 0) ? "selected" : "";
+		echo "<option value=\"{$player}\" $selstr>";
+		echo "{$player}</option>";
 	}
 	echo "</select>";
-	mysql_free_result($result);
-	mysql_close($db);
 }
 
 function roundDropMenu($event) {
-	$db = dbcon();
-	$query = "SELECT rounds, timing  FROM subevents WHERE parent=\"$event\"
-		ORDER BY timing ASC";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	$maxrnd = 0;
-	while($thissub = mysql_fetch_assoc($result)){
-		$maxrnd += $thissub['rounds'];
-		if($thissub['timing'] == 1) {$main = $thissub['rounds'];}
-	}
-	mysql_free_result($result);
-	mysql_close($db);
-	
 	echo "<select name=\"newmatchround\">";
 	echo "<option value=\"\">- Round -</option>";
-	for($r = 1; $r <= $maxrnd; $r++) {
-		$star = ($r > $main) ? "*" : "";
+	for($r = 1; $r <= ($event->mainrounds + $event->finalrounds); $r++) {
+		$star = ($r > $event->mainrounds) ? "*" : "";
 		echo "<option value=\"$r\">$r$star</option>";
 	}	
 	echo "</select>";
@@ -779,45 +657,35 @@ function resultDropMenu() {
 }
 
 function controlPanel($event, $cur = "") {
+  $name = $event->name;
 	echo "<tr><td colspan=\"2\" align=\"center\">";
-	echo "<a href=\"event.php?name=$event&view=reg\">Registration</a>";
-	echo " | <a href=\"event.php?name=$event&view=match\">Match Listing</a>";
-	echo " | <a href=\"event.php?name=$event&view=medal\">Medals</a>";
-	echo " | <a href=\"event.php?name=$event&view=autoinput\">Auto-Input</a>";
-	echo " | <a href=\"event.php?name=$event&view=fileinput\">DCI-R File Input";
+	echo "<a href=\"event.php?name=$name&view=reg\">Registration</a>";
+	echo " | <a href=\"event.php?name=$name&view=match\">Match Listing</a>";
+	echo " | <a href=\"event.php?name=$name&view=medal\">Medals</a>";
+	echo " | <a href=\"event.php?name=$name&view=autoinput\">Auto-Input</a>";
+	echo " | <a href=\"event.php?name=$name&view=fileinput\">DCI-R File Input";
 	echo "</a></td></tr>";
 }
 
 function updateReg() {
-	$event = $_POST['name'];
-	$db = dbcon();
-	for($ndx = 0; $ndx < sizeof($_POST['delentries']); $ndx++) {
-		$query = "DELETE FROM entries WHERE event=\"$event\"
-			AND player=\"{$_POST['delentries'][$ndx]}\"";
-		mysql_query($query, $db) or die(mysql_error());
+	$event = new Event($_POST['name']);
+  for($ndx = 0; $ndx < sizeof($_POST['delentries']); $ndx++) {
+    $event->removeEntry($_POST['delentries'][$ndx]);
 	}		
 
 	$new = chop($_POST['newentry']);
-	if(strcmp($new, "") != 0) {
-		$query = "SELECT name FROM players WHERE name=\"$new\"";
-		$result = mysql_query($query, $db) or die(mysql_error());
-		if(mysql_num_rows($result) == 0) {
-			$query = "INSERT INTO players(name) VALUES(\"$new\")";
-			mysql_query($query, $db) or die(mysql_error());
-		}
-		mysql_free_result($result);
-		$query = "INSERT INTO entries(event, player) VALUES(\"$event\", 
-			\"$new\")";
-		mysql_query($query) or die(mysql_error());
+  if (strcmp($new, "") != 0) {
+    $player = Player::findByName($new); 
+    if (!$player) { 
+      $player = Player::createByName($new); 
+    } 
+    $event->addPlayer($player->name);
 	}
-	mysql_close($db);
 }
 
 function updateMatches() {
-	$db = dbcon();
-	for($ndx = 0; $ndx < sizeof($_POST['matchdelete']); $ndx++) {
-		$query = "DELETE FROM matches WHERE id={$_POST['matchdelete'][$ndx]}";
-		mysql_query($query, $db) or die(mysql_error());
+  for($ndx = 0; $ndx < sizeof($_POST['matchdelete']); $ndx++) {
+    Match::destroy($_POST['matchdelete'][$ndx]);
 	}
 
 	$pA = $_POST['newmatchplayerA'];
@@ -827,73 +695,32 @@ function updateMatches() {
 
 	if(strcmp($pA, "") != 0 && strcmp("$pB", "") != 0
 		&& strcmp($res, "") != 0 && strcmp($rnd, "") != 0) {
-	
-		$event = $_POST['name'];
-		$query = "SELECT rounds, id FROM subevents 
-			WHERE parent=\"$event\" ORDER BY timing ASC";
-		$result = mysql_query($query) or die(mysql_error());
-		if(mysql_num_rows($result) != 2) {
-			die("Malformed Event Data in Database.");
-		}
-		$subarr = mysql_fetch_assoc($result);
-		$mainrnds = $subarr['rounds'];
-		$mainid = $subarr['id'];
-		$subarr = mysql_fetch_assoc($result);
-		$finalid = $subarr['id'];
-		mysql_free_result($result);		 
-
-		$id = $mainid;
-		if($rnd > $mainrnds) {
-			$rnd -= $mainrnds;
-			$id = $finalid;
-		}
-		$query = "INSERT INTO matches(playera, playerb, round, subevent, result)
-			VALUES(\"$pA\", \"$pB\", $rnd, $id, \"$res\")";
-		mysql_query($query, $db) or die(mysql_error());
+    
+    $event = new Event($_POST['name']); 
+    $event->addMatch($pA, $pB, $rnd, $res);
 	}
-
-	mysql_close($db);
 }
 
 function updateMedals() {
-	$name = $_POST['name'];
-	$db = dbcon();
-	$query = "UPDATE entries SET medal=\"dot\" WHERE event=\"$name\"";
-	mysql_query($query) or die(mysql_error());
+  $name = $_POST['name'];
+  $event = new Event($_POST['name']); 
 
-	$query = "UPDATE entries SET medal=\"1st\" WHERE event=\"$name\"
-		AND player=\"{$_POST['newmatchplayer1']}\"";
-	mysql_query($query) or die(mysql_error());
-	$query = "UPDATE entries SET medal=\"2nd\" WHERE event=\"$name\"
-		AND player=\"{$_POST['newmatchplayer2']}\"";
-	mysql_query($query) or die(mysql_error());
+  $winner = $_POST['newmatchplayer1'];
+  $second = $_POST['newmatchplayer2']; 
+  $t4 = array($_POST['newmatchplayer3'], $_POST['newmatchplayer4']);
+  $t8 = array($_POST['newmatchplayer5'],  $_POST['newmatchplayer6'],  $_POST['newmatchplayer7'],  $_POST['newmatchplayer8']);  
 
-	for($i = 3; $i < 5; $i++) {
-		$query = "UPDATE entries SET medal=\"t4\" WHERE event=\"$name\"
-			AND player=\"{$_POST['newmatchplayer' . $i]}\"";
-		mysql_query($query) or die(mysql_error());
-	}		
-	for($i = 5; $i < 9; $i++) {
-		$query = "UPDATE entries SET medal=\"t8\" WHERE event=\"$name\"
-			AND player=\"{$_POST['newmatchplayer' . $i]}\"";
-		mysql_query($query) or die(mysql_error());
-	}		
-	mysql_close($db);
+  $event->setFinalists($winner, $second, $t4, $t8); 
 }
 
 function autoInputForm($event) {
-	$db = dbcon();
-	$query = "SELECT rounds, type FROM subevents WHERE parent=\"$event\"
-		ORDER BY timing ASC LIMIT 2";
-	$result = mysql_query($query) or die(mysql_error());
-	
 	echo "<tr><td colspan=\"2 align=\"center\">";
 	echo "<table align=\"center\" style=\"border-width: 0px;\">";
-	$totalrnds;
-	while($thissub = mysql_fetch_assoc($result)) {
-		if(strcmp($thissub['type'], "Single Elimination") == 0) {
-			for($rnd = 1; $rnd <= $thissub['rounds']; $rnd++) {
-				$rem = pow(2, $thissub['rounds'] - $rnd + 1);	
+  $totalrnds = 0;
+  foreach ($event->getSubevents() as $subevent) { 
+		if(strcmp($subevent->type, "Single Elimination") == 0) {
+			for($rnd = 1; $rnd <= $subevent->rounds; $rnd++) {
+				$rem = pow(2, $subevent->rounds - $rnd + 1);	
 				echo "<tr><td colspan=\"2\" align=\"center\"><b>";
 				echo "Round of $rem Pairings</td></tr>";
 				echo "<tr><td colspan=\"2\" align=\"center\">";
@@ -901,9 +728,8 @@ function autoInputForm($event) {
 				echo "</textarea></td></tr>";
 				echo "<tr><td>&nbsp;</td></tr>";
 			}
-		}
-		else {
-			for($rnd = 1; $rnd <= $thissub['rounds']; $rnd++) {
+		} else {
+			for($rnd = 1; $rnd <= $subevent->rounds; $rnd++) {
 				$printrnd = $rnd + $totalrnds;
 				$pairfield = $printrnd . "p";
 				$standfield = $printrnd . "s";
@@ -923,7 +749,7 @@ function autoInputForm($event) {
 					echo "<tr><td>&nbsp;</td></tr>";
 				}
 			}
-			$totalrnds += $thissub['rounds'];
+			$totalrnds += $subevent->rounds;
 		}				
 	}
 	echo "<tr><td colspan=\"2\" align=\"center\"><b>";
@@ -942,15 +768,13 @@ function autoInputForm($event) {
 }
 
 function autoInput() {
-	$db = dbcon();
 	$pairings = array();
 	$standings = array();
 	for($rnd = 0; $rnd < sizeof($_POST['pairings']); $rnd++) {
 		$pairings[$rnd] = extractPairings($_POST['pairings'][$rnd]);
 		if($rnd == 0) {
 			$standings[$rnd] = standFromPairs($_POST['pairings'][$rnd + 1]);
-		}
-		else {
+		} else {
 			$testStr = chop($_POST['standings'][$rnd - 1]);
 			if(strcmp($testStr, "") == 0) {
 				$standings[$rnd] = standFromPairs($_POST['pairings'][$rnd + 1]);
@@ -960,12 +784,8 @@ function autoInput() {
 			}
 		}
 	}
-	$query = "SELECT id FROM subevents WHERE timing=1 
-		AND parent=\"{$_POST['name']}\"";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	$arr = mysql_fetch_assoc($result);
-	$sid = $arr['id'];
-	mysql_free_result($result);
+  $event = new Event($_POST['name']);
+	$sid = $event->mainid;
 	for($rnd = 0; $rnd < sizeof($pairings); $rnd++) {
 		for($pair = 0; $pair < sizeof($pairings[$rnd]); $pair++) {
 			$printrnd = $rnd + 1;
@@ -987,107 +807,52 @@ function autoInput() {
 				isset($standings[$rnd - 1][$playerB]) &&
 				$standings[$rnd][$playerB] - $standings[$rnd - 1][$playerB]>1)
 				{$winner = "B";}	
-			}
-			$query = "SELECT name FROM players WHERE name=\"$playerA\"";
-			$result = mysql_query($query, $db) or die(mysql_error());
-			if(mysql_num_rows($result) < 1) {
-				$query = "INSERT INTO players(name) VALUES(\"$playerA\")";
-				mysql_query($query, $db) or die(mysql_error());
-			}
-			mysql_free_result($result);
-			$query = "SELECT name FROM players WHERE name=\"$playerB\"";
-			$result = mysql_query($query, $db) or die(mysql_error());
-			if(mysql_num_rows($result) < 1) {
-				$query = "INSERT INTO players(name) VALUES(\"$playerB\")";
-				mysql_query($query, $db) or die(mysql_error);
-			}
-			mysql_free_result($result);
-			
-			$query = "SELECT player FROM entries
-				WHERE player=\"$playerA\" AND event=\"{$_POST['name']}\"";
-			$result = mysql_query($query, $db) or die(mysql_error());
-			if(mysql_num_rows($result) < 1) {
-				$query = "INSERT INTO entries(player, event) 
-				VALUES(\"$playerA\", \"{$_POST['name']}\")";
-				mysql_query($query, $db) or die(mysql_error());
-			}
-			$query = "SELECT player FROM entries
-				WHERE player=\"$playerB\" AND event=\"{$_POST['name']}\"";
-			$result = mysql_query($query, $db) or die(mysql_error());
-			if(mysql_num_rows($result) < 1) {
-				$query = "INSERT INTO entries(player, event) 
-				VALUES(\"$playerB\", \"{$_POST['name']}\")";
-				mysql_query($query, $db) or die(mysql_error());
-			}
-			mysql_free_result($result);
-			
-			$query = "INSERT INTO 
-				matches(subevent, playera, playerb, round, result)
-				VALUES($sid, \"$playerA\", \"$playerB\", $rnd+1, \"$winner\")";
-			mysql_query($query, $db) or die(mysql_error());
+      }
+      $objplayera = Player::findOrCreateByName($playerA);
+      $objplayerb = Player::findOrCreateByName($playerB);
+
+      $event->addPlayer($playerA); 
+      $event->addPlayer($playerB);
+
+      $event->addMatch($playerA, $playerB, $rnd+1, $winner); 
 		}
 	}
 	$finals = array();
 	for($ndx = 0; $ndx < sizeof($_POST['finals']); $ndx++) {
 		$finals[$ndx] = extractFinals($_POST['finals'][$ndx]);
 	}
-	$query = "SELECT id FROM subevents WHERE timing=2 
-		AND parent=\"{$_POST['name']}\"";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	$arr = mysql_fetch_assoc($result);
-	$fid = $arr['id'];
-	mysql_free_result($result);
+  $fid = $event->finalid;
+  $win = ""; 
+  $sec = ""; 
+  $t4 = array(); 
+  $t8 = array();
 	for($ndx = 0; $ndx < sizeof($finals); $ndx++) {
 		for($match = 0; $match < sizeof($finals[$ndx]); $match+=2) {
 			$playerA = $finals[$ndx][$match];
-			$playerB = $finals[$ndx][$match + 1];
-			checkPlayer($playerA, $_POST['name'], $db);
-			checkPlayer($playerB, $_POST['name'], $db);
+      $playerB = $finals[$ndx][$match + 1];
+      $event->addPlayer($playerA);
+      $event->addPlayer($playerB);
 			if($ndx < sizeof($finals) - 1) {
 				$winner = detwinner($playerA, $playerB, $finals[$ndx + 1]);
-			}
-			else {$winner = $_POST['champion'];}
+      } else {
+        $winner = $_POST['champion'];
+      }
 			$res = "D";
 			if(strcmp($winner, $playerA) == 0) {$res = "A";}
-			if(strcmp($winner, $playerB) == 0) {$res = "B";}
-			$query = "INSERT INTO 
-				matches(subevent, playera, playerb, round, result)
-				VALUES($fid, \"$playerA\", \"$playerB\", $ndx+1, \"$res\")";
-			mysql_query($query, $db) or die(mysql_error());
+      if(strcmp($winner, $playerB) == 0) {$res = "B";}
+      $event->addMatch($playerA, $playerB, $ndx + 1 + $event->mainrounds, $res);
 			$loser = (strcmp($winner, $playerA) == 0) ? $playerB : $playerA;
-			if($ndx == sizeof($finals) - 1) {
-				$query = "UPDATE entries SET medal=\"1st\" WHERE
-					player=\"$winner\" AND event=\"{$_POST['name']}\"";
-				mysql_query($query, $db) or die(mysql_error());
-				$query = "UPDATE entries SET medal=\"2nd\" WHERE
-					player=\"$loser\" AND event=\"{$_POST['name']}\"";
-				mysql_query($query, $db) or die(mysql_error());
-			}
-			elseif($ndx == sizeof($finals) - 2) {
-				$query = "UPDATE entries SET medal=\"t4\" WHERE
-					player=\"$loser\" AND event=\"{$_POST['name']}\"";
-				mysql_query($query, $db) or die(mysql_error());
-			}
-			elseif($ndx == sizeof($finals) - 3) {
-				$query = "UPDATE entries SET medal=\"t8\" WHERE
-					player=\"$loser\" AND event=\"{$_POST['name']}\"";
-				mysql_query($query, $db) or die(mysql_error());
+      if ($ndx == sizeof($finals) - 1) {
+        $win = $winner;
+        $sec = $loser;
+      } elseif ($ndx == sizeof($finals) - 2) {
+        $t4[] = $loser;
+      } elseif($ndx == sizeof($finals) - 3) {
+        $t8[] = $loser;
 			}
 		}			
-	}	
-	mysql_close($db);
-}
-
-function checkPlayer($player, $event, $db) {
-	$query = "SELECT player FROM entries 
-		WHERE player=\"$player\" AND event=\"$event\"";
-    $result = mysql_query($query, $db) or die(mysql_error());
-    if(mysql_num_rows($result) < 1) {
-        $query = "INSERT INTO entries(player, event) 
-          	VALUES(\"$player\", \"$event\")";
-        mysql_query($query, $db) or die(mysql_error());            
-	}
-    mysql_free_result($result);
+  }
+  $event->setFinalists($win, $sec, $t4, $t8);  
 }
 
 function extractPairings($text) {
@@ -1150,37 +915,6 @@ function detwinner($a, $b, $next) {
 	return $ret;
 }
 
-function authCheck($event) {
-	$auth = 0;
-	$db = dbcon();
-	$query = "SELECT host, super FROM players 
-		WHERE name=\"{$_SESSION['username']}\"";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	if(mysql_num_rows($result) > 0) {
-		$row = mysql_fetch_assoc($result);
-		if($row['super'] == 1) {$auth = 1;}
-		elseif($row['host'] == 1) {
-			$query = "SELECT host FROM events WHERE name=\"$event\"
-				AND (host=\"{$_SESSION['username']}\" 
-					 OR cohost=\"{$_SESSION['username']}\")";
-			$eResult = mysql_query($query, $db) or die(mysql_error());
-			if(mysql_num_rows($eResult) > 0) {$auth = 1;}
-			mysql_free_result($eResult);
-		}
-	}
-	mysql_free_result($result);
-	if(!$auth) {
-		$query = "SELECT player FROM stewards WHERE event=\"$event\"
-			AND player=\"{$_SESSION['username']}\"";
-		print $query;
-		$result = mysql_query($query, $db) or die(mysql_error());
-		if(mysql_num_rows($result) > 0) {$auth = 1;}
-		mysql_free_result($result);
-	}
-	mysql_close($db);
-	return $auth;
-}
-
 function authFailed() {
 	echo "You are not permitted to make that change. Please contact the ";
 	echo "event host to modify this event. If you <b>are</b> the event host, ";
@@ -1225,38 +959,25 @@ function dciInput() {
 }
 
 function dciregister($data) {
+  $event = new Event($_POST['name']);
 	$data = preg_replace("/\n/", "\n", $data);
 	$lines = split("\n", $data);
 	$ret = array();
 	for($ndx = 0; $ndx < sizeof($lines); $ndx++) {
 		$tokens = split(",", $lines[$ndx]);
-		if(preg_match("/\"(.*)\"/", $tokens[3], $matches)) {
-			dciRegPlayer($matches[1], $_POST['name']);
+    if(preg_match("/\"(.*)\"/", $tokens[3], $matches)) {
+      Player::findOrCreateByName($matches[1]);
+      $event->addPlayer($matches[1]);
 			$ret[] = $matches[1];
 		}
 	}
 	return $ret;
 }
 
-function dciRegPlayer($player, $event) {
-	$db = dbcon();
-	$query = "SELECT name FROM players WHERE name=\"$player\"";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	if(mysql_num_rows($result) == 0) {
-		$query = "INSERT INTO players(name) VALUES(\"$player\")";
-		mysql_query($query) or die(mysql_error());
-	}
-	mysql_free_result($result);
-	$query = "INSERT INTO entries(event, player) 
-		VALUES(\"$event\", \"$player\")";
-	mysql_query($query); // or die(mysql_error());
-	mysql_close($db);
-}
-
 function dciinputmatches($reg, $data) {
+  $event = new Event($_POST['name']);
 	$data = preg_replace("/\n/", "\n", $data);
 	$lines = split("\n", $data);
-	$db = dbcon();
 	for($table = 0; $table < sizeof($lines)/6; $table++) {
 		$offset = $table * 6;
 		$nos = split(",", $lines[$offset]);
@@ -1270,31 +991,23 @@ function dciinputmatches($reg, $data) {
 				$pb = $reg[$pbs[$rnd - 1] - 1];
 				$res = 'D';
 				if($aws[$rnd - 1] > $bws[$rnd - 1]) {$res = 'A';}
-				if($bws[$rnd - 1] > $aws[$rnd - 1]) {$res = 'B';}
-				$query = "INSERT INTO matches(round, playera, playerb,
-					result, subevent) SELECT $rnd, \"$pa\", \"$pb\", \"$res\",
-					id FROM subevents WHERE parent=\"{$_POST['name']}\"
-					AND timing=1";
-				mysql_query($query, $db) or die(mysql_error());
+        if($bws[$rnd - 1] > $aws[$rnd - 1]) {$res = 'B';}
+        $event->addMatch($pa, $pb, $rnd, $res);    
 			}
 		}
 	}
-	mysql_close($db);
 }
 
 function dciinputplayoffs($reg, $data) {
+  $event = new Event($_POST['name']);
 	$data = preg_replace("/\n/", "\n", $data);
 	$lines = split("\n", $data);
 	$ntables = $lines[0];
 	$nrounds = log($ntables, 2);
-	#printf("# Rounds: %d<br>\n", $nrounds);
-	$db = dbcon();
 	for($rnd = 1; $rnd <= $nrounds; $rnd++) {
 		$ngames = pow(2, $nrounds - $rnd);
-		#printf("# Games: %d<br>\n", $ngames);
 		for($game = 0; $game < $ngames; $game++) {
 			$offset = 2 + $game*24;
-			#printf("A: %d, B: %d, W: %d<br>", $offset+($rnd-1)*3, $offset+($rnd-1)*3+12, $offset+($rnd-1)*3+3);
 			$playera = $lines[$offset + ($rnd-1)*3];
 			$pbl = $offset + ($rnd-1)*3 + 12;
 			$playerb = $lines[$pbl];
@@ -1303,14 +1016,9 @@ function dciinputplayoffs($reg, $data) {
 			$pb = $reg[$playerb - 1];
 			$res = 'D';
 			if($winner == $playera) {$res = 'A';}
-			if($winner == $playerb) {$res = 'B';}			
-			$query = "INSERT INTO matches(round, playera, playerb,
-				result, subevent) SELECT $rnd, \"$pa\", \"$pb\", \"$res\",
-				id FROM subevents WHERE parent=\"{$_POST['name']}\"
-				AND timing=2";
-			mysql_query($query, $db) or die(mysql_error());
+      if($winner == $playerb) {$res = 'B';}			
+      $event->addMatch($pa, $pb, $rnd + $event->mainrounds, $res);
 		}
 	}
-	mysql_close($db);
 }
 ?>

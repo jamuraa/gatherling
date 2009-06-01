@@ -30,6 +30,41 @@ class Player {
     return strcmp($srvpass, $hashpwd) == 0;
   } 
 
+  static function findByName($playername) { 
+    $database = Database::getConnection(); 
+    $stmt = $database->prepare("SELECT name FROM players WHERE name = ?"); 
+    $stmt->bind_param("s", $playername); 
+    $stmt->execute(); 
+    $stmt->bind_result($resname); 
+    $good = false; 
+    if ($stmt->fetch()) { 
+      $good = true; 
+    } 
+    $stmt->close(); 
+
+    if ($good) { 
+      return new Player($playername); 
+    } else { 
+      return NULL; 
+    } 
+  } 
+
+  static function createByName($playername) { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("INSERT INTO players(name) VALUES(?)"); 
+    $stmt->bind_param("s", $playername); 
+    $stmt->execute();
+    $stmt->close();
+    return Player::findByName($playername); 
+  } 
+
+  static function findOrCreateByName($playername) { 
+    $found = Player::findByName($playername); 
+    if (is_null($found)) { 
+      return Player::createByName($playername); 
+    } 
+  } 
+
   function __construct($name) { 
     $database = Database::getConnection();
     $stmt = $database->prepare("SELECT password, host, super FROM players WHERE name = ?");
@@ -47,9 +82,60 @@ class Player {
     return ($this->host == 1);
   } 
 
+  function getHostedEvents() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT name FROM events WHERE host = ? OR cohost = ?"); 
+    $stmt->bind_param("ss", $this->name, $this->name); 
+    $stmt->execute(); 
+    $stmt->bind_result($evname); 
+
+    $evnames = array(); 
+    while ($stmt->fetch()) { 
+      $evnames[] = $evname; 
+    } 
+    $stmt->close(); 
+
+    $evs = array(); 
+    foreach ($evnames as $evname) { 
+      $evs[] = new Event($evname); 
+    } 
+    return $evs;
+  } 
+
+  function getHostedEventsCount() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT count(name) FROM events WHERE host = ? OR cohost = ?"); 
+    $stmt->bind_param("ss", $this->name, $this->name); 
+    $stmt->execute(); 
+    $stmt->bind_result($evcount); 
+
+    $stmt->fetch();
+    $stmt->close(); 
+
+    return $evcount;
+  } 
+
   function isSuper() { 
     return ($this->super == 1); 
-  } 
+  }
+
+  function getLastEventPlayed() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT e.name FROM entries n, events e
+      WHERE n.player = ? ORDER BY UNIX_TIMESTAMP(e.start) DESC"); 
+    $stmt->bind_param("s", $this->name); 
+    $stmt->execute(); 
+    $lastevname = NULL; 
+    $stmt->bind_result($lastevname); 
+    $stmt->fetch(); 
+    $stmt->close(); 
+
+    if ($lastevname != NULL) { 
+      return new Event($lastevname); 
+    } else { 
+      return NULL;
+    }  
+  }  
 
   function getMatchesEvent($eventname) { 
     $db = Database::getConnection(); 
@@ -234,8 +320,31 @@ class Player {
         } 
       } 
       $matches = $filteredMatches;
-    }  
+    }
 
+    return $matches;
+  } 
+
+  function getMatchesByDeckName($deckname) { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT m.id FROM matches m, entries n, decks d, events e, subevents s
+      WHERE d.name = ? AND n.player = ? AND n.deck = d.id 
+       AND n.event = e.name AND s.parent = e.name AND m.subevent = s.id
+       AND (m.playera = ? OR m.playerb = ?)"); 
+    $stmt->bind_param("ssss", $deckname, $this->name, $this->name, $this->name); 
+    $stmt->execute(); 
+    $stmt->bind_result($mid); 
+
+    $mids = array(); 
+    while ($stmt->fetch()) { 
+      $mids[] = $mid; 
+    } 
+    $stmt->close(); 
+
+    $matches = array(); 
+    foreach ($mids as $mid) { 
+      $matches[] = new Match($mid); 
+    } 
     return $matches;
   } 
 
@@ -280,7 +389,7 @@ class Player {
     }
 
     return $entries;
-  } 
+  }
 
   function getRating($format = "Composite", $date = "3000-01-01 00:00:00") { 
     $db = Database::getConnection(); 
@@ -507,13 +616,36 @@ class Player {
     $stmt->bind_param("s", $this->name); 
     $stmt->execute(); 
     $stmt->store_result();
+
+    $res = NULL; 
     if ($stmt->num_rows > 0) { 
       $stmt->bind_result($eventname); 
       $stmt->fetch(); 
-      return $eventname;
-    } else { 
-      return NULL;
+      $res = $eventname;
+    }
+    $stmt->close(); 
+    return $res; 
+  }
+
+  function getEventsWithTrophies() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT e.name
+      FROM events e, entries n, trophies t
+      WHERE n.event = e.name AND n.player = ?
+       AND n.medal = \"1st\" and t.event = e.name AND t.image IS NOT NULL
+       ORDER BY e.start DESC"); 
+    $stmt->bind_param("s", $this->name); 
+    $stmt->execute(); 
+    $stmt->bind_result($eventname); 
+    $stmt->store_result();
+
+    $events = array(); 
+    while ($stmt->fetch()) { 
+      $events[] = $eventname; 
     } 
+    $stmt->close(); 
+
+    return $events;
   } 
 
   function getFormatsPlayed() { 
@@ -529,8 +661,96 @@ class Player {
     while ($stmt->fetch()) { 
       $formats[] = $format;
     } 
+    $stmt->close();
 
     return $formats;
+  } 
+
+  function getFormatsPlayedStats() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT e.format, count(n.event) AS cnt
+      FROM entries n, events e
+      WHERE n.player = ? AND e.name = n.event 
+      GROUP BY e.format ORDER BY cnt DESC"); 
+    $stmt->bind_param("s", $this->name);
+    $stmt->execute(); 
+    $stmt->bind_result($format, $count);
+
+    $formats = array(); 
+    while ($stmt->fetch()) { 
+      $formats[] = array('format' => $format, 'cnt' => $count); 
+    } 
+    $stmt->close(); 
+
+    return $formats;
+  } 
+
+  function getMedalStats() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT count(n.event) AS cnt, n.medal 
+      FROM entries n WHERE n.player = ? AND n.medal != 'dot'
+      GROUP BY n.medal ORDER BY n.medal"); 
+    $stmt->bind_param("s", $this->name); 
+    $stmt->execute(); 
+    $stmt->bind_result($cnt, $medal);
+
+    $medals = array(); 
+    while ($stmt->fetch()) { 
+      $medals[$medal] = $cnt; 
+    } 
+    $stmt->close(); 
+
+    return $medals;
+  } 
+
+  function getBestDeckStats() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT d.name, count(n.player) AS cnt, 
+      max(d.id) AS id, sum(n.medal='t8') AS t8, sum(n.medal='t4') AS t4, 
+      sum(n.medal='2nd') AS 2nd, sum(n.medal='1st') AS 1st,
+      sum(n.medal='t8')+2*sum(n.medal='t4')
+                       +4*sum(n.medal='2nd')+8*sum(n.medal='1st') AS score
+      FROM decks d, entries n
+      WHERE d.id = n.deck AND n.player = ?
+      GROUP BY d.name
+      ORDER BY score DESC, 1st DESC, 2nd DESC, t4 DESC, t8 DESC, cnt ASC"); 
+    $stmt->bind_param("s", $this->name); 
+    $stmt->execute(); 
+    $stmt->bind_result($name, $cnt, $id, $t8, $t4, $secnd, $first, $score);
+
+    $res = array(); 
+    while ($stmt->fetch()) { 
+      $res[] = array('name' => $name, 
+                     'cnt'  => $cnt, 
+                     'id'   => $id,
+                     't8'   => $t8,
+                     't4'   => $t4, 
+                     '2nd'  => $secnd,
+                     '1st'  => $first,
+                     'score'=> $score); 
+    } 
+    $stmt->close();
+
+    return $res;
+  } 
+
+  function getSeriesPlayedStats() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT e.series, count(n.event) AS cnt 
+      FROM events e, entries n
+      WHERE n.player = ? AND n.event = e.name
+      GROUP BY e.series ORDER BY cnt DESC"); 
+    $stmt->bind_param("s", $this->name);
+    $stmt->execute(); 
+    $stmt->bind_result($series, $count);
+
+    $res = array(); 
+    while ($stmt->fetch()) { 
+      $res[] = array('series' => $series, 'cnt' => $count); 
+    } 
+    $stmt->close(); 
+
+    return $res;
   } 
 
   function getSeriesPlayed() { 

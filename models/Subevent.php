@@ -20,5 +20,14 @@ class Subevent {
       throw new Exception("Can't instantiate subevent with id $id");
     } 
   } 
+
+  function save() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("UPDATE subevents SET parent = ?, rounds = ?, 
+      timing = ?, type = ? WHERE id = ?"); 
+    $stmt->bind_param("sddss", $this->parent, $this->rounds, $this->timing, $this->type, $this->id); 
+    $stmt->execute() or die($stmt->error); 
+    $stmt->close();
+  } 
 } 
 

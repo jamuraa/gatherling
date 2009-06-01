@@ -21,6 +21,16 @@ class Match {
   public $series;
   public $season;
 
+  static function destroy($matchid) { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("DELETE FROM matches WHERE id = ?"); 
+    $stmt->bind_param("d", $matchid); 
+    $stmt->execute(); 
+    $rows = $stmt->affected_rows;
+    $stmt->close(); 
+    return $rows;
+  } 
+
   function __construct($id) { 
     $db = Database::getConnection();
     $stmt = $db->prepare("SELECT m.subevent, m.round, m.playera, m.playerb, m.result, s.timing, s.type, s.rounds, e.format, e.series, e.season
@@ -82,10 +92,10 @@ class Match {
   } 
 
   function getWinner() { 
-    if (playerWon($this->playera)) { 
+    if ($this->playerWon($this->playera)) { 
       return $this->playera; 
     } 
-    if (playerWon($this->playerb)) { 
+    if ($this->playerWon($this->playerb)) { 
       return $this->playerb; 
     } 
     return NULL;
