@@ -1,18 +1,16 @@
 <?php
-include_once 'lib.php';
-$host = 0;
-$super = 0;
-if(isset($_SESSION['username'])) {
-	$db = dbcon();
-	$query = "SELECT host, super FROM players 
-		WHERE name=\"{$_SESSION['username']}\"";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	$row = mysql_fetch_assoc($result);
-	$host = $row['host'];
-	$super = $row['super'];
-	mysql_free_result($result);
-	mysql_close($db);
-}
+
+require_once 'lib.php';
+
+$player = Player::getSessionPlayer();
+
+$host = false;
+$super = false;
+
+if ($player != NULL) {
+  $host = $player->isHost();
+  $super = $player->isSuper();
+} 
 ?>
 
 <div class="indentmenu2">
@@ -34,10 +32,10 @@ if(isset($_SESSION['username'])) {
 <li><a href="index.php">FAQ*</a></li>
 <li><a href="index.php">Report Error*</a></li>
 
-<?php if(!isset($_SESSION['username'])) { ?>
+<?php if($player == NULL) { ?>
 <li><a href="login.php">Login</a></li>
 <?php } else { ?>
-<li><a href="logout.php">Logout [<?php print $_SESSION['username'];?>]</a></li>
+<li><a href="logout.php">Logout [<?php print $player->name; ?>]</a></li>
 <?php } ?>
 
 </ul>

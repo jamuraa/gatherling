@@ -1,28 +1,30 @@
 <?php
 require_once('lib.php');
-$db = dbcon();
+
+$id = 0;
 if(isset($_GET['id'])) {$id = $_GET['id'];}
 if(isset($_POST['id'])) {$id = $_POST['id'];}
-$query = "SELECT dc.qty, c.name, d.name AS deckname, dc.issideboard 
-	FROM deckcontents dc, cards c, decks d
-	WHERE dc.deck=$id AND c.id=dc.card AND d.id=dc.deck
-	ORDER BY dc.issideboard ASC, c.name";
-$result = mysql_query($query, $db) or die(mysql_error());
 
-$encsideboard = false;
+if ($id == 0) { 
+  header("location: player.php");
+  exit;
+} 
+
+$deck = new Deck($id);
+
 $content = "";
-while($row = mysql_fetch_assoc($result)) {
-	if($row['issideboard'] == 1 && !$encsideboard) {
-		$encsideboard = true;
-		$content .= "\nSideboard\n";
-	}
-    $content .= ($row['qty'] . " " . $row['name'] . "\n");
-	$deckname = $row['deckname'];
-}
-mysql_free_result($result);
-mysql_close($db);
 
-$filename = preg_replace("/ /", "_", $deckname) . ".txt";
+foreach ($deck->maindeck_cards as $card => $qty) { 
+  $content .= $qty . " " . $card . "\n"; 
+}
+
+$content .= "\nSideboard\n";
+
+foreach ($deck->sideboard_cards as $card => $qty) { 
+  $content .= $qty . " " . $card . "\n";
+} 
+
+$filename = preg_replace("/ /", "_", $deck->name) . ".txt";
 header("Content-type: text/plain");
 header("Content-Disposition: attachment; filename=$filename");
 echo $content;

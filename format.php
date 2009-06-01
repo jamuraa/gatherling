@@ -19,8 +19,10 @@ cellspacing=0 cellpadding=5>
 <tr><td bgcolor=white><br>
 
 <?php 
-if(isset($_SESSION['username'])) {
-	if(hostCheck()) {content();}
+
+$player = Player::getSessionPlayer();
+if(isset($player)) {
+	if($player->isHost()) {content();}
 	else {noHost();}
 }
 else {linkToLogin();}
@@ -30,7 +32,6 @@ else {linkToLogin();}
 <tr><td align=center bgcolor=#DDDDDD cellpadding=15>
 <h3>Updated by <b>WoCoNation</b> on 2007-12-27</td></tr></table></div>
 <br><br></div></div>
-<?php #include 'gatherlingnav.php';?>
 <?php include '../footer.ssi';?>
 
 <?
@@ -55,19 +56,17 @@ function content() {
 }
 
 function formatList() {
-	$db = dbcon();
-	$query = "SELECT f.name AS name, COUNT(e.format) AS cnt
+	$db = Database::getConnection();
+	$result = $db->query("SELECT f.name AS name, COUNT(e.format) AS cnt
 		FROM formats f
 		LEFT OUTER JOIN events AS e ON e.format=f.name
 		GROUP BY f.name
-		ORDER BY cnt DESC, f.priority DESC, f.name";
-	$result = mysql_query($query) or die(mysql_error());
-	mysql_close($db);
+		ORDER BY cnt DESC, f.priority DESC, f.name");
 	echo "<form action=\"format.php\" method=\"post\">";
 	echo "<table style=\"border-width: 0px;\" align=\"center\">";
 	$color = headerColor();
 	echo "<tr bgcolor=$color><td><b>Format</td><td><b>No. Events</td></tr>";
-	while($thisRow = mysql_fetch_assoc($result)) {
+	while($thisRow = $result->fetch_assoc()) {
 		$color = rowColor();
 		echo "<tr bgcolor=$color><td>";
 		echo "<a href=\"format.php?mode=edit&name={$thisRow['name']}\">";
@@ -77,56 +76,55 @@ function formatList() {
 	echo "<tr><td>&nbsp</td></tr>";
 	echo "<tr><td colspan=\"2\" align=\"center\">";
 	echo "<input type=\"submit\" name=\"mode\" value=\"Create New Format\">";
-	echo "</td></tr></table></form>";
-	mysql_free_result($result);
+  echo "</td></tr></table></form>";
+  $result->close();
 }
 	
-
 function formatForm($format = "") {
 	$edit = (strcmp($format, "") == 0) ? 0 : 1;
 	$vals = array("name" => $format);
-	if($edit) {
-		$db = dbcon();
-		$query = "SELECT name, description FROM formats WHERE name=\"$format\"";
-		$result = mysql_query($query, $db) or die(mysql_error());
-		if(mysql_num_rows($result) == 0) {die(noFormat($format));}
-		$vals = mysql_fetch_assoc($result);
-		mysql_free_result($result);
-		mysql_close($db);
+	if ($edit) {
+    $db = Database::getConnection();
+    $stmt = $db->prepare("SELECT name, description FROM formats WHERE name = ?");
+    $stmt->bind_param("s", $format);
+    $stmt->execute(); 
+    $stmt->bind_result($name, $description);
+    $stmt->store_result();
+    if ($stmt->num_rows) == 0) {die(noFormat($format));}
+    $stmt->fetch();
+    $stmt->close();
 	}
 	echo "<form action=\"format.php\" method=\"post\">";
 	echo "<table style=\"border-width: 0px;\" align=\"center\">";
-	if($edit) {
+	if ($edit) {
 		echo "<tr><td><b>Currently Editing</td><td align=\"center\">";
 		echo "<i>$format</td></tr>";
 		echo "<input type=\"hidden\" name=\"oldname\" value=\"$format\">";
 		echo "<tr><td>&nbsp</td></tr>";
 	}
 	echo "<tr><td><b>Format Name</td>";
-	echo "<td><input type=\"text\" name=\"name\" value=\"{$vals['name']}\" ";
+	echo "<td><input type=\"text\" name=\"name\" value=\"{$name}\" ";
 	echo "size=\"40\">";
 	echo "</td></tr>";
 	echo "<tr><td valign=\"top\"><b>Description</td>";
 	echo "<td><textarea name=\"desc\" rows=\"10\" cols=\"40\">";
-	echo "{$vals['description']}</textarea></td></tr>";
+	echo "{$description}</textarea></td></tr>";
 	echo "<tr><td valign=\"top\"><b>Legal Sets</td><td>";
 	dispSetSelect($format);
 	echo "</td></tr><tr><td>&nbsp</td></tr>";
 	echo "<tr><td colspan=\"2\" align=\"center\">";
-	if($edit) {
+	if ($edit) {
 		dispBanList($format);
-	}
-	else {
+	} else {
 		echo "<i>Format must be created before cards can be banned or ";
 		echo "restricted.</i>";
 	}
 	echo "</td></tr><tr><td>&nbsp</td></tr>";
-	if($edit) {
+	if ($edit) {
 		echo "<tr><td colspan=\"2\" align=\"center\">";
 		echo "<input type=\"submit\" name=\"mode\" value=\"Save Changes\">";
 		echo "</td></tr>";
-	}
-	else {
+	} else {
 		echo "<input type=\"hidden\" name=\"insert\" value=\"yes\">";
 		echo "<tr><td colspan=\"2\" align=\"center\">";
 		echo "<input type=\"submit\" name=\"mode\" ";

@@ -18,7 +18,7 @@ cellspacing=0 cellpadding=5>
 <h1>EVENT REPORT</h1></td></tr>
 <tr><td bgcolor=white><br>
 
-<?php content();?>
+<?php content(); ?>
 
 <br></td></tr>
 <tr><td align=center bgcolor=#DDDDDD cellpadding=15>
@@ -29,8 +29,9 @@ cellspacing=0 cellpadding=5>
 
 <?php
 function content() {
-	if(isset($_GET['event'])) {
-		showReport($_GET['event']);
+  if(isset($_GET['event'])) {
+    $event = new Event($_GET['event']);
+		showReport($event);
 	}
 	else {
 		eventList();
@@ -38,86 +39,93 @@ function content() {
 }
 
 function eventList($series = "", $season = "") {
-    $db = dbcon();
-    $query = "SELECT e.name AS name, e.format AS format,
+  $db = Database::getConnection();
+  $result = $db->query("SELECT e.name AS name, e.format AS format,
         COUNT(DISTINCT n.player) AS players, e.host AS host, e.start AS start,
-        e.finalized, e.cohost
+        e.finalized, e.cohost, e.series, e.season
         FROM events e
         LEFT OUTER JOIN entries AS n ON n.event = e.name 
-        WHERE 1=1 AND e.start < NOW()";
-    if(isset($_POST['format']) && strcmp($_POST['format'], "") != 0) {
-        $query = $query . " AND e.format=\"{$_POST['format']}\" ";
-    }
-    if(isset($_POST['series']) && strcmp($_POST['series'], "") != 0) {
-        $query = $query . " AND e.series=\"{$_POST['series']}\" ";
-    }
-    if(isset($_POST['season']) && strcmp($_POST['season'], "") != 0) {
-        $query = $query . " AND e.season=\"{$_POST['season']}\" ";
-    }
-    $query = $query . " GROUP BY e.name ORDER BY e.start DESC LIMIT 100";
-    $result = mysql_query($query, $db);
-    mysql_close($db);
+        WHERE 1=1 AND e.start < NOW() GROUP BY e.name ORDER BY e.start DESC");
 
-    echo "<form action=\"eventreport.php\" method=\"post\">";
-    echo "<table style=\"border-width: 0px\" align=\"center\">";
-    echo "<tr><td colspan=\"2\" align=\"center\"><b>Filters</td></tr>";
-    echo "<tr><td>&nbsp;</td></tr>";
-    echo "<tr><td>Format</td><td>";
-    formatDropMenu($_POST['format'], 1);
-    echo "</td></tr>";
-    echo "<tr><td>Series</td><td>";
-    seriesDropMenu($_POST['series'], 1);
-    echo "</td></tr>";
-    echo "<tr><td>Season</td><td>";
-    seasonDropMenu($_POST['season'], 1);
-    echo "</td></tr>";
-    echo "<tr><td>&nbsp;</td></tr>";
-    echo "<tr><td colspan=\"2\" align=\"center\">";
-    echo "<input type=\"submit\" name=\"mode\" value=\"Filter Events\">";
-    echo "</td></tr></table>";
-    echo "<table style=\"border-width: 0px\" align=\"center\" cellpadding=\"3\">";
-    echo "<tr><td colspan=\"5\">&nbsp;</td></tr>";
-    echo "<tr><td><b>Event</td><td><b>Format</td>";
-    echo "<td align=\"center\"><b>No. Players</td>";
-    echo "<td><b>Host(s)</td></tr>";
-    #echo "<td><b>Date</td>";
-    #echo "<td align=\"center\"><b>Finalized</td></tr>";
+  $onlyformat = false;  
+  if(isset($_POST['format']) && strcmp($_POST['format'], "") != 0) {
+    $onlyformat = $_POST['format'];
+  }
+  $onlyseries = false;
+  if(isset($_POST['series']) && strcmp($_POST['series'], "") != 0) {
+    $onlyseries = $_POST['series'];
+  }
+  $onlyseason = false;
+  if(isset($_POST['season']) && strcmp($_POST['season'], "") != 0) {
+    $onlyseason = $_POST['season'];
+  }
+  
+  echo "<form action=\"eventreport.php\" method=\"post\">";
+  echo "<table style=\"border-width: 0px\" align=\"center\">";
+  echo "<tr><td colspan=\"2\" align=\"center\"><b>Filters</td></tr>";
+  echo "<tr><td>&nbsp;</td></tr>";
+  echo "<tr><td>Format</td><td>";
+  formatDropMenu($_POST['format'], 1);
+  echo "</td></tr>";
+  echo "<tr><td>Series</td><td>";
+  seriesDropMenu($_POST['series'], 1);
+  echo "</td></tr>";
+  echo "<tr><td>Season</td><td>";
+  seasonDropMenu($_POST['season'], 1);
+  echo "</td></tr>";
+  echo "<tr><td>&nbsp;</td></tr>";
+  echo "<tr><td colspan=\"2\" align=\"center\">";
+  echo "<input type=\"submit\" name=\"mode\" value=\"Filter Events\">";
+  echo "</td></tr></table>";
+  echo "<table style=\"border-width: 0px\" align=\"center\" cellpadding=\"3\">";
+  echo "<tr><td colspan=\"5\">&nbsp;</td></tr>";
+  echo "<tr><td><b>Event</td><td><b>Format</td>";
+  echo "<td align=\"center\"><b>No. Players</td>";
+  echo "<td><b>Host(s)</td></tr>";
+  $count = 0;
+  while($count < 100 && $thisEvent = $result->fetch_assoc()) {
+    if (($onlyformat && strcmp($thisEvent['format'], $onlyformat) != 0) 
+     || ($onlyseries && strcmp($thisEvent['series'], $onlyseries) != 0)
+     || ($onlyseason && strcmp($thisEvent['season'], $onlyseason) != 0)) { 
+       continue;
+    } 
+    $dateStr = $thisEvent['start'];
+    $dateArr = split(" ", $dateStr);
+    $date = $dateArr[0];
+    echo "<tr><td>";
+    echo "<a href=\"eventreport.php?event={$thisEvent['name']}\">";
+    echo "{$thisEvent['name']}</a></td>";
+    echo "<td>{$thisEvent['format']}</td>";
+    echo "<td align=\"center\">{$thisEvent['players']}</td>";
+    echo "<td>{$thisEvent['host']}";
+    $ch = $thisEvent['cohost'];
+    if(!is_null($ch) && strcmp($ch, "") != 0) {echo "/$ch";}
+    echo "</td>";
+    #echo "<td>$date</td>";
+    # echo "<td align=\"center\"><input type=\"checkbox\" ";
+    # if($thisEvent['finalized'] == 1) {echo "checked";}
+    # echo "></td>";
+    echo "</tr>";
+    $count = $count + 1;
+  }
 
-	while($thisEvent = mysql_fetch_assoc($result)) {
-        $dateStr = $thisEvent['start'];
-        $dateArr = split(" ", $dateStr);
-        $date = $dateArr[0];
-        echo "<tr><td>";
-        echo "<a href=\"eventreport.php?event={$thisEvent['name']}\">";
-        echo "{$thisEvent['name']}</a></td>";
-        echo "<td>{$thisEvent['format']}</td>";
-        echo "<td align=\"center\">{$thisEvent['players']}</td>";
-        echo "<td>{$thisEvent['host']}";
-        $ch = $thisEvent['cohost'];
-        if(!is_null($ch) && strcmp($ch, "") != 0) {echo "/$ch";}
-        echo "</td>";
-        #echo "<td>$date</td>";
-        # echo "<td align=\"center\"><input type=\"checkbox\" ";
-        # if($thisEvent['finalized'] == 1) {echo "checked";}
-       	# echo "></td>";
-        echo "</tr>";
-    }
+  $result->close();
 
-    if(mysql_num_rows($result) == 100) {
-        echo "<tr><td colspan=\"5\" width=\"500\">&nbsp;</td></tr>";
-        echo "<tr><td colspan=\"5\" align=\"center\">";
-        echo "<i>This list only shows the 100 most recent results. ";
-        echo "Please use the filters at the top of this page to find older ";
-        echo "results.</i></td></tr>";
-    }
-    mysql_free_result($result);
-
+  if ($count == 100) {
     echo "<tr><td colspan=\"5\" width=\"500\">&nbsp;</td></tr>";
+    echo "<tr><td colspan=\"5\" align=\"center\">";
+    echo "<i>This list only shows the 100 most recent results. ";
+    echo "Please use the filters at the top of this page to find older ";
+    echo "results.</i></td></tr>";
+  }
+
+  echo "<tr><td colspan=\"5\" width=\"500\">&nbsp;</td></tr>";
 #   echo "<tr><td colspan=\"5\" align=\"center\">";
 #   echo "<input type=\"submit\" name=\"mode\" value=\"Create New Event\">";
 #   echo "</td></tr>";
-    echo "</table></form>";
+  echo "</table></form>";
 }
+
 function showReport($event) {
 	echo "<table style=\"border-width: 0px;\" width=600>\n";
 	echo "<tr><td valign=\"top\">";
@@ -138,28 +146,24 @@ function showReport($event) {
 
 function finalists($event) {
 	$nfinalists = nfinalists($event);
-	$db = dbcon();
-	$query = "SELECT medal, deck, player FROM entries
-		WHERE event=\"$event\" AND medal!=\"dot\"
-		ORDER BY medal, player";
-	$result = mysql_query($query, $db) or die(mysql_error());
 	echo "<table style=\"border-width: 0px;\" width=350>\n";
-	echo "<tr><td colspan=3 align=\"center\"><b>TOP $nfinalists</td></tr>\n";
-	while($row = mysql_fetch_assoc($result)) {
-		$deckinfoarr = deckInfo($row['deck']);
+  echo "<tr><td colspan=3 align=\"center\"><b>TOP $nfinalists</td></tr>\n";
+  foreach ($event->getFinalists() as $finalist) { 
+    $finaldeck = new Deck($finalist['deck']);
+		$deckinfoarr = deckInfo($finaldeck);
 		$redstar = "<font color=\"#FF0000\">*</font>";
-		$append = " " . $row['medal'];
-		if($row['medal'] == 't8' || $row['medal'] == 't4') {
-			$append = " " . strtoupper($row['medal']);}
-		$medalSTR = "<img src=\"/images/{$row['medal']}.gif\">";
+		$append = " " . $finalist['medal'];
+		if($finalist['medal'] == 't8' || $finalist['medal'] == 't4') {
+			$append = " " . strtoupper($finalist['medal']);}
+		$medalSTR = "<img src=\"/images/{$finalist['medal']}.gif\">";
 		$medalSTR .= $append;
 		$deckSTR = "<img src=\"/images/rename/{$deckinfoarr[1]}.gif\"> ";
-		$deckSTR .= "<a href=\"deck.php?mode=view&id={$row['deck']}\">";
+		$deckSTR .= "<a href=\"deck.php?mode=view&id={$finalist['deck']}\">";
 		$deckSTR .= "{$deckinfoarr[0]}</a>";
 		if($deckinfoarr[2] < 60) {$deckSTR .= $redstar;}
 		if($deckinfoarr[2] < 6)  {$deckSTR .= $redstar;}
-		$playerSTR = "by <a href=\"profile.php?player={$row['player']}\">";
-		$playerSTR .= "{$row['player']}</a>";
+		$playerSTR = "by <a href=\"profile.php?player={$finalist['player']}\">";
+		$playerSTR .= "{$finalist['player']}</a>";
 		echo "<tr><td>$medalSTR</td>\n<td>$deckSTR</td>\n";
 		echo "<td align=\"right\">$playerSTR</td></tr>\n";
 	}
@@ -169,12 +173,10 @@ function finalists($event) {
 function metastats($event) {
 	$archcnt = initArchetypeCount();
 	$colorcnt = array("w" => 0, "g" => 0, "u" => 0, "r" => 0, "b" => 0);
-	$db = dbcon();
-	$query = "SELECT deck FROM entries WHERE event=\"$event\"";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	$ndecks = mysql_num_rows($result);
-	while($row = mysql_fetch_assoc($result)) {
-		$deckarr = deckInfo($row['deck']);
+  $decks = $event->getDecks(); 
+  $ndecks = count($decks);
+  foreach ($decks as $deck) { 
+		$deckarr = deckInfo($deck);
 		if($deckarr[1] != "blackout") {
 			$archcnt[$deckarr[3]]++;
 			for($ndx = 0; $ndx < strlen($deckarr); $ndx++) {
@@ -182,8 +184,8 @@ function metastats($event) {
 			}
 		}
 		else {$ndecks--;}
-	}
-	mysql_free_result($result);
+  }
+
 	echo "<table style=\"border-width: 0px;\" width=200>\n";
 	echo "<tr><td colspan=5 align=\"center\"><b>Metagame Stats</td></tr>\n";
 	foreach($archcnt as $arch => $cnt) {
@@ -211,55 +213,49 @@ function metastats($event) {
 }
 
 function fullmetagame($event) {
-	$db = dbcon();
-	$query = "SELECT n.player, d.name, d.archetype, n.deck, n.medal
-		FROM entries n, decks d
-		WHERE d.id=n.deck AND n.event=\"$event\"";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	$ndecks = mysql_num_rows($result);
-	$players = array();
-	while($row = mysql_fetch_assoc($result)) {
-		$info = array("player" => $row['player'], "deckname" => $row['name'],
-			"archetype" => $row['archetype'], "medal" => $row['medal'],
-			"id" => $row['deck']);
-		$arr = deckInfo($row['deck']);
+  $decks = $event->getDecks();
+  $players = array();
+  foreach ($decks as $deck) { 
+		$info = array("player" => $deck->playername, "deckname" => $deck->name,
+			"archetype" => $deck->archetype, "medal" => $deck->medal,
+      "id" => $deck->id);
+		$arr = deckInfo($deck);
 		$info["colors"] = $arr[1]; 
 		if($info['medal'] == "dot") {$info['medal'] = "z";}
 		$players[] = $info;
-	}
-	$query = "CREATE TEMPORARY TABLE meta(
+  }
+  $db = Database::getConnection();
+	$succ = $db->query("CREATE TEMPORARY TABLE meta(
 		player VARCHAR(40), deckname VARCHAR(40), archetype VARCHAR(20),
 		colors VARCHAR(10), medal VARCHAR(10), id BIGINT UNSIGNED,
-		srtordr TINYINT UNSIGNED DEFAULT 0)";
-	$db = dbcon();
-	mysql_query($query, $db) or die(mysql_error());
-	for($ndx = 0; $ndx < sizeof($players); $ndx++) {
-		$query = "INSERT INTO meta(player, deckname, archetype, 
-			colors, medal, id)
-			VALUES(\"{$players[$ndx]['player']}\", 
-			\"{$players[$ndx]['deckname']}\", \"{$players[$ndx]['archetype']}\",
-			\"{$players[$ndx]['colors']}\", \"{$players[$ndx]['medal']}\",
-			{$players[$ndx]['id']})";
-		mysql_query($query, $db) or die($query);
-	}
-	$query = "SELECT colors, COUNT(player) AS cnt FROM meta GROUP BY(colors)";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	while($row = mysql_fetch_assoc($result)) {
-		$query = "UPDATE meta SET srtordr={$row['cnt']}
-			WHERE colors=\"{$row['colors']}\"";
-		mysql_query($query, $db) or die(mysql_error());
-	}
-	mysql_free_result($result);
-	$query = "SELECT player, deckname, archetype, colors, medal, id, srtordr
-		FROM meta
-		ORDER BY srtordr DESC, colors, medal, player";
-	$result = mysql_query($query, $db) or die(mysql_error());
+    srtordr TINYINT UNSIGNED DEFAULT 0)");
+  $succ or die($db->error); 
+   
+  $stmt = $db->prepare("INSERT INTO meta(player, deckname, archetype,	colors, medal, id)
+    VALUES(?, ?, ?, ?, ?, ?)"); 
+  for($ndx = 0; $ndx < sizeof($players); $ndx++) {
+    $stmt->bind_param("sssssd", $players[$ndx]['player'], 
+			$players[$ndx]['deckname'], $players[$ndx]['archetype'],
+      $players[$ndx]['colors'], $players[$ndx]['medal'], $players[$ndx]['id']);
+    $stmt->execute() or die($stmt->error);
+  }
+  $stmt->close();
+  $result = $db->query("SELECT colors, COUNT(player) AS cnt FROM meta GROUP BY(colors)");
+  $stmt = $db->prepare("UPDATE meta SET srtordr = ? WHERE colors = ?");
+  while($row = $result->fetch_assoc()) {
+    $stmt->bind_param("ds", $row['cnt'], $row['colors']); 
+    $stmt->execute() or die($stmt->error); 
+  } 
+  $stmt->close(); 
+  $result->close();
+  $result = $db->query("SELECT player, deckname, archetype, colors, medal, id, srtordr
+		FROM meta ORDER BY srtordr DESC, colors, medal, player");
 	$color = "orange";
 	echo "<table style=\"border-width: 0px;\" align=\"center\">";
 	$hg = headerColor();
 	echo "<tr style=\"background-color: $hg\">";
 	echo "<td colspan=5 align=\"center\"><b>Metagame Breakdown</td></tr>\n";
-	while($row = mysql_fetch_assoc($result)) {
+	while($row = $result->fetch_assoc()) {
 		if($row['colors'] != $color) {
 			$bg = rowColor();
 			$color = $row['colors'];
@@ -280,120 +276,85 @@ function fullmetagame($event) {
 		echo"<a href=\"deck.php?mode=view&id={$row['id']}\">";
 		echo "{$row['deckname']}</a></td>\n";
 		echo "<td align=\"right\">{$row['archetype']}</td></tr>\n";
-	}
+  }
+  $result->close();
 	echo "</table>\n";
 }
 
 function deckInfo($deck) {
 	$ret = array("No Deck Submitted", "blackout", 0, "Rogue");
-	if(!is_null($deck)) {
-		$db = dbcon();
-		$query = "SELECT d.name, SUM(c.isw*dc.qty) AS w, SUM(c.isg*dc.qty) AS g,
-			SUM(c.isu*dc.qty) AS u, SUM(c.isr*dc.qty) AS r,
-			SUM(c.isb*dc.qty) AS b, SUM(dc.qty) AS cnt, d.archetype
-			FROM decks AS d
-			LEFT OUTER JOIN deckcontents AS dc ON dc.deck=d.id
-			AND dc.issideboard != 1
-			LEFT OUTER JOIN cards AS c ON c.id=dc.card
-			WHERE d.id=$deck 
-			GROUP BY d.id";
-		$result = mysql_query($query, $db) or die(mysql_error());
-		$row = mysql_fetch_assoc($result);
-		mysql_free_result($result); mysql_close($db);
-		$colorstr = "";
+  if(!is_null($deck)) {
+    $colorstr = "";
+    $row = $deck->getColorCounts();
 		if($row['w'] > 0) {$colorstr .= 'w';}
 		if($row['g'] > 0) {$colorstr .= 'g';}
 		if($row['u'] > 0) {$colorstr .= 'u';}
 		if($row['r'] > 0) {$colorstr .= 'r';}
-		if($row['b'] > 0) {$colorstr .= 'b';}
+    if($row['b'] > 0) {$colorstr .= 'b';}
+    $row['cnt'] = array_sum($deck->maindeck_cards); 
 		if($colorstr == "") {$colorstr = "blackout";}
-		$ret = array($row['name'], $colorstr, $row['cnt'], $row['archetype']);
+		$ret = array($deck->name, $colorstr, $row['cnt'], $deck->archetype);
 	}
 	return $ret;
 }
 
 # Returns the number of finalists for an event based on the timing=2 subevent
 function nfinalists($event) {
-	$db = dbcon();
-	$query = "SELECT rounds FROM subevents
-		WHERE parent=\"$event\" and timing=2";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	$row = mysql_fetch_row($result);
-	# Clean up mysql result and connection
-	mysql_free_result($result); mysql_close($db);
-	return pow(2, $row[0]);
+  foreach ($event->getSubevents() as $subevent) { 
+    if ($subevent->timing == 2) { 
+      return pow(2, $subevent->rounds); 
+    } 
+  } 
 }
 
 function initArchetypeCount() {
 	$ret = array();
-	$db = dbcon();
-	$query = "SELECT name FROM archetypes ORDER BY priority DESC";
-	$result = mysql_query($query) or die(mysql_error());
-	while($row = mysql_fetch_assoc($result)) {
+	$db = Database::getConnection();
+	$result = $db->query("SELECT name FROM archetypes ORDER BY priority DESC");
+	while($row = $result->fetch_assoc()) {
 		$ret[$row['name']] = 0;
-	}
-	mysql_free_result($result); mysql_close($db);
+  }
+  $result->close();
 	return $ret;
 }
 
 function imageCell($event) {
-	$db = dbcon();
-	$query = "SELECT series FROM events WHERE name=\"$event\"";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	$row = mysql_fetch_assoc($result);
-	mysql_free_result($result); mysql_close($db);
-	$series = $row['series'];
-	echo "<img width=150 height=150 src=\"displaySeries.php?series=$series\">";
+	echo "<img width=150 height=150 src=\"displaySeries.php?series=$event->series\">";
 }
 
 function infoCell($event) {
-	$db = dbcon();
-	$query = "SELECT threadurl, UNIX_TIMESTAMP(start) AS dt, format, host, reporturl
-		 FROM events WHERE name=\"$event\"";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	$row = mysql_fetch_assoc($result);
-	mysql_free_result($result);
-	$query = "SELECT COUNT(*) FROM entries WHERE event=\"$event\"";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	$nrow = mysql_fetch_row($result);
-	mysql_free_result($result);
-	$query = "SELECT rounds, type FROM subevents WHERE parent=\"$event\"";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	if(!is_null($row['threadurl'])) {
-		echo "<a href=\"{$row['threadurl']}\">$event</a><br>\n";}
-	else {echo "$event<br>\n";}
-	$date = date('j F Y', $row['dt']);
-	echo "$date<br>\n";
-	echo "{$row['format']}<br>\n";
-	echo "{$nrow[0]} Players<br>\n";
-	while($srow = mysql_fetch_assoc($result)) {
-		if($srow['type'] != "Single Elimination") {
-			echo "{$srow['rounds']} rounds {$srow['type']}<br>\n";
-		}
-		else {
-			$finalists = pow(2, $srow['rounds']);
-			echo "Top $finalists playoff<br>\n";
+	if(!is_null($event->threadurl)) {
+    echo "<a href=\"{$event->threadurl}\">{$event->name}</a><br>\n";
+  } else {
+    echo "{$event->name}<br />\n";
+  }
+	$date = date('j F Y', strtotime($event->start));
+	echo "$date<br />\n";
+	echo "{$event->format}<br />\n";
+  echo "{$event->getPlayerCount()} Players<br>\n";
+  foreach ($event->getSubevents() as $subevent) { 
+    if ($subevent->type != "Single Elimination") { 
+			echo "{$subevent->rounds} rounds {$subevent->type}<br />\n";
+		} else {
+			$finalists = pow(2, $subevent->rounds);
+			echo "Top $finalists playoff<br />\n";
 		}
 	}
-	echo "Hosted by <a href=\"profile.php?player={$row['host']}\">";
-	echo "{$row['host']}</a><br>\n";
-	if(!is_null($row['reporturl'])) {
-		echo "<a href=\"{$row['reporturl']}\">Event Report</a><br>\n";}
+	echo "Hosted by <a href=\"profile.php?player={$event->host}\">";
+	echo "{$event->host}</a><br>\n";
+	if (!is_null($event->reporturl)) {
+    echo "<a href=\"{$event->reporturl}\">Event Report</a><br>\n";
+  }
 }
 
 function trophyCell($event) {
-	$db = dbcon();
-	echo "<img src=\"displayTrophy?event=$event\"><br>\n";
-	$query = "SELECT player, deck FROM entries 
-		WHERE medal='1st' AND event=\"$event\"";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	$row = mysql_fetch_assoc($result);
-	mysql_free_result($result);
-	echo "<a href=\"profile.php?player={$row['player']}\">";
-	echo "{$row['player']}</a>, ";
-	$info = deckInfo($row['deck']);
+  echo "<img src=\"displayTrophy?event={$event->name}\"><br />\n";
+  $deck = $event->getPlaceDeck('1st');
+	echo "<a href=\"profile.php?player={$deck->playername}\">";
+	echo "{$deck->playername}</a>, ";
+	$info = deckInfo($deck);
 	echo "<img src=\"/images/rename/{$info[1]}.gif\"> ";
-	echo "<a href=\"deck.php?mode=view&id={$row['deck']}\">";
+	echo "<a href=\"deck.php?mode=view&id={$deck->name}\">";
 	echo "{$info[0]}</a><br>\n";
 }
 ?>

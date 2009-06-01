@@ -1,5 +1,5 @@
 <?php session_start();?>
-<?php include 'lib.php';?>
+<?php require_once 'lib.php';?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
@@ -24,173 +24,85 @@ cellspacing=0 cellpadding=5>
 <tr><td align=center bgcolor=#DDDDDD cellpadding=15>
 <h3>Updated by <b>WoCoNation</b> on 2007-12-27</td></tr></table></div>
 <br><br></div></div>
-<?php #include 'gatherlingnav.php';?>
 <?php include '../footer.ssi';?>
 
 
 <?php
 function content() {
 	if(strcmp($_POST['mode'], "Create Deck") == 0) {
-		$resarr = insertDeck();
-		deckProfile($resarr[0]);
+		$deck = insertDeck();
+		deckProfile($deck);
 	}
-	elseif(strcmp($_POST['mode'], "Update Deck") == 0) {
-		if(authCheck($_POST['id'])) {
-			$resarr = updateDeck();
-			deckProfile($resarr[0]);
+  elseif(strcmp($_POST['mode'], "Update Deck") == 0) {
+    $deck = new Deck($_POST['id']);
+		if($deck->canEdit($_SESSION['username'])) {
+			$deck = updateDeck($deck);
+			deckProfile($deck);
 		}
 		else {authFailed();}
 	}
-	elseif(strcmp($_POST['mode'], "Edit Deck") == 0) {
-		$auth = authCheck($_POST['id']);
-		if($auth) {
-			deckForm($_POST['id'], $auth);
+  elseif(strcmp($_POST['mode'], "Edit Deck") == 0) {
+    $deck = new Deck($_POST['id']); 
+		if($deck->canEdit($_SESSION['username'])) {
+			deckForm($deck);
 		}
 		else{authFailed();}
 	}
 	elseif(strcmp($_GET['mode'], "create") == 0) {
 		deckForm();
 	}
-	elseif(strcmp($_GET['mode'], "view") == 0) {
-		if(isset($_GET['event'])) {
-			$db = dbcon();
-			$query = "SELECT deck FROM entries WHERE event=\"{$_GET['event']}\"
-				AND medal=\"1st\"";
-			$result = mysql_query($query, $db) or die($query);
-			$row = mysql_fetch_assoc($result);
-			mysql_free_result($result);
-			mysql_close($db);
-			$_GET['id'] = $row['deck'];
-		}
-		deckProfile($_GET['id']);
+  elseif(strcmp($_GET['mode'], "view") == 0) {
+    if(isset($_GET['event'])) {
+      $event = new Event($_GET['event']);
+      $deck = $event->getPlaceDeck("1st");
+    } else { 
+      $deck = new Deck($_GET['id']);
+    } 
+		deckProfile($deck);
 	}
 }
 
-function viewDeck($id) {
-	$db = dbcon();
-	$query = "SELECT e.player, e.event, e.medal, d.name, d.notes
-		FROM entries e, decks d WHERE e.deck=$id AND d.id=$id";
-	$pResult = mysql_query($query, $db) or die($query);
-	$query = "SELECT dc.qty, c.name FROM deckcontents dc, cards c
-		WHERE c.id=dc.card AND dc.deck=$id AND c.type LIKE '%Creature%'
-		AND dc.issideboard=0 ORDER by dc.qty DESC, c.name";
-	$cResult = mysql_query($query, $db) or die(mysql_error());
-	$query = "SELECT dc.qty, c.name FROM deckcontents dc, cards c
-		WHERE c.id=dc.card AND dc.deck=$id AND c.type NOT LIKE '%Land%'
-		AND c.type NOT LIKE '%Creature%'
-		AND dc.issideboard=0 ORDER by dc.qty DESC, c.name";
-	$oResult = mysql_query($query, $db) or die(mysql_error());
-	$query = "SELECT dc.qty, c.name FROM deckcontents dc, cards c
-		WHERE c.id=dc.card AND dc.deck=$id AND c.type LIKE '%Land%'
-		AND dc.issideboard=0 ORDER by dc.qty DESC, c.name";
-	$lResult = mysql_query($query, $db) or die(mysql_error());
-	$query = "SELECT dc.qty, c.name FROM deckcontents dc, cards c
-		WHERE c.id=dc.card AND dc.deck=$id 
-		AND dc.issideboard=1 ORDER by dc.qty DESC, c.name";
-	$sResult = mysql_query($query, $db) or die(mysql_error());
+function deckForm($deck = NULL) {
+  $mode = is_null($deck) ? "Create Deck" : "Update Deck";
+  if (!is_null($deck)) { 
+    $player = $deck->playername; 
+    $event = $deck->eventname;
+  } else { 
+    $player = (isset($_POST['player'])) ? $_POST['player'] : $_GET['player'];
+    $event = (isset($_POST['player'])) ? $_POST['event'] : $_GET['event'];
+    // It comes through as escaped.  (MAGIC QUOTES?!?!? GRR!)
+    $player = stripslashes($player);
+    $event = stripslashes($event);
+  } 
 
-	$info = mysql_fetch_assoc($pResult);
-	$banner = 0;
-	if(strcmp($info['medal'], "1st") == 0) {
-		$query = "SELECT COUNT(*) FROM trophies 
-			WHERE event=\"{$info['event']}\"";
-		$tmpResult = mysql_query($query) or die(mysql_error());
-		$tmpArr = mysql_fetch_row($tmpResult);
-		if($tmpArr[0] == 1) {$banner = 1;}
-		mysql_free_result($tmpResult);
-	}
+  $auth = false;
+  if (is_null($deck)) {
+    // Creating a deck.
+    $entry = new Entry($event, $player);
+    $auth = $entry->canCreateDeck($_SESSION['username']);
+  } else {
+    // Updating a deck.
+    $auth = $deck->canEdit($_SESSION['username']);
+  }
 
-	echo "<form action=\"deck.php\" method=\"post\">";
-	echo "<table align=\"center\" style=\"border-width: 0px;\">\n";
-	if($banner) {
-		echo "<tr><td align=\"center\">";
-		echo "<a href=\"event.php?name={$info['event']}\">";
-		echo "<img style=\"border-width: 0px;\" ";
-		echo "src=\"displayTrophy.php?event={$info['event']}\"></a>";
-		echo "</td></tr>\n";
-	}
-	else {
-		echo "<tr><td align=\"center\"><b>{$info['name']}</td></tr>\n";
-		echo "<tr><td align=\"center\"><i>";
-		echo "{$info['player']} - ";
-		echo "<a href=\"event.php?name={$info['event']}\">{$info['event']}</a>";
-		printPlaceString($info['medal']);
-		echo "</td></tr>\n";
-	}
-	echo "</table><br>\n";
+  if (!$auth) { 
+    authFailed(); 
+    return; 
+  } 
 
-	echo "<table align=\"center\" style=\"border-width: 0px;\" ";
-	echo "cellpadding=\"3\">\n";
-	echo "<tr><td valign=\"top\"><b>Creatures</td>\n<td>";
-	printCardResults($cResult);
-	echo "</td></tr>\n<tr><td>&nbsp;</td></tr>\n";
-	echo "<tr><td valign=\"top\"><b>Spells</td>\n<td>";
-	printCardResults($oResult);
-	echo "</td></tr>\n<tr><td>&nbsp;</td></tr>\n";
-	echo "<tr><td valign=\"top\"><b>Lands</td>\n<td>";
-	printCardResults($lResult);
-	echo "</td></tr>\n<tr><td>&nbsp;</td></tr>\n";
-	echo "<tr><td valign=\"top\"><b>Sideboard</td>\n<td>";
-	printCardResults($sResult);
-	echo "</td></tr>\n<tr><td>&nbsp;</td></tr>\n";
-	echo "<tr><td colspan=\"2\" align=\"center\">\n";
-	matchupTable($id);
-	echo "</td></tr>";
-	
-	echo "<tr><td>&nbsp;</td></tr>\n";
-	echo "<tr><td colspan=\"2\" align=\"center\">\n";
-	echo "<input type=\"hidden\" name=\"id\" value=\"$id\">\n";
-	echo "<input type=\"submit\" name=\"mode\" value=\"Edit Deck\">\n";
-	echo "</td></tr>\n</table></form>\n";
-
-	mysql_free_result($pResult);
-	mysql_free_result($cResult);
-	mysql_free_result($oResult);
-	mysql_free_result($lResult);
-	mysql_free_result($sResult);
-	mysql_close($db);
-}
-
-function deckForm($id = "", $auth=0) {
-	$edit = (strcmp($id, "") == 0) ? 0 : 1;
-	$mode = ($edit) ? "Update Deck" : "Create Deck";
-	$player = (isset($_POST['player'])) ? $_POST['player'] : $_GET['player'];
-  $event = (isset($_POST['player'])) ? $_POST['event'] : $_GET['event'];
-
-  // It comes through as escaped. 
-  $event_noslash = stripslashes($event);
-  $player_noslash = stripslashes($player);
-
-	if($_SESSION['username'] == $player) {$auth = 1;}
-	if(!$auth) {
-		if(!evAuthCheck($id, $event)) {authFailed();}
-		else {$auth = 1;}
-	}
-
-	if($auth == 1) {
-	$vals = array();
-	if($edit) {
-		$db = dbcon();
-		$query = "SELECT c.name, d.qty, d.issideboard
-			FROM cards c, deckcontents d
-			WHERE c.id=d.card AND d.deck=$id
-			ORDER BY d.issideboard, c.name";
-		$result = mysql_query($query, $db) or die(mysql_error());
-		while($row = mysql_fetch_assoc($result)) {
-			$line = $row['qty'] . " " . $row['name'] . "\n";
-			if($row['issideboard']) {
-				$vals['sideboard'] = $vals['sideboard'] . $line;}
-			else {$vals['contents'] = $vals['contents'] . $line;}
-		}
-		mysql_free_result($result);
-		$query = "SELECT name, notes, archetype FROM decks WHERE id=$id";
-		$result = mysql_query($query) or die(mysql_error());
-		$row = mysql_fetch_assoc($result);
-		mysql_free_result($result);
-		mysql_close($db);
-		$vals['desc'] = $row['notes'];
-		$vals['archetype'] = $row['archetype'];
-		$vals['name'] = $row['name'];
+  $vals = array();
+  if(!is_null($deck)) {
+    foreach ($deck->maindeck_cards as $card => $amt) { 
+      $line = $amt . " " . $card . "\n";
+      $vals['contents'] = $vals['contents'] . $line;
+    }
+    foreach ($deck->sideboard_cards as $card => $amt) { 
+      $line = $amt . " " . $card . "\n";
+      $vals['sideboard'] = $vals['sideboard'] . $line;
+    }
+		$vals['desc'] = $deck->notes;
+		$vals['archetype'] = $deck->archetype;
+		$vals['name'] = $deck->name;
 	}
 
 	echo "<form action=\"deck.php\" method=\"post\">\n";
@@ -209,7 +121,7 @@ function deckForm($id = "", $auth=0) {
 	echo "<tr><td><b>Name</td>\n<td>";
 	echo "<input type=\"text\" name=\"name\" value=\"{$vals['name']}\" ";
 	echo "size=\"40\"></td></tr>\n";
-	if($edit) {echo "<input type=\"hidden\" name=\"id\" value=\"$id\">\n";}
+	if(!is_null($deck)) {echo "<input type=\"hidden\" name=\"id\" value=\"{$deck->id}\">\n";}
 	echo "<tr><td><b>Archetype</td>\n<td>";
 	archetypeDropMenu($vals['archetype']);
 	echo "</td></tr>\n";
@@ -225,99 +137,77 @@ function deckForm($id = "", $auth=0) {
 	echo "<tr><td>&nbsp;</td></tr>\n";
 	echo "<tr><td colspan=\"2\" align=\"center\">\n";
 	echo "<input type=\"submit\" name=\"mode\" value=\"$mode\">\n";
-	echo "<input type=\"hidden\" name=\"player\" value=\"$player_noslash\">";
-	echo "<input type=\"hidden\" name=\"event\" value=\"$event_noslash\">";
+	echo "<input type=\"hidden\" name=\"player\" value=\"$player\">";
+	echo "<input type=\"hidden\" name=\"event\" value=\"$event\">";
 	echo "</td></tr></table></form>\n";
-	}
 }
 
 function archetypeDropMenu($def) {
-	$db = dbcon();
-	$query = "SELECT name FROM archetypes WHERE priority > 0
-		ORDER BY priority DESC, name";
-	$result = mysql_query($query, $db) or die(mysql_error());
+	$db = Database::getConnection();
+	$result = $db->query("SELECT name FROM archetypes WHERE priority > 0
+		ORDER BY priority DESC, name");
 	echo "<select name=\"archetype\">\n";
 	echo "<option value=\"Rogue\">- Archetype -</option>\n";
-	while($arch = mysql_fetch_assoc($result)) {
+	while($arch = $result->fetch_assoc()) {
 		$name = $arch['name'];
 		$sel = (strcmp($name, $def) == 0) ? "selected" : "";
 		echo "<option value=\"$name\" $sel>$name</option>\n";
-	}
-	mysql_free_result($result);
-	mysql_close($db);
+  }
+  $result->close(); 
 }
 
 function insertDeck() {
-	$db = dbcon();
-	$query = "INSERT INTO decks(archetype, name, notes) VALUES(
-		\"{$_POST['archetype']}\", \"{$_POST['name']}\", 
-		\"{$_POST['notes']}\")";
-	mysql_query($query, $db) or die(mysql_error());
+  $deck = new Deck(0);
 
-	$query = "SELECT LAST_INSERT_ID()";
-	$result = mysql_query($query) or die(mysql_error());
-	$arr = mysql_fetch_row($result);
-	$deckid = $arr[0];
-	mysql_free_result($result);
+  $deck->name = $_POST['name'];
+  $deck->archetype = $_POST['archetype']; 
+  $deck->notes = $_POST['notes'];
 
-  $event_esc = $_POST['event'];
-	$query = "UPDATE entries SET deck=$deckid 
-		WHERE player=\"{$_POST['player']}\" AND event=\"{$event_esc}\"";
-  if (!mysql_query($query, $db)) {
-    echo mysql_error();
-    die(mysql_error());
-  }
+  $deck->playername = $_POST['player'];
+  $deck->eventname = $_POST['event'];
 
-	$badcards = insertCards($_POST['contents'], $deckid, $db);
-	array_push($badcards, insertCards($_POST['sideboard'], $deckid, $db, 1));
-	mysql_close($db);
-	return array($deckid, $badcards);
+  $deck->maindeck_cards = parseCards($_POST['contents']); 
+  $deck->sideboard_cards = parseCards($_POST['sideboard']);
+
+  $deck->save();
+
+  return $deck;
 }
 
-function updateDeck() {
-	$db = dbcon();
-	$id = $_POST['id'];
-	$query = "UPDATE decks SET
-		archetype=\"{$_POST['archetype']}\",
-		name=\"{$_POST['name']}\",
-		notes=\"{$_POST['notes']}\"
-		WHERE id=$id";
-	mysql_query($query, $db) or die(mysql_error());
+function updateDeck($deck) {
+  $deck->archetype = $_POST['archetype']; 
+  $deck->name = $_POST['name'];
+  $deck->notes = $_POST['notes'];
+  
+  $deck->maindeck_cards = parseCards($_POST['contents']); 
+  $deck->sideboard_cards = parseCards($_POST['sideboard']);
 
-	$query = "DELETE FROM deckcontents WHERE deck=$id";
-	mysql_query($query, $db) or die(mysql_error());
-	$badcards = insertCards($_POST['contents'], $id, $db);
-	array_push($badcards, insertCards($_POST['sideboard'], $id, $db, 1));
-	mysql_close($db);
-	return array($id, $badcards);
+  $deck->save();
+
+  return $deck;
 }
 
-function insertCards($text, $deckid, $db, $sideboard=0) {
+function parseCards($text) {
 	$lines = split("\n", $text);
-    $badcards = array();
-    $cardarr = array();
-    for($ndx = 0; $ndx < sizeof($lines); $ndx++) {
-        $chopped = chop($lines[$ndx]);
-        if(preg_match("/[ \t]*([0-9]+)[ \t]+(.*)/i", $chopped, $m)) {
-            $qty = $m[1];
-            $card = chop($m[2]);
+  $badcards = array();
+  $cardarr = array();
+  for ($ndx = 0; $ndx < sizeof($lines); $ndx++) {
+    $chopped = chop($lines[$ndx]);
+    if (preg_match("/[ \t]*([0-9]+)[ \t]+(.*)/i", $chopped, $m)) {
+      $qty = $m[1];
+      $card = chop($m[2]);
+      // AE ligature. 
 			$card = preg_replace("/\306/", "AE", $card);
 			$card = strtolower($card);
-	    	if(isset($cardarr[$card])) {$cardarr[$card] += $qty;}
-	    	else {$cardarr[$card] = $qty;}
-        }
+      if(isset($cardarr[$card])) {
+        $cardarr[$card] += $qty;
+      } else {
+        $cardarr[$card] = $qty;
+      }
     }
-    foreach($cardarr as $cardname => $qty) {
-            $query = "INSERT INTO deckcontents(deck, qty, issideboard, card) 
-                SELECT $deckid, $qty, $sideboard, 
-				id FROM cards WHERE name=\"$cardname\"
-                LIMIT 1";
-            mysql_query($query, $db) or die(mysql_error());
-            if(mysql_affected_rows($db) == 0) {
-                array_push($badcards, $card);
-            }
-    }
-    return $badcards;
+  }
+
+  return $cardarr; 
 }
 
 function printCardResults($result) {
@@ -347,105 +237,87 @@ function printPlaceString($medal) {
 	echo "$str";
 }
 
-function deckProfile($id) {
+function deckProfile($deck) {
 	echo "<center><form action=\"deckdl.php\" method=\"post\">\n";
-    echo "<input type=\"hidden\" name=\"id\" value=$id>\n";
+    echo "<input type=\"hidden\" name=\"id\" value={$deck->id}>\n";
     echo "<input type=\"submit\" name=\"mode\" ";
     echo "value=\"Download deck as .txt file\"></form></center><br>\n";
 	echo "<table align=\"center\" style=\"border-width: 0px;\" width=600>\n";
 	echo "<tr><td width=225>";
-	deckInfoCell($id);
+	deckInfoCell($deck);
 	echo "</td>\n<td valign=\"top\" align=\"right\">";
-	trophyCell($id);
+	trophyCell($deck);
 	echo "</td></tr>";
 	echo "<tr><td>";
-	maindeckTable($id);
+	maindeckTable($deck);
 	echo "</td><td valign=\"top\" align=\"right\">";
 	echo "<table style=\"border-width: 0px;\" align=\"right\" width=350>";
 	echo "<tr><td colspan=3 align=\"right\">";
-	matchupTable($id);
+	matchupTable($deck);
 	echo "</td></tr>";
 	echo "<tr><td width=50></td><td valign=\"top\" align=\"left\" width=150>";
-	symbolTable($id);
+	symbolTable($deck);
 	echo "</td><td align=\"right\" width=150>";
-	ccTable($id);
+	ccTable($deck);
 	echo "</td></tr></table>";
 	echo "</td>\n";
 	echo "<tr><td>";
-	sideboardTable($id);
+	sideboardTable($deck);
 	echo "</td></tr>\n";
 	echo "<tr><td colspan=2>";
-	commentsTable($id);
+	commentsTable($deck);
 	echo "</td></tr>\n";
 	echo "<tr><td>&nbsp;</td></tr>\n";
 	echo "<tr><td colspan=2 align=\"center\">\n";
 	echo "<form action=\"deck.php\" method=\"post\">\n";
-	echo "<input type=\"hidden\" name=\"id\" value=\"$id\">\n";
+	echo "<input type=\"hidden\" name=\"id\" value=\"$deck->id\">\n";
 	echo "<input type=\"submit\" name=\"mode\" value=\"Edit Deck\">\n";
 	echo "</form></td></tr>\n";
 	echo "</table>\n";
 }
 
-function commentsTable($id) {
-	$db = dbcon();
-	$query = "SELECT notes FROM decks WHERE id=$id";
-	$result = mysql_query($query, $db);
-	$row = mysql_fetch_assoc($result);
-	mysql_free_result($result);
-	mysql_close($db);
-	if($row['notes'] == "" || is_null($row['notes'])) {
-		$row['notes'] = "<i>No comments have been recorded for this deck.</i>";}
-	$row['notes'] = preg_replace("/\n/", "<br>", $row['notes']);
-	$row['notes'] = preg_replace("/\[b\]/", "<b>", $row['notes']);
-	$row['notes'] = preg_replace("/\[\/b\]/", "</b>", $row['notes']);
+function commentsTable($deck) {
+  $notes = $deck->notes;
+	if($notes == "" || is_null($notes)) {
+		$notes = "<i>No comments have been recorded for this deck.</i>";}
+	$notes = preg_replace("/\n/", "<br>", $notes);
+	$notes = preg_replace("/\[b\]/", "<b>", $notes);
+	$notes = preg_replace("/\[\/b\]/", "</b>", $notes);
 	echo "<table style=\"border-width: 0px;\" cellpadding=1>";
 	echo "<tr><td><b>COMMENTS</td></tr>";
-	echo "<tr><td>{$row['notes']}</td></tr>";
+	echo "<tr><td>{$notes}</td></tr>";
 	echo "</table>";
 }
 
-function deckInfoCell($id) {
-	$db = dbcon();
-	$query = "SELECT n.player, n.event, n.medal, d.archetype, d.name, 
-		UNIX_TIMESTAMP(e.start) AS s
-		FROM decks d, entries n LEFT OUTER JOIN events AS e ON n.event=e.name
-		WHERE n.deck=d.id AND d.id=$id";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	$row = mysql_fetch_assoc($result);
-	mysql_free_result($result);
-	$query = "SELECT SUM(qty) FROM deckcontents WHERE deck=$id";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	$tmp = mysql_fetch_row($result);
-	mysql_free_result($result);
-	$ncards = $tmp[0];
-	mysql_close($db); 
+function deckInfoCell($deck) {
+	$ncards = $deck->getCardCount();
 	$mstr = "";
-	$line3 = "<a href=\"profile.php?player={$row['player']}\">";
-	$line3 = $line3 . "{$row['player']}</a>\n";
-	$line4 = "<i>{$row['event']}";
-	$line5 = date("F j, Y", $row['s']);
-	if($row['medal'] == '1st') {
+	$line3 = "<a href=\"profile.php?player={$deck->playername}\">";
+	$line3 = $line3 . "{$deck->playername}</a>\n";
+  $line4 = "<i>{$deck->eventname}";
+	$line5 = date("F j, Y", strtotime($deck->getEvent()->start));
+	if($deck->medal == '1st') {
 		$mstr = "<img src=\"/images/1st.gif\">&nbsp;";
 		$line4 = $line4 . ", 1st Place";
 	}
-	if($row['medal'] == '2nd') {
+	if($deck->medal == '2nd') {
 		$mstr = "<img src=\"/images/2nd.gif\">&nbsp;";
 		$line4 = $line4 . ", 2nd Place";
 	}
-	if($row['medal'] == 't4') {
+	if($deck->medal == 't4') {
 		$mstr = "<img src=\"/images/t4.gif\">&nbsp;";
 		$line4 = $line4 . ", Top 4";
 	}
-	if($row['medal'] == 't8') {
+	if($deck->medal == 't8') {
 		$mstr = "<img src=\"/images/t8.gif\">&nbsp;";
 		$line4 = $line4 . ", Top 8";
 	}
 	$rstar = "<font color=\"#FF0000\">*</font>";
-	$line1 = $mstr . "<b>" . strtoupper($row['name']) . "</b>";
+	$line1 = $mstr . "<b>" . strtoupper($deck->name) . "</b>";
 	if($ncards < 6) {$line1 .= $rstar;}
 	if($ncards < 60) {$line1 .= $rstar;}
-	$line2 = getColorImages($id) . " " . $row['archetype'];
-	$line4 = $line4 . " (" . recordString($id) . ")</i>";
+	$line2 = $deck->getColorImages() . " " . $deck->archetype;
+	$line4 = $line4 . " (" . $deck->recordString() . ")</i>";
 
 	echo "<table style=\"border-width: 0px\">\n";
 	echo "<tr><td style=\"font-size: 10pt;\">$line1</td></tr>\n";
@@ -458,97 +330,61 @@ function deckInfoCell($id) {
 
 }
 
-function trophyCell($id) {
-	$db = dbcon();
-	$query = "SELECT n.event, medal, count(t.event) 
-		FROM entries n, trophies t 
-		WHERE deck=$id and n.event=t.event 
-		GROUP BY t.event;";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	$row = mysql_fetch_assoc($result);
-	if(mysql_num_rows($result) && $row['medal'] == '1st') {
-		echo "<img src=\"displayTrophy.php?event={$row['event']}\">";
-		echo "<br><br>";
-	}
-	mysql_free_result($result);
-	mysql_close($db);
+function trophyCell($deck) {
+  if ($deck->medal == '1st') { 
+    echo $deck->getEvent()->getTrophyImageLink();
+    echo "<br /> <br />";
+  } 
 }
 
-function sideboardTable($id) {
-	$db = dbcon();
-	$query = "SELECT dc.qty, c.name FROM deckcontents dc, cards c
-        WHERE c.id=dc.card AND dc.deck=$id 
-        AND dc.issideboard=1 ORDER by dc.qty DESC, c.name";
-    $sResult = mysql_query($query, $db) or die(mysql_error());
+function sideboardTable($deck) {
+  $sideboardcards = $deck->sideboard_cards;
 
+  ksort($sideboardcards);
+  arsort($sideboardcards, SORT_NUMERIC);
 	echo "<table style=\"border-width: 0px\" cellpadding=1>\n";
-    echo "<tr><td colspan=1><b>SIDEBOARD</td></tr>\n";
-	while($row = mysql_fetch_assoc($sResult)) {
-        echo "<tr><td>{$row['qty']} ";
+  echo "<tr><td colspan=1><b>SIDEBOARD</td></tr>\n";
+  foreach ($sideboardcards as $card => $amt) {
+        echo "<tr><td>{$amt} ";
         echo "<a href=\"http://www.magiccards.info/autocard.php?card=";
-        echo "{$row['name']}\" target=\"_blank\">{$row['name']}</a></td></tr>\n";
+        echo "{$card}\" target=\"_blank\">{$card}</a></td></tr>\n";
     }
 	echo "<tr><td>&nbsp;</td></tr>";
 	echo "</table>\n";
-	mysql_free_result($sResult);
-	mysql_close($db);
 }
 
-function matchupTable($id) {
-	$db = dbcon();
-	$query = "SELECT s.timing, m.round, m.playera, m.playerb, m.result, q.qname,
-		s.rounds, n.player, s.type, q.qdeck
-		FROM matches AS m, events AS e, subevents AS s, 
-		decks AS d, entries AS n,
-		(SELECT qn.player AS qplayer, qn.deck AS qdeck, qd.name AS qname
- 		 FROM entries qn
- 		 LEFT OUTER JOIN decks AS qd ON qn.deck=qd.id
- 		 WHERE qn.event=(SELECT event FROM entries WHERE deck=$id)
-		) AS q
-		WHERE e.name=n.event
-		AND m.subevent=s.id
-		AND s.parent=e.name
-		AND n.deck=d.id
-		AND d.id=$id
-		AND (m.playera=n.player OR m.playerb=n.player)
-		AND (q.qplayer=m.playera OR q.qplayer=m.playerb)
-		AND (q.qdeck IS NULL OR q.qdeck != d.id)
-		ORDER BY timing, round";
-	$result = mysql_query($query, $db) or die(mysql_error());
+function matchupTable($deck) {
+  $matches = $deck->getMatches();
 
 	echo "<table style=\"border-width: 0px\" cellpadding=1 align=\"right\">\n";
 	echo "<tr><td colspan=4 align=\"left\"><b>MATCHUPS</td></tr>\n";
 #	echo "<tr><td><b>Round</td><td><b>Result</td><td><b>Opponent</td>";
 #	echo "<td><b>Deck</td></tr>\n";
-#	echo "<tr><td><b>MATCHUPS</td></tr>\n";
-	if(mysql_num_rows($result) == 0) {
+  #	echo "<tr><td><b>MATCHUPS</td></tr>\n";
+  if (count($matches) == 0) {
 		echo "<tr><td colspan=4><i>No matches were found for this deck</td></tr>";
-	}
-	while($row = mysql_fetch_assoc($result)) {
-		$rnd = 'R' . $row['round'];
-		if($row['timing'] > 1 && $row['type'] == 'Single Elimination') {
-			$rnd = 'T' . pow(2, $row['rounds'] - $row['round'] + 1);}
+  }
+  foreach ($matches as $match) { 
+		$rnd = 'R' . $match->round;
+		if($match->timing > 1 && $match->type == 'Single Elimination') {
+			$rnd = 'T' . pow(2, $match->rounds - $match->round + 1);}
 		$color = "#FF9900";
 		$res = "Draw";
-		if((strcasecmp($row['player'], $row['playera']) == 0 && $row['result'] == 'A') ||
-		   (strcasecmp($row['player'], $row['playerb']) == 0 && $row['result'] == 'B')) {
+		if($match->playerWon($deck->playername)) {
 			$color = "#009900";
 			$res = "Win";
 		}
-		if((strcasecmp($row['player'], $row['playera']) == 0 && $row['result'] == 'B') ||
-		   (strcasecmp($row['player'], $row['playerb']) == 0 && $row['result'] == 'A')) {
+		if($match->playerLost($deck->playername)) {
 			$color = "#FF0000";
 			$res = "Loss";
 		}
 		$resStr = "<b><font color=\"$color\">$res</font></b>";
-		$opp = $row['playera'];
-		if($row['player'] == $row['playera']) {$opp = $row['playerb'];}
-		$deckcell = "No Deck Found";
-		if(!is_null($row['qdeck'])) {
-			$oppdeckid = $row['qdeck'];
-			$oppdeckname= $row['qname'];
-			$deckcell = "<a href=\"deck.php?id=$oppdeckid&mode=view\">" . 
-				$oppdeckname . "</a>";
+		$opp = new Player($match->otherPlayer($deck->playername));
+    $deckcell = "No Deck Found";
+    $oppdeck = $opp->getDeckEvent($deck->eventname); 
+		if($oppdeck != NULL) {
+			$deckcell = "<a href=\"deck.php?id={$oppdeck->id}&mode=view\">" . 
+         $oppdeck->name . "</a>";
 		}
 
 #		echo "<tr><td align=\"center\">$rnd</td>\n";
@@ -561,113 +397,71 @@ function matchupTable($id) {
 		echo "<tr><td align=\"right\">$rnd:&nbsp;</td>\n";
 		echo "<td align=\"left\"><b><font color=\"$color\">$res</font>&nbsp;</td>\n";
 		echo "<td>vs.&nbsp;</td>\n";
-		echo "<td align=\"left\"><a href=\"profile.php?player=$opp\">$opp</a>&nbsp;</td>\n";
+		echo "<td align=\"left\"><a href=\"profile.php?player={$opp->name}\">{$opp->name}</a>&nbsp;</td>\n";
 		echo "<td align=\"right\">$deckcell&nbsp;</td></tr>\n";
 	}
 	echo "<tr><td>&nbsp;</td></tr>";
 	echo "</table>\n";
 }
 
-function maindeckTable($id) {
-	$db = dbcon();
-    $query = "SELECT dc.qty, c.name FROM deckcontents dc, cards c
-        WHERE c.id=dc.card AND dc.deck=$id AND c.type LIKE '%Creature%'
-        AND dc.issideboard=0 ORDER by dc.qty DESC, c.name";
-    $cResult = mysql_query($query, $db) or die(mysql_error());
-    $query = "SELECT dc.qty, c.name FROM deckcontents dc, cards c
-        WHERE c.id=dc.card AND dc.deck=$id AND c.type NOT LIKE '%Land%'
-        AND c.type NOT LIKE '%Creature%'
-        AND dc.issideboard=0 ORDER by dc.qty DESC, c.name";
-    $oResult = mysql_query($query, $db) or die(mysql_error());
-    $query = "SELECT dc.qty, c.name FROM deckcontents dc, cards c
-        WHERE c.id=dc.card AND dc.deck=$id AND c.type LIKE '%Land%'
-        AND dc.issideboard=0 ORDER by dc.qty DESC, c.name";
-    $lResult = mysql_query($query, $db) or die(mysql_error());
-
-	echo "<table style=\"border-width: 0px\" cellpadding=1>\n";
+function maindeckTable($deck) {
+  $creatures = $deck->getCreatureCards();
+  $lands = $deck->getLandCards(); 
+  $other = $deck->getOtherCardS();
+  
+  echo "<table style=\"border-width: 0px\" cellpadding=1>\n";
 	echo "<tr><td colspan=1><b>MAINDECK</td></tr>\n";
-	echo "<tr><td colspan=2><i>Creatures</td></tr>\n";
-	while($row = mysql_fetch_assoc($cResult)) {
-		echo "<tr><td>{$row['qty']} ";
+  echo "<tr><td colspan=2><i>Creatures</td></tr>\n";
+  foreach ($creatures as $card => $amt) { 
+		echo "<tr><td>{$amt} ";
 		echo "<a href=\"http://www.magiccards.info/autocard.php?card=";
-		echo "{$row['name']}\" target=\"_blank\">{$row['name']}</a></td></tr>\n";
-	}
+		echo "{$card}\" target=\"_blank\">{$card}</a></td></tr>\n";
+  }
 	echo "<tr><td>&nbsp;</td></tr>\n";
 	echo "<tr><td colspan=2><i>Spells</td></tr>\n";
-	while($row = mysql_fetch_assoc($oResult)) {
-		echo "<tr><td>{$row['qty']} ";
+  foreach ($other as $card => $amt) { 
+		echo "<tr><td>{$amt} ";
 		echo "<a href=\"http://www.magiccards.info/autocard.php?card=";
-		echo "{$row['name']}\" target=\"_blank\">{$row['name']}</a></td></tr>\n";
+		echo "{$card}\" target=\"_blank\">{$card}</a></td></tr>\n";
 	}
 	echo "<tr><td>&nbsp;</td></tr>";
 	echo "<tr><td colspan=2><i>Lands</td></tr>\n";
-	while($row = mysql_fetch_assoc($lResult)) {
-		echo "<tr><td>{$row['qty']} ";
-		echo " <a href=\"http://www.magiccards.info/autocard.php?card=";
-		echo "{$row['name']}\" target=\"_blank\">{$row['name']}</a></td></tr>\n";
+  foreach ($lands as $card => $amt) { 
+		echo "<tr><td>{$amt} ";
+		echo "<a href=\"http://www.magiccards.info/autocard.php?card=";
+		echo "{$card}\" target=\"_blank\">{$card}</a></td></tr>\n";
 	}
 	echo "<tr><td>&nbsp;</td></tr>\n";
 	echo "</table>\n";
-	mysql_free_result($cResult);
-	mysql_free_result($oResult);
-	mysql_free_result($lResult);
-	mysql_close($db);
 }
 
-function ccTable($id) {
-	$db = dbcon();
-	$query = "SELECT convertedcost AS cc, sum(qty) AS s
-		FROM cards c, deckcontents d
-		WHERE d.deck=$id
-		AND c.id=d.card AND d.issideboard=0
-		GROUP BY c.convertedcost
-		HAVING cc>0";
-	$result = mysql_query($query, $db) or die(mysql_error());
+function ccTable($deck) {
+  $convertedcosts = $deck->getCastingCosts();
 
 	echo "<table style=\"border-width: 0px;\">\n";
 	echo "<tr><td colspan=2 align=\"center\" width=150><b>CASTING COSTS</td></tr>";
-	$total = 0; $cards = 0;
-	while($row = mysql_fetch_assoc($result)) {
+  $total = 0; $cards = 0;
+  foreach ($convertedcosts as $cost => $amt) { 
 		echo "<tr><td align=\"right\" width=75>";
-		echo "<img src=\"/images/mana{$row['cc']}.gif\">";
+		echo "<img src=\"/images/mana{$cost}.gif\">";
 		echo " &nbsp;</td>\n";
-		echo "<td width=75 align=\"left\">{$row['s']}</td></tr>\n";
-		$total += $row['cc'] * $row['s'];
-		$cards += $row['s'];
+		echo "<td width=75 align=\"left\">{$amt}</td></tr>\n";
+		$total += $cost * $amt;
+		$cards += $amt;
 	}
-	mysql_free_result($result);
 	if($cards == 0) {$cards = 1;}
 	$avg = $total/$cards;
 	echo "<tr><td align=\"right\"><i>Avg CMC:&nbsp;</td><td align=\"left\"><i>";
 	printf("%1.2f", $avg);
 	echo "</td></tr>\n";
 	echo "</table>";
-	mysql_close($db);
 }
 
-function symbolTable($id) {
-	$db = dbcon();
-	$query = "SELECT d.qty, c.cost, c.name
-		FROM cards c, deckcontents d
-		WHERE d.deck=$id
-		AND c.id=d.card
-		AND d.issideboard=0
-		AND c.cost != \"\"";
-	$result = mysql_query($query, $db);
-
+function symbolTable($deck) {
 	echo "<table style=\"border-width: 0px\">\n";
 	echo "<tr><td align=\"center\" colspan=2 width=150><b>MANA SYMBOLS";
-	echo "</td></tr>\n";
-	$cnts = array("w" => 0, "g" => 0, "u" => 0, "r" => 0, "b" => 0);
-	while($row = mysql_fetch_assoc($result)) {
-		$arr = count_chars($row['cost'], 1);
-		$cnts['w'] += $arr[ord('W')] * $row['qty'];
-		$cnts['g'] += $arr[ord('G')] * $row['qty'];
-		$cnts['u'] += $arr[ord('U')] * $row['qty'];
-		$cnts['r'] += $arr[ord('R')] * $row['qty'];
-		$cnts['b'] += $arr[ord('B')] * $row['qty'];
-	}
-	mysql_free_result($result);
+  echo "</td></tr>\n";
+  $cnts = $deck->getColorCounts();
 	asort($cnts);
 	$cnts = array_reverse($cnts, true);
 	$sum = 0;
@@ -683,10 +477,14 @@ function symbolTable($id) {
 	echo "<tr><td align=\"right\"><i>Total:&nbsp;</td>\n";
 	echo "<td align=\"left\"><i>$sum</td></tr>\n";
 	echo "</table>\n";
-	mysql_close($db);
 }
 
-function authCheck($id) {
+function authCheck($deck) {
+  $player = Player::getSessionPlayer();
+  if ($player->name == $deck->playername 
+    || $player->isSuper() 
+    || $deck->getEvent()->isHost($player->name)
+    || $deck->getEvent()->isSteward($player->name))
     $auth = 0;
     $db = dbcon();
     $query = "SELECT host, super FROM players 

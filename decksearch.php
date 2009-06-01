@@ -16,49 +16,48 @@
 <h1>Basic Deck Search</h1></td>
 </tr><tr><td bgcolor=white><br>
 
-<?php content();
-//if(isset($_SESSION['username'])) {content();}
-//else {linkToLogin();}
-?>
+<?php content(); ?>
 
 <br></td></tr>
 <tr><td align=center bgcolor=#DDDDDD cellpadding=15>
 <h3>Updated by <b>WoCoNation</b> on 2008-02-26</td></tr></table></div>
 <br><br></div></div>
-<?php #include 'gatherlingnav.php';?>
 <?php include '../footer.ssi';?>
 
 
 <?php // ------ Search Starts here ------
 function content() {
-if(isset($_POST['mode'])) {
-	$db = dbcon();
-	$query = "SELECT SUM(dc.qty) AS q, d.id, d.name, n.player, n.event, n.medal 
-		FROM decks d, entries n, deckcontents dc, events e  
-		WHERE d.name LIKE \"%{$_POST['deck']}%\" AND n.deck=d.id 
-		AND dc.deck=d.id AND dc.issideboard=0
-		AND n.event=e.name
-		GROUP BY dc.deck
-		HAVING q>=60
-		ORDER BY e.start DESC, n.medal";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	echo "<table align=\"center\" style=\"border-width: 0px;\" cellpadding=3>";
-	while($row = mysql_fetch_assoc($result)) {
-		echo "<tr><td><a href=\"deck.php?mode=view&id={$row['id']}\">";
-		echo "{$row['name']}</a></td>";
-		echo "<td><img src=\"/images/{$row['medal']}.gif\"></td>\n";
-		echo "<td>{$row['player']}</td>";
-		echo "<td>{$row['event']}";
-		echo "</td></tr>\n";
-	}
-	echo "</table>";
-}
-else {
-	echo "<form method=\"post\" action=\"{$_SERVER['REQUEST_URI']}\">";
-	echo "Enter a deck name. You may use % as a wildcard.<br><br>";
-	echo "<input type=\"text\" name=\"deck\">";
-	echo "<input type=\"submit\" name=\"mode\" value=\"Gimme some decks!\">";
-	echo "</form>";
-}
+  if(isset($_POST['mode'])) {
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT SUM(dc.qty) AS q, d.id, d.name, n.player, n.event, n.medal 
+		  FROM decks d, entries n, deckcontents dc, events e  
+      WHERE d.name LIKE ? AND n.deck=d.id 
+      AND dc.deck=d.id AND dc.issideboard=0
+      AND n.event=e.name
+      GROUP BY dc.deck
+      HAVING q>=60
+      ORDER BY e.start DESC, n.medal");
+    $decknamesearch = "%" . $_POST['deck'] . "%";
+    $stmt->bind_param("s", $decknamesearch);
+    $stmt->execute(); 
+    $stmt->bind_result($qty, $id, $name, $player, $event, $medal);
+    echo "<table align=\"center\" style=\"border-width: 0px;\" cellpadding=3>";
+    while($stmt->fetch()) {
+      echo "<tr><td><a href=\"deck.php?mode=view&id={$id}\">";
+      echo "{$name}</a></td>";
+      echo "<td><img src=\"/images/{$medal}.gif\"></td>\n";
+      echo "<td>{$player}</td>";
+      echo "<td>{$event}";
+      echo "</td></tr>\n";
+    }
+    $stmt->close(); 
+    echo "</table>";
+  } else {
+    echo "<form method=\"post\" action=\"{$_SERVER['REQUEST_URI']}\">";
+    echo "Enter a deck name. You may use % as a wildcard.<br><br>";
+    echo "<input type=\"text\" name=\"deck\">";
+    echo "<input type=\"submit\" name=\"mode\" value=\"Gimme some decks!\">";
+    echo "</form>";
+  }
 }
 ?>

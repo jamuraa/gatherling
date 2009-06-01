@@ -26,7 +26,6 @@ cellspacing=0 cellpadding=5>
 <tr><td align=center bgcolor=#DDDDDD cellpadding=15>
 <h3>Updated by <b>WoCoNation</b> on 2007-12-27</td></tr></table></div>
 <br><br></div></div>
-<?php #include 'gatherlingnav.php';?>
 <?php include '../footer.ssi';?>
 
 <?php function content() { ?>

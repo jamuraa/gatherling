@@ -60,26 +60,17 @@ function loginFailed() {
 }
 
 function testLogin() {
-	$db = dbcon();
 	$success = 0;
-	if(isset($_POST['username']) && isset($_POST['password'])) {
-		$query = "SELECT password FROM players 
-			WHERE name=\"{$_POST['username']}\"";
-		$result = mysql_query($query, $db) or die(mysql_error());
-		if(mysql_num_rows($result) > 0) {
-			$row = mysql_fetch_assoc($result);
-			if(strcmp($row['password'], 
-			hash('sha256', $_POST['password'])) == 0) {
-				session_start();
-				header("Cache-control: private");
-				$_SESSION['username'] = $_POST['username'];
-				header("location: player.php");
-				$success = 1;
-			}
-		}
-		mysql_free_result($result);
-	}
-	mysql_close($db);
+  if(isset($_POST['username']) && isset($_POST['password'])) {
+    $auth = Player::checkPassword($_POST['username'], $_POST['password']);
+    if ($auth) { 
+      session_start();
+      header("Cache-control: private");
+      $_SESSION['username'] = $_POST['username'];
+      header("location: player.php");
+      $success = 1;
+    }
+  }
 	return $success;
 }
 ?>
