@@ -62,21 +62,23 @@ function formatDropMenuR($format) {
 }
 
 function ratingsTable($format, $min=20) {
-	$db = dbcon();
-	$query = "SELECT p.name AS player, r.rating, r.wins, r.losses
-		FROM ratings AS r, players AS p,
+  $db = Database::getConnection();
+  $stmt = $db->prepare("SELECT p.name AS player, r.rating, r.wins, r.losses
+		FROM ratings r, players p,
 		(SELECT qr.player AS qplayer, MAX(qr.updated) AS qmax
 		 FROM ratings AS qr
-		 WHERE qr.format=\"$format\"
+		 WHERE qr.format = ?
 		 GROUP BY qr.player) AS q
-		WHERE r.format=\"$format\"
+		WHERE r.format = ? 
 		AND p.name=r.player
 		AND q.qplayer=r.player
 		AND q.qmax=r.updated
 		AND q.qmax > DATE_SUB(NOW(), INTERVAL 90 DAY)
-		AND r.wins + r.losses >= $min
-		ORDER BY r.rating DESC";
-	$result = mysql_query($query) or die(mysql_error());
+		AND r.wins + r.losses >= ?
+    ORDER BY r.rating DESC");
+  $stmt->bind_param("ssd", $format, $format, $min);
+  $stmt->execute() or die($stmt->error);
+  $stmt->bind_result($playername, $rating, $wins, $losses);
 	$rank = 0;
 
 	echo "<table align=\"center\" style=\"border-width: 0px;\" ";
@@ -88,53 +90,53 @@ function ratingsTable($format, $min=20) {
 	echo "<tr><td align=\"center\"><b>Rank</td>";
 	echo "<td><b>Player</td><td align=\"center\">";
 	echo "<b>Rating</td>";
-	echo "<td align=\"center\" colspan=\"3\"><b>Record</td></tr>\n";
-	while($row = mysql_fetch_assoc($result)) {
+  echo "<td align=\"center\" colspan=\"3\"><b>Record</td></tr>\n";
+  while($stmt->fetch()) { 
 		$rank++;
 		echo "<tr><td align=\"center\">$rank</td><td>";
-		echo "<a href=\"profile.php?player={$row['player']}\">";
-		echo "{$row['player']}</a></td>\n";
-		echo "<td align=\"center\">{$row['rating']}</td>\n";
-		echo "<td align=\"right\" width=35>{$row['wins']}&nbsp;</td>\n";
-		echo "<td align=\"center\">-</td><td width=35 align=\"left\">&nbsp;{$row['losses']}</td></tr>";
+		echo "<a href=\"profile.php?player={$playername}\">";
+		echo "{$playername}</a></td>\n";
+		echo "<td align=\"center\">{$rating}</td>\n";
+		echo "<td align=\"right\" width=35>{$wins}&nbsp;</td>\n";
+		echo "<td align=\"center\">-</td><td width=35 align=\"left\">&nbsp;{$losses}</td></tr>";
 	}	
-	echo "</table>";
-	mysql_free_result($result);
-	mysql_close($db);
+  echo "</table>";
+  $stmt->close();
 }
 
 function bestEver($format) {
-	$db = dbcon();
-	$query = "SELECT p.name AS player, r.rating, UNIX_TIMESTAMP(r.updated) AS t
+  $db = Database::getConnection();
+  $stmt = $db->prepare("SELECT p.name AS player, r.rating, 
+    UNIX_TIMESTAMP(r.updated) AS t
 		FROM ratings AS r, players AS p,
 		(SELECT MAX(qr.rating) AS qmax
-		 FROM ratings AS qr
-		 WHERE qr.format=\"$format\") AS q
-		WHERE format=\"$format\"
-		AND p.name=r.player
-		AND q.qmax=r.rating";
-	$result = mysql_query($query) or die(mysql_error());
-
-	$row = mysql_fetch_assoc($result);
-	printf("The highest $format rating ever achieved is <b>%d</b>, obtained by <b>%s</b> on %s",
-		$row['rating'], $row['player'], date("l, F j, Y", $row['t']));
-	mysql_free_result($result);
-	mysql_close($db);
+		 FROM ratings AS qr WHERE qr.format = ?) AS q
+     WHERE format = ?  AND p.name=r.player AND q.qmax=r.rating");
+  $stmt->bind_param("ss", $format, $format); 
+  $stmt->execute() or die($stmt->error); 
+  $stmt->bind_result($playername, $rating, $timestamp); 
+  $stmt->fetch();
+  $stmt->close();
+  
+  printf("The highest $format rating ever achieved is <b>%d</b>, obtained by <b>%s</b> on %s",
+    $rating, $playername, date("l, F j, Y", $timestamp));
 }
 
 function currentThrough($format) {
-	$db = dbcon();
-	$query = "SELECT MAX(updated) AS m FROM ratings WHERE format='$format'";
-	$result = mysql_query($query, $db);
-	$row = mysql_fetch_assoc($result);
-	mysql_free_result($result);
-	$start = $row['m'];
-	$query = "SELECT name FROM events WHERE start='$start'";
-	$result = mysql_query($query, $db);
-	$row = mysql_fetch_assoc($result);
-	printf("<b>Ratings current through <span style=\"color: #440088\">%s</span></b>", $row['name']);
-	mysql_free_result($result);
-	mysql_close($db);
+  $db = Database::getConnection();
+  $stmt = $db->prepare("SELECT MAX(updated) AS m FROM ratings WHERE format = ?");
+  $stmt->bind_param("s", $format);
+  $stmt->execute() or die($stmt->error);
+  $stmt->bind_result($start); 
+  $stmt->fetch();
+  $stmt->close();
+  $stmt = $db->prepare("SELECT name FROM events WHERE start = ?");
+  $stmt->bind_param("s", $start);
+  $stmt->execute() or die($stmt->error); 
+  $stmt->bind_result($name); 
+  $stmt->fetch(); 
+  $stmt->close();
+	printf("<b>Ratings current through <span style=\"color: #440088\">%s</span></b>", $name);
 }
 
 ?>

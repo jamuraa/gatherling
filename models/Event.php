@@ -33,9 +33,9 @@ class Event {
   function __construct($name) { 
     if ($name == "") { 
       $this->name = ""; 
-      $this->mainrounds = 0; 
+      $this->mainrounds = ""; 
       $this->mainstruct = ""; 
-      $this->finalrounds = 0; 
+      $this->finalrounds = ""; 
       $this->finalstruct = ""; 
       $this->host = NULL; 
       $this->cohost = NULL; 
@@ -108,9 +108,10 @@ class Event {
     } else { 
       $stmt = $db->prepare("UPDATE events SET
         start = ?, format = ?, host = ?, cohost = ?, kvalue = ?, 
-        number = ?, season = ?, series = ?, theadurl = ?, reporturl = ?, 
-        metaurl = ?, finalize = ? WHERE name = ?");
-      $stmt->bind_param("ssssdddsssds", $this->start, $this->format, $this->host, $this->cohost, $this->kvalue, $this->number, $this->season, $this->series, $this->threadurl, $this->reporturl, $this->metaurl, $this->finalize, $this->name); 
+        number = ?, season = ?, series = ?, threadurl = ?, reporturl = ?, 
+        metaurl = ?, finalized = ? WHERE name = ?");
+      $stmt or die($db->error); 
+      $stmt->bind_param("ssssdddssssds", $this->start, $this->format, $this->host, $this->cohost, $this->kvalue, $this->number, $this->season, $this->series, $this->threadurl, $this->reporturl, $this->metaurl, $this->finalized, $this->name); 
       $stmt->execute() or die($stmt->error);
       $stmt->close(); 
 
@@ -130,7 +131,7 @@ class Event {
     $db = Database::getConnection(); 
     $stmt = $db->prepare("INSERT INTO subevents(parent, rounds, timing, type)
       VALUES(?, ?, ?, ?)");
-    $stmt->bind_param($this->name, $rounds, $timing, $type); 
+    $stmt->bind_param("sdds", $this->name, $rounds, $timing, $type); 
     $stmt->execute(); 
     $stmt->close();  
   } 

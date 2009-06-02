@@ -78,8 +78,16 @@ class Player {
     $stmt->close();
   }
 
+  function save() { 
+    $db = Database::getConnection(); 
+    $stmt = $database->prepare("UPDATE players SET password = ?, host = ?, super = ? WHERE name = ?"); 
+    $stmt->bind_param("sdds", $this->password, $this->host, $this->super, $this->name); 
+    $stmt->execute(); 
+    $stmt->close(); 
+  } 
+
   function isHost() { 
-    return ($this->host == 1);
+    return ($this->super == 1) || ($this->host == 1);
   } 
 
   function getHostedEvents() { 

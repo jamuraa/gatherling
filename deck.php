@@ -479,51 +479,6 @@ function symbolTable($deck) {
 	echo "</table>\n";
 }
 
-function authCheck($deck) {
-  $player = Player::getSessionPlayer();
-  if ($player->name == $deck->playername 
-    || $player->isSuper() 
-    || $deck->getEvent()->isHost($player->name)
-    || $deck->getEvent()->isSteward($player->name))
-    $auth = 0;
-    $db = dbcon();
-    $query = "SELECT host, super FROM players 
-        WHERE name=\"{$_SESSION['username']}\"";
-    $result = mysql_query($query, $db) or die(mysql_error());
-    if(mysql_num_rows($result) > 0) {
-        $row = mysql_fetch_assoc($result);
-        if($row['super'] == 1) {$auth = 1;}
-        elseif($row['host'] == 1) {
-            $query = "SELECT host FROM events e, entries n
-				WHERE e.name=n.event
-				AND n.deck=$id
-                AND (e.host=\"{$_SESSION['username']}\" 
-                     OR e.cohost=\"{$_SESSION['username']}\")";
-            $eResult = mysql_query($query, $db) or die(mysql_error());
-            if(mysql_num_rows($eResult) > 0) {$auth = 1;}
-            mysql_free_result($eResult);
-        }
-    }
-    mysql_free_result($result);
-    if(!$auth) {
-        $query = "SELECT s.player FROM stewards s, entries n
-			WHERE s.event=n.event AND n.deck=$id
-            AND s.player=\"{$_SESSION['username']}\"";
-        $result = mysql_query($query, $db) or die(mysql_error());
-        if(mysql_num_rows($result) > 0) {$auth = 1;}
-        mysql_free_result($result);
-    }
-	if(!$auth) {
-		$query = "SELECT player FROM entries 
-			WHERE deck=$id AND player=\"{$_SESSION['username']}\"";
-		$result = mysql_query($query, $db) or die(mysql_error());
-		if(mysql_num_rows($result) > 0) {$auth = 1;}
-		mysql_free_result($result);
-	}
-    mysql_close($db);
-    return $auth;
-}
-
 function authFailed() {
     echo "You are not permitted to make that change. Please contact the ";
     echo "event host or deck owner to modify this deck. If you <b>are</b> the event host ";
@@ -531,37 +486,4 @@ function authFailed() {
     echo "should contact WoCoNation via the forums.<br><br>";
 }
 
-function evAuthCheck($id, $event="") {
-	if(chop($id) == "") {$id = 0;}
-    $auth = 0;
-    $db = dbcon();
-    $query = "SELECT host, super FROM players 
-        WHERE name=\"{$_SESSION['username']}\"";
-    $result = mysql_query($query, $db) or die(mysql_error());
-    if(mysql_num_rows($result) > 0) {
-        $row = mysql_fetch_assoc($result);
-        if($row['super'] == 1) {$auth = 1;}
-        elseif($row['host'] == 1) {
-            $query = "SELECT host FROM events e, entries n
-				WHERE e.name=n.event AND (n.deck=$id OR n.event=\"$event\")
-                AND (e.host=\"{$_SESSION['username']}\" 
-                     OR e.cohost=\"{$_SESSION['username']}\")";
-            $eResult = mysql_query($query, $db) or die(mysql_error());
-            if(mysql_num_rows($eResult) > 0) {$auth = 1;}
-            mysql_free_result($eResult);
-        }
-    }
-    mysql_free_result($result);
-    if(!$auth) {
-        $query = "SELECT s.player FROM stewards s, entries n
-			WHERE ((s.event=n.event AND n.event=\"$event\")
-			OR (n.deck=$id AND n.event=s.event)) AND
-            s.player=\"{$_SESSION['username']}\"";
-        $result = mysql_query($query, $db) or die(mysql_error());
-        if(mysql_num_rows($result) > 0) {$auth = 1;}
-        mysql_free_result($result);
-    }
-    mysql_close($db);
-    return $auth;
-}
 ?>

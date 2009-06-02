@@ -34,15 +34,13 @@ function content() {
 		if($code == 0) {
 			echo "Registration was successful. You may now ";
 			echo "<a href=\"login.php\">Log In</a>.\n";
-		}
-		elseif($code == -1) {
-			echo "Passwords don't match. Please go back and try again.\n";}
-		elseif($code == -2) {
+		} elseif ($code == -1) {
+      echo "Passwords don't match. Please go back and try again.\n";
+    } elseif ($code == -2) {
 			echo "The specified username was not found in the database ";
-			echo "Please contact WoCoNation on the forums if you feel this is ";
+			echo "Please contact jamuraa on the forums if you feel this is ";
 			echo "an error.\n";
-		}
-		elseif($code == -3) {
+		} elseif ($code == -3) {
 			echo "A password has already been created for this account.\n";}	
 	}
 }
@@ -67,27 +65,17 @@ function regForm() {
 
 function doRegister() {
 	$code = 0;
-	$db = dbcon();
-	if(strcmp($_POST['pw1'], $_POST['pw2']) != 0) {$code = -1;}
-	$query = "SELECT password FROM players
-		WHERE name=\"{$_POST['username']}\"";
-	$result = mysql_query($query, $db) or die(mysql_error());
-	if(mysql_num_rows($result) < 1) {
-		$query = "INSERT INTO players(name) VALUES ('{$_POST['username']}')";
-		mysql_query($query, $db) or die(mysql_error());
+  if (strcmp($_POST['pw1'], $_POST['pw2']) != 0) {
+    $code = -1;
+  }
+  $player = Player::findOrCreateByName($_POST['username']);
+  if (!is_null($player->password)) { 
+    $code = -3; 
+  }   
+  if ($code == 0) {
+    $player->password = hash('sha256', $_POST['pw1']);
+    $player->save();
 	}
-	else {
-		$row = mysql_fetch_assoc($result);
-		if(!is_null($row['password'])) {$code = -3;}
-	}
-	mysql_free_result($result);
-	if($code == 0) {
-		$pass = hash('sha256', $_POST['pw1']);
-		$query = "UPDATE players SET password=\"$pass\"
-			WHERE name=\"{$_POST['username']}\"";
-		mysql_query($query, $db) or die(mysql_error());
-	}
-	mysql_close($db);
 	return $code;
 }
 

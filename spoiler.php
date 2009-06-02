@@ -2,33 +2,30 @@
 
 <?php
 require_once('lib.php');
-$db = dbcon();
+$db = Database::getConnection();
 
+$cardsets = array();
 
 if(isset($_GET['format'])) {
-	$format = $_GET['format'];
-	$preq = "SELECT cardset FROM setlegality WHERE format='$format'";
-	$result = mysql_query($preq);
-	$n = 0;
-	$setfilter = "(";
-	while($row = mysql_fetch_assoc($result)) {
-		$thisset = $row['cardset'];
-		if($n > 0) {$setfilter .= " OR ";}
-		$setfilter .= "cardset='$thisset'";
-		$n++;
-	}
-	$setfilter .= ")";
-	mysql_free_result($result);
-}
-else {
-	$setfilter = " cardset = '" . $_GET['set'] . "' ";
+  $format = $_GET['format'];
+  $stmt = $db->prepare("SELECT cardset FROM setlegality WHERE format= ?");
+  $stmt->bind_param("s", $format);
+  $stmt->execute();
+  $stmt->bind_result($cardset); 
+
+
+  while ($stmt->fetch()) { 
+    $cardsets[] = $cardset;
+  }
+  $stmt->close(); 
+} else {
+  $cardsets[] = $_GET['set'];
 }
 
-$query = "SELECT id , (isw + isg + isu + isr + isb) AS n, 
+$stmt = $db->prepare("SELECT id , (isw + isg + isu + isr + isb) AS n, 
 	isw, isg, isu, isb, isr
-	FROM cards WHERE " . $setfilter . 
-	" ORDER BY n , isw desc, isg desc, isu desc, isr desc, isb desc, name";
-$result = mysql_query($query) or die(mysql_error());
+  FROM cards WHERE cardset = ? ORDER BY n , isw desc, isg desc, isu desc, 
+  isr desc, isb desc, name");
 ?>
 
 <body bgcolor=\"#404040\">
@@ -36,29 +33,25 @@ $result = mysql_query($query) or die(mysql_error());
 <?php
 $n = 0;
 $w = $g = $u = $r = $b = 0;
-while($row = mysql_fetch_assoc($result)) {
-	if( $row['isw'] != $w || 
-	$row['isg'] != $g || 
-	$row['isu'] != $u || 
-	$row['isr'] != $r || 
-	$row['isb'] != $b) {
-		echo "<br><br>";
-		$n = 0;
-	}
-	/*elseif($n == 6) {
-		echo "<br>\n";
-		$n = 0;
-	}*/
-	printf("<img src=\"/cards/%d.jpg\">\n", $row['id']);	
-	$w = $row['isw'];
-	$g = $row['isg'];
-	$u = $row['isu'];
-	$r = $row['isr'];
-	$b = $row['isb'];
-	$n++;
+foreach ($cardsets as $cardset) { 
+  $stmt->bind_param("s", $cardset); 
+  $stmt->execute() or die($stmt->error); 
+  $stmt->bind_result($id, $total, $isw, $isg, $isu, $isb, $isr); 
+  while ($stmt->fetch()) { 
+    if( $isw != $w || $isg != $g || $isu != $u || $isr != $r || $isb != $b) {
+      echo "<br><br>";
+      $n = 0;
+    }
+    printf("<img src=\"/cards/%d.jpg\">\n", $id);	
+    $w = $isw;
+    $g = $isg;
+    $u = $isu;
+    $r = $isr;
+    $b = $isb;
+    $n++;
+  }
 }
-mysql_free_result($result);
-mysql_close($db);
+$stmt->close();
 ?>
 
 </body>

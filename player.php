@@ -263,26 +263,6 @@ function matchTable($player, $limit=0) {
 	echo "</table>";
 }
 
-function getDeckInfo($player, $event) {
-	$arr = array("id" => "", "name" => "");
-	$db = dbcon();
-	$query = "SELECT deck FROM entries WHERE player=\"$player\"
-		AND event=\"$event\" AND deck IS NOT NULL";
-	$result = mysql_query($query, $db) or die(mysql_error());	
-	if(mysql_num_rows($result) > 0) {
-		$row = mysql_fetch_assoc($result);
-		$arr['id'] = $row['deck'];
-		mysql_free_result($result);
-		$query = "SELECT name FROM decks WHERE id={$arr['id']}";
-		$result = mysql_query($query, $db) or die(mysql_error());
-		$row = mysql_fetch_assoc($result);
-		$arr['name'] = $row['name'];
-	}
-	mysql_free_result($result);
-	mysql_close($db);
-	return $arr;
-}	
-
 function ratingsTableSmall() {
   global $player;
 	$composite = $player->getRating("Composite");

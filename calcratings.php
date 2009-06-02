@@ -1,10 +1,8 @@
 <?php
 include 'lib.php';
 
-$db = dbcon();
-$query = "DELETE FROM ratings";
-mysql_query($query, $db) or die(mysql_error());
-mysql_close($db);
+$db = Database::getConnection();
+$db->query("DELETE FROM ratings") or die($db->error);
 
 $compQuery = "SELECT name, start FROM events ORDER BY start";
 $futexQuery = "SELECT name, start FROM events WHERE format=\"Future Extended\" ORDER BY start";
@@ -22,12 +20,10 @@ calcRating("Other Formats", $otherQuery);
 calcRating("Modern", $modernQuery);
 calcRating("XPDC Season 1", $xpdcQuery);
 
-#getEntryRatings("UPDC 0.12", "Composite");
-
 function calcRating($format, $query) {
-	$db = dbcon();
+  $db->query($query) or die($db->error);
 	$result = mysql_query($query, $db) or die(mysql_error());
-	while($row = mysql_fetch_assoc($result)) {
+	while($row = $result->fetch_assoc()) {
 		$event = $row['name'];
 		$players = calcPostEventRatings($event, $format);
 		insertRatings($players, $format, $row['start']);
@@ -36,16 +32,14 @@ function calcRating($format, $query) {
 }
 
 function insertRatings($players, $format, $date) {
-	$db = dbcon();
 	foreach($players as $player=>$data) {
 		$rating = $data['rating'];
-		$wins = $data['wins']; $losses = $data['losses'];
-		$query = "INSERT INTO ratings VALUES(\"$player\", $rating,
-			\"$format\", \"$date\", $wins, $losses)";
-		mysql_query($query) or die($query);;
-#		echo "foo";
+    $wins = $data['wins']; $losses = $data['losses'];
+    $stmt = $db->prepare("INSERT INTO ratings VALUES(?, ?, ?, ?, ?, ?)"); 
+    $stmt->bind_param("sdssdd", $player, $rating, $format, $date, $wins, $losses);
+    $stmt->execute() or die($stmt->error); 
+    $stmt->close();
 	}
-	mysql_close($db);
 }
 
 function calcPostEventRatings($event, $format) {
@@ -97,55 +91,56 @@ function winProb($rating, $oppRating) {
 }
 
 function getMatches($event) {
-	$db = dbcon();
-	$query = "SELECT LCASE(m.playera) AS playera, LCASE(m.playerb) AS playerb, m.result, e.kvalue
+	$stmt->prepare("SELECT LCASE(m.playera) AS playera, LCASE(m.playerb) AS playerb, m.result, e.kvalue
 		FROM matches AS m, subevents AS s, events AS e
-		WHERE m.subevent=s.id AND s.parent=e.name AND e.name=\"$event\"
-		ORDER BY s.timing, m.round";
-	$result = mysql_query($query) or die(mysql_error());
-	$data = array();
-	while($row = mysql_fetch_assoc($result)) {$data[] = $row;}
-	mysql_free_result($result);
-	mysql_close($db);
+		WHERE m.subevent=s.id AND s.parent=e.name AND e.name = ?
+    ORDER BY s.timing, m.round");
+  $stmt->bind_param("s", $event); 
+  $stmt->execute();
+  $stmt->bind_result($playera, $playerb, $result, $kvalue);
+  $data = array();
+  while ($stmt->fetch()) { 
+    $data[] = array('playera' => $playera, 
+                    'playerb' => $playerb, 
+                    'result' => $result,
+                    'kvalue' => $kvalue); 
+  } 
+  $stmt->close();
 	return $data;
 }
 
 function getEntryRatings($event, $format) {
-	$db = dbcon();
-	$query = "SELECT LCASE(n.player) AS player, r.rating, q.qmax, r.wins, r.losses
+	$stmt->prepare("SELECT LCASE(n.player) AS player, r.rating, q.qmax, r.wins, r.losses
 		FROM entries AS n 
-		LEFT OUTER JOIN ratings AS r ON r.player=n.player
+		LEFT OUTER JOIN ratings AS r ON r.player = n.player
 		LEFT OUTER JOIN 
 		(SELECT qr.player AS qplayer, MAX(qr.updated) AS qmax
 		 FROM ratings AS qr, events AS qe
-		 WHERE qr.updated<qe.start AND qe.name=\"$event\"
-		 AND qr.format=\"$format\"
+		 WHERE qr.updated<qe.start AND qe.name = ? AND qr.format = ?
 		 GROUP BY qr.player) AS q
 		ON q.qplayer=r.player
-		WHERE n.event=\"$event\"
-		AND ((q.qmax=r.updated AND q.qplayer=r.player AND r.format=\"$format\") 
+		WHERE n.event = ? AND ((q.qmax=r.updated AND q.qplayer=r.player AND r.format = ?) 
 		     OR q.qmax IS NULL)
-		GROUP BY n.player
-		ORDER BY n.player";
-	#if($event=="Alt PDC 1.02" && $format=="Other Formats"){print $query;}
-	$result = mysql_query($query) or die($query);
+		GROUP BY n.player ORDER BY n.player");
+  $stmt->bind_param("ssss", $event, $format, $event, $format);
+  $stmt->execute();
+  $stmt->bind_result($player, $rating, $qmax, $wins, $losses);
 	$data = array();
-	while($row = mysql_fetch_assoc($result)) {
+  while ($stmt->fetch()) { 
 		$datum = array();
-		if(!is_null($row['qmax'])) {
-			$datum['rating'] = $row['rating'];
-			$datum['wins'] = $row['wins'];
-			$datum['losses'] = $row['losses'];
-		}
-        else {
+		if(!is_null($qmax)) {
+			$datum['rating'] = $rating;
+			$datum['wins'] = $wins;
+			$datum['losses'] = $losses;
+		} else {
 			$datum['rating'] = 1600;
 			$datum['wins'] = 0;
 			$datum['losses'] = 0;
 		}
-		$data[$row['player']] = $datum;
-	}	
-	mysql_free_result($result);
-	mysql_close($db);
+		$data[$player] = $datum;
+  }	
+  $stmt->close();
 	return $data;
 }
+
 ?>

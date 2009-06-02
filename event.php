@@ -35,7 +35,7 @@ function content() {
     $event = new Event($_GET['name']);
 		eventForm($event);
 	} elseif (strcmp($_POST['mode'], "Create New Event") == 0) {
-		if(Player::getSessionPlayer()->hostCheck()) {
+		if(Player::getSessionPlayer()->isHost()) {
 			if(isset($_POST['insert'])) {
 				insertEvent();
 				eventList();
@@ -65,7 +65,7 @@ function content() {
       } elseif(strcmp($_POST['mode'], "Upload Trophy") == 0) {
         insertTrophy(); 
       } elseif(strcmp($_POST['mode'], "Update Event Info") == 0) {
-        updateEvent(); 
+        $event = updateEvent(); 
       } 
       eventForm($event);
     }
@@ -231,7 +231,7 @@ function eventForm($event = NULL) {
 	stringField("reporturl", $event->reporturl, 60);
 	echo "</td></tr>";
 	echo "<tr><td><b>Main Event Structure</td><td>";
-	numDropMenu("mainrounds", "- No. of Rounds -", 10, $event->mainrounds, 0);
+	numDropMenu("mainrounds", "- No. of Rounds -", 10, $event->mainrounds, 1);
 	echo " rounds of ";
 	structDropMenu("mainstruct", $event->mainstruct);
 	echo "</td></tr>";
@@ -498,7 +498,7 @@ function monthDropMenu($month) {
 function structDropMenu($field, $def) {
 	$names = array("Swiss", "Single Elimination", "Round Robin", "League");
 	echo "<select name=\"$field\">";
-	echo "<option value=\"Swiss\">- Structure -</option>";
+	echo "<option value=\"\">- Structure -</option>";
 	for($i = 0; $i < sizeof($names); $i++) {
 		$selStr = (strcmp($def, $names[$i]) == 0) ? "selected" : "";
 		echo "<option value=\"{$names[$i]}\" $selStr>{$names[$i]}</option>";
@@ -543,7 +543,9 @@ function insertEvent() {
 
 	if(strcmp($_POST['host'], $_SESSION['username']) != 0) {
     $event->addSteward($_SESSION['username']);
-	}
+  }
+
+  return $event;
 }
 
 function updateEvent() {
@@ -572,6 +574,7 @@ function updateEvent() {
   $event->finalstruct = $_POST['finalstruct'];
 
   $event->save(); 
+  return $event;
 }
 
 function trophyField($event) {
