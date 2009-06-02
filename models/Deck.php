@@ -274,6 +274,7 @@ class Deck {
 
     $newmaindeck = array();
     foreach ($this->maindeck_cards as $card => $amt) {
+      $card = stripslashes($card);
       $cardar = $this->getCard($card);
       if (is_null($cardar)) {
         if (!isset($this->unparsed_cards[$card])) {
@@ -292,6 +293,7 @@ class Deck {
 
     $newsideboard = array();
     foreach ($this->sideboard_cards as $card => $amt) { 
+      $card = stripslashes($card);
       $cardar = $this->getCard($card); 
       if (is_null($cardar)) { 
         if (!isset($this->unparsed_side[$card])) { 

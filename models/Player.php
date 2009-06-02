@@ -130,7 +130,7 @@ class Player {
   function getLastEventPlayed() { 
     $db = Database::getConnection(); 
     $stmt = $db->prepare("SELECT e.name FROM entries n, events e
-      WHERE n.player = ? ORDER BY UNIX_TIMESTAMP(e.start) DESC"); 
+      WHERE n.player = ? AND e.name = n.event ORDER BY UNIX_TIMESTAMP(e.start) DESC"); 
     $stmt->bind_param("s", $this->name); 
     $stmt->execute(); 
     $lastevname = NULL; 
