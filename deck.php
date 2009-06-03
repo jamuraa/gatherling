@@ -235,6 +235,10 @@ function printPlaceString($medal) {
 }
 
 function deckProfile($deck) {
+  if ($deck == NULL || $deck->id == 0) { 
+    echo "<center>Deck is not found.  It is possible that it is not entered yet.</center>"; 
+    return;
+  } 
 	echo "<center><form action=\"deckdl.php\" method=\"post\">\n";
     echo "<input type=\"hidden\" name=\"id\" value={$deck->id}>\n";
     echo "<input type=\"submit\" name=\"mode\" ";

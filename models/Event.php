@@ -262,7 +262,7 @@ class Event {
   } 
 
   function authCheck($playername) { 
-    if ($this->isHost($name) || $this->isSteward($name)) { 
+    if ($this->isHost($playername) || $this->isSteward($playername)) { 
       return true; 
     }
     $player = new Player($playername); 
