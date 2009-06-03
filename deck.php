@@ -70,9 +70,6 @@ function deckForm($deck = NULL) {
   } else { 
     $player = (isset($_POST['player'])) ? $_POST['player'] : $_GET['player'];
     $event = (isset($_POST['player'])) ? $_POST['event'] : $_GET['event'];
-    // It comes through as escaped.  (MAGIC QUOTES?!?!? GRR!)
-    $player = stripslashes($player);
-    $event = stripslashes($event);
   } 
 
   $auth = false;
@@ -159,12 +156,12 @@ function archetypeDropMenu($def) {
 function insertDeck() {
   $deck = new Deck(0);
 
-  $deck->name = stripslashes($_POST['name']);
-  $deck->archetype = stripslashes($_POST['archetype']); 
-  $deck->notes = stripslashes($_POST['notes']);
+  $deck->name = $_POST['name'];
+  $deck->archetype = $_POST['archetype']; 
+  $deck->notes = $_POST['notes'];
 
-  $deck->playername = stripslashes($_POST['player']);
-  $deck->eventname = stripslashes($_POST['event']);
+  $deck->playername = $_POST['player'];
+  $deck->eventname = $_POST['event'];
 
   $deck->maindeck_cards = parseCards($_POST['contents']); 
   $deck->sideboard_cards = parseCards($_POST['sideboard']);
@@ -175,9 +172,9 @@ function insertDeck() {
 }
 
 function updateDeck($deck) {
-  $deck->archetype = stripslashes($_POST['archetype']); 
-  $deck->name = stripslashes($_POST['name']);
-  $deck->notes = stripslashes($_POST['notes']);
+  $deck->archetype = $_POST['archetype']; 
+  $deck->name = $_POST['name'];
+  $deck->notes = $_POST['notes'];
   
   $deck->maindeck_cards = parseCards($_POST['contents']); 
   $deck->sideboard_cards = parseCards($_POST['sideboard']);
