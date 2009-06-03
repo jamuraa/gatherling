@@ -219,7 +219,7 @@ class Player {
   function getRecentDecks($number = 5) { 
     $db = Database::getConnection(); 
     $stmt = $db->prepare("SELECT n.deck FROM entries n, events e 
-      WHERE n.player = ? AND n.event = e.name 
+      WHERE n.player = ? AND n.event = e.name AND n.deck IS NOT NULL
       ORDER BY e.start DESC LIMIT $number"); 
     $stmt->bind_param("s", $this->name); 
     $stmt->execute(); 
