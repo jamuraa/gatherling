@@ -232,7 +232,7 @@ class Event {
 
   function isHost($name) { 
     $ishost = strcasecmp($name, $this->host) == 0;
-    $iscohost = strcasecmp($cname, $this->cohost) == 0;
+    $iscohost = strcasecmp($name, $this->cohost) == 0;
     return $ishost || $iscohost;
   }  
 

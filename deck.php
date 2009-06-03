@@ -159,12 +159,12 @@ function archetypeDropMenu($def) {
 function insertDeck() {
   $deck = new Deck(0);
 
-  $deck->name = $_POST['name'];
-  $deck->archetype = $_POST['archetype']; 
-  $deck->notes = $_POST['notes'];
+  $deck->name = stripslashes($_POST['name']);
+  $deck->archetype = stripslashes($_POST['archetype']); 
+  $deck->notes = stripslashes($_POST['notes']);
 
-  $deck->playername = $_POST['player'];
-  $deck->eventname = $_POST['event'];
+  $deck->playername = stripslashes($_POST['player']);
+  $deck->eventname = stripslashes($_POST['event']);
 
   $deck->maindeck_cards = parseCards($_POST['contents']); 
   $deck->sideboard_cards = parseCards($_POST['sideboard']);
@@ -175,9 +175,9 @@ function insertDeck() {
 }
 
 function updateDeck($deck) {
-  $deck->archetype = $_POST['archetype']; 
-  $deck->name = $_POST['name'];
-  $deck->notes = $_POST['notes'];
+  $deck->archetype = stripslashes($_POST['archetype']); 
+  $deck->name = stripslashes($_POST['name']);
+  $deck->notes = stripslashes($_POST['notes']);
   
   $deck->maindeck_cards = parseCards($_POST['contents']); 
   $deck->sideboard_cards = parseCards($_POST['sideboard']);

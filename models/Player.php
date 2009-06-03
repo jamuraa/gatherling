@@ -324,7 +324,7 @@ class Player {
       $filteredMatches = array(); 
       foreach ($matches as $match) { 
         if (strcasecmp($match->otherPlayer($this->name), $opponent) == 0) { 
-          $filteredMatches[] = array(); 
+          $filteredMatches[] = $match;
         } 
       } 
       $matches = $filteredMatches;
