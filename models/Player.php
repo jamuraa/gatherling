@@ -62,7 +62,8 @@ class Player {
     $found = Player::findByName($playername); 
     if (is_null($found)) { 
       return Player::createByName($playername); 
-    } 
+    }
+   return $found; 
   } 
 
   function __construct($name) { 
@@ -80,7 +81,7 @@ class Player {
 
   function save() { 
     $db = Database::getConnection(); 
-    $stmt = $database->prepare("UPDATE players SET password = ?, host = ?, super = ? WHERE name = ?"); 
+    $stmt = $db->prepare("UPDATE players SET password = ?, host = ?, super = ? WHERE name = ?"); 
     $stmt->bind_param("sdds", $this->password, $this->host, $this->super, $this->name); 
     $stmt->execute(); 
     $stmt->close(); 
