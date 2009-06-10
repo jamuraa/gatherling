@@ -191,7 +191,7 @@ function bestDecksTable($player) {
 		}
 	}
 	if($printed == 0) {
-		echo "<tr><td colspan=3><i>$player has no medal winning decks.";
+		echo "<tr><td colspan=3><i>{$player->name} has no medal winning decks.";
 		echo "</td></tr>\n";
 	}
 	echo "</table>\n";

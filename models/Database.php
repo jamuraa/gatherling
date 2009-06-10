@@ -6,7 +6,7 @@ class Database {
     static $instance; 
 
     if (!isset($instance)) { 
-      $instance = new mysqli('localhost', 'pdcmagic', 'pdcm4g1crul3s', 'pdcmagic_gath');
+      $instance = new mysqli('hostname', 'username', 'password', 'database');
     } 
 
     return $instance;
