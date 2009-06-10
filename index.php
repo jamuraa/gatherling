@@ -24,8 +24,9 @@ cellspacing=0 cellpadding=5>
 
 <br><br></td></tr>
 <tr><td align=center bgcolor=#DDDDDD cellpadding=15>
-<h3>Updated by <b>WoCoNation</b> on 2007-12-27</td></tr></table></div>
-<br><br></div></div>
+<h3><?php version_tagline(); ?></h3>
+</td></tr></table></div>
+<br /><br /></div></div>
 <?php include '../footer.ssi';?>
 
 <?php function content() { ?>
@@ -38,7 +39,7 @@ Welcome to the Gatherling home page. While I'm not sure what this page will
 have on it in the future, I'm going to use it to log my changes for now. If
 you want to know what I've been working on recently, you can look here. If
 you want to submit a bug, please send an email to
-<i>WoCoNation (at) pdcmagic (dot) com</i> or PM WoCoNation via the forums.<br>
+<i>jamuraa (at) pdcmagic (dot) com</i> or PM jamuraa via the forums.<br>
 <br>
 <b>2008-01-04:</b><br>
 - Sorry it's been so long to get an actual update in. There are probably a 

@@ -21,7 +21,8 @@
 
 <br></td></tr>
 <tr><td align=center bgcolor=#DDDDDD cellpadding=15>
-<h3>Updated by <b>WoCoNation</b> on 2008-02-26</td></tr></table></div>
+<h3><?php version_tagline(); ?></h3>
+</td></tr></table></div>
 <br><br></div></div>
 <?php include '../footer.ssi';?>
 

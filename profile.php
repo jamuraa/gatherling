@@ -22,8 +22,9 @@ cellspacing=0 cellpadding=5>
 
 <br></td></tr>
 <tr><td align=center bgcolor=#DDDDDD cellpadding=15>
-<h3>Updated by <b>WoCoNation</b> on 2007-12-27</td></tr></table></div>
-<br><br></div></div>
+<h3><?php version_tagline(); ?></h3>
+</td></tr></table></div>
+<br /><br /></div></div>
 <?php include '../footer.ssi';?>
 
 <?php

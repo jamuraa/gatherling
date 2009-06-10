@@ -95,3 +95,7 @@ function numDropMenu($field, $title, $max, $def, $min = 0, $special="") {
     echo "</select>";
 }
 
+function version_tagline() { 
+  print "Gatherling version 1.9.1 (\"It's the United States of Don't Touch That Thing Right in Front of You.\")";
+  # print "Gatherling version 1.9 (\"It's funny 'cause the squirrel got dead\")";
+} 
