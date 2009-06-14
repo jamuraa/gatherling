@@ -64,7 +64,9 @@ function content() {
       } elseif(strcmp($_POST['mode'], "Update Medals") == 0) {
         updateMedals(); 
       } elseif(strcmp($_POST['mode'], "Upload Trophy") == 0) {
-        insertTrophy(); 
+        if (insertTrophy()) {
+          $event->hastrophy = 1;
+        } 
       } elseif(strcmp($_POST['mode'], "Update Event Info") == 0) {
         $event = updateEvent(); 
       } 
@@ -252,7 +254,7 @@ function eventForm($event = NULL) {
 		echo "<td><input type=\"checkbox\" name=\"finalize\" value=\"1\" ";
 		if($event->finalized == 1) {echo "checked";}
 		echo "></td></tr>";
-		trophyField($event->name);	
+		trophyField($event);	
 		echo "<tr><td>&nbsp;</td></tr>";
 		echo "<tr><td colspan=\"2\" align=\"center\">";
 		echo "<input type=\"submit\" name=\"mode\" value=\"Update Event Info\">";
@@ -582,7 +584,7 @@ function trophyField($event) {
 	if($event->hastrophy) {
 		echo "<tr><td>&nbsp;</td></tr>";
 		echo "<tr><td colspan=\"2\" align=\"center\">";
-		echo "<img src=\"displayTrophy.php?event=$event\"></td></tr>";
+		echo "<img src=\"displayTrophy.php?event={$event->name}\"></td></tr>";
 	}
   echo "<tr><td valign=\"top\"><b>Trophy Image</td><td>";
   echo "<input type=\"file\" id=\"trophy\" name=\"trophy\">&nbsp";
@@ -600,17 +602,24 @@ function insertTrophy() {
     $size = $file['size'];
     $type = $file['type'];
 
-		$f = fopen($tmp, 'r');
+		$f = fopen($tmp, 'rb');
     $content = fread($f, filesize($tmp));
-    $content = addslashes($content);
     fclose($f);
 
     $db = Database::getConnection(); 
+    $stmt = $db->prepare("DELETE FROM trophies WHERE event = ?");
+    $stmt->bind_param("s", $event);
+    $stmt->execute() or die($stmt->error);
+    $stmt->close();
+
     $stmt = $db->prepare("INSERT INTO trophies(event, size, type, image) 
       VALUES(?, ?, ?, ?)");
-    $stmt->bind_param("sdsb", $name, $size, $type, $content); 
+    $null = NULL;
+    $stmt->bind_param("sdsb", $event, $size, $type, $null); 
+    $stmt->send_long_data(3, $content);
     $stmt->execute() or die($stmt->error); 
     $stmt->close(); 
+    return true;
 	}
 }
 
