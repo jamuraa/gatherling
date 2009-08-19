@@ -11,7 +11,7 @@ $player = Player::getSessionPlayer();
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
 <title>PDCMagic.com | Gatherling | Player Control Panel</title>
-<?php include '../header2.ssi';?>
+<?php print_header(); ?>
 <?php include 'gathnav.php';?>
 <div id="contentwrapper">
 <div id="contentcolumn"><br>
@@ -29,7 +29,7 @@ cellspacing=0 cellpadding=5>
 <h3><?php version_tagline(); ?></h3>
 </td></tr></table></div>
 <br /><br /></div></div>
-<?php include '../footer.ssi';?>
+<?php print_footer(); ?>
 
 <?php
 function content() {

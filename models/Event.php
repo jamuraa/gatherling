@@ -397,4 +397,15 @@ class Event {
     $stmt->execute(); 
     $stmt->close(); 
   } 
+
+  public static function exists($name) { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT name FROM events WHERE name = ?"); 
+    $stmt->bind_param("s", $name); 
+    $stmt->execute(); 
+    $stmt->store_result();
+    $event_exists = $stmt->num_rows > 0; 
+    $stmt->close(); 
+    return $event_exists;
+  } 
 }

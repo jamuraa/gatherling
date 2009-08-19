@@ -7,6 +7,22 @@ $R1 = "#EEEEEE";
 $R2 = "#FFFFFF";
 $CC = $r1;
 
+function print_header() { 
+  if (file_exists("../header2.ssi")) { 
+    include "../header2.ssi"; 
+  } else { 
+    include "header2.ssi";
+  } 
+} 
+
+function print_footer() { 
+  if (file_exists("../footer.ssi")) { 
+    include "../footer.ssi"; 
+  } else {  
+    include "footer.ssi"; 
+  }
+} 
+
 function headerColor() {
 	global $HC, $CC, $R1;
 	$CC = $R2;

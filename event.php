@@ -6,7 +6,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
 <title>PDCMagic.com | Gatherling | Host Control Panel</title>
-<?php include '../header2.ssi';?>
+<?php print_header();?>
 <?php include 'gathnav.php';?>
 <div id="breadcrummer"><div class="innertube"><p class="breadcrumb"><a href="/">PDCMagic.com</a><a href="index.php">Gatherling</a>Events</p></div></div>
 <div id="contentwrapper">
@@ -27,7 +27,7 @@ else {linkToLogin();}
 <h3><?php version_tagline(); ?></h3>
 </td></tr></table></div>
 <br /><br /></div></div>
-<?php include '../footer.ssi';?>
+<?php print_footer();?>
 
 <?php 
 function content() {
@@ -46,8 +46,32 @@ function content() {
     } else {
       authFailed();
     }
-	} elseif(strcmp($_GET['mode'], "create") == 0) {
-		eventForm();
+	} elseif (strcmp($_GET['mode'], "create") == 0) {
+    eventForm();
+  } elseif (strcmp($_POST['mode'], "Create Next Event") == 0) { 
+    $oldevent = new Event($_POST['name']); 
+    $newevent = new Event("");
+    $newevent->season = $oldevent->season;
+    $newevent->number = $oldevent->number + 1;
+    $newevent->format = $oldevent->format;
+    // TODO: one week plus date
+    //$newevent->start = "{$_POST['year']}-{$_POST['month']}-{$_POST['day']} {$_POST['hour']}:00:00";
+    $newevent->start = strftime("%Y-%m-%d %H:00:00", strtotime($oldevent->start) + (86400 * 7));
+    $newevent->kvalue = $oldevent->kvalue;
+    $newevent->finalized = 0;
+    
+    $newevent->series = $oldevent->series; 
+    $newevent->host = $oldevent->host; 
+    $newevent->cohost = $oldevent->cohost; 
+
+    $newevent->mainrounds = $oldevent->mainrounds; 
+    $newevent->mainstruct = $oldevent->mainstruct;
+    $newevent->finalrounds = $oldevent->finalrounds; 
+    $newevent->finalstruct = $oldevent->finalstruct; 
+
+		$newevent->name = sprintf("%s %d.%02d",$newevent->series, $newevent->season, $newevent->number);
+
+    eventForm($newevent, true); 
   } elseif (isset($_POST['name'])) { 
     $event = new Event($_POST['name']); 
     if (!$event->authCheck($_SESSION['username'])) { 
@@ -167,15 +191,19 @@ function eventList($series = "", $season = "") {
 	echo "</table></form>";
 }
 
-function eventForm($event = NULL) {
-	$edit = ($event != NULL);
+function eventForm($event = NULL, $forcenew = false) {
+  if ($forcenew) { 
+    $edit = 0;
+  } else { 
+    $edit = ($event != NULL);
+  } 
   if (is_null($event)) {
     $event = new Event("");
   }
 	echo "<form action=\"event.php\" method=\"post\" ";
 	echo "enctype=\"multipart/form-data\">";
 	echo "<table style=\"border-width: 0px\" align=\"center\">";
-	if ($edit) {
+	if ($event->start != NULL) {
 		$date = $event->start;
 		preg_match('/([0-9]+)-([0-9]+)-([0-9]+) ([0-9]+):.*/', $date, $datearr);
 		$year = $datearr[1];
@@ -256,8 +284,12 @@ function eventForm($event = NULL) {
 		echo "></td></tr>";
 		trophyField($event);	
 		echo "<tr><td>&nbsp;</td></tr>";
-		echo "<tr><td colspan=\"2\" align=\"center\">";
-		echo "<input type=\"submit\" name=\"mode\" value=\"Update Event Info\">";
+    echo "<tr><td colspan=\"2\" align=\"center\">";
+    echo " <input type=\"submit\" name=\"mode\" value=\"Update Event Info\" />";
+    $nexteventname = sprintf("%s %d.%02d",$event->series, $event->season, $event->number + 1);
+    if (!Event::exists($nexteventname)) { 
+      echo " <input type=\"submit\" name=\"mode\" value=\"Create Next Event\" />";
+    } 
 		echo "<input type=\"hidden\" name=\"update\" value=\"1\">";
 		echo "</td></tr>";
 		$view = "reg";

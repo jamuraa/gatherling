@@ -6,7 +6,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
 <title>PDCMagic.com | Gatherling | Format Management</title>
-<?php include '../header2.ssi';?>
+<?php print_header();?>
 <?php include 'gathnav.php';?>
 <div id="breadcrummer"><div class="innertube"><p class="breadcrumb"><a href="/">PDCMagic.com</a><a href="index.php">Gatherling</a>Formats</p></div></div>
 <div id="contentwrapper">
@@ -33,7 +33,7 @@ else {linkToLogin();}
 <h3><?php version_tagline(); ?></h3>
 </td></tr></table></div>
 <br /><br /></div></div>
-<?php include '../footer.ssi';?>
+<?php print_footer();?>
 
 <?
 function content() {

@@ -7,7 +7,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
 <title>PDCMagic.com | Gatherling | Login</title>
-<?php include '../header2.ssi';?>
+<?php print_header(); ?>
 <?php include 'gathnav.php';?>
 <div id="breadcrummer"><div class="innertube"><p class="breadcrumb"><a href="/">PDCMagic.com</a><a href="index.php">Gatherling</a>Login</p></div></div>
 <div id="contentwrapper">
@@ -26,7 +26,7 @@ cellspacing=0 cellpadding=5>
 <h3><?php version_tagline(); ?></h3> 
 </td></tr></table></div>
 <br /><br /></div></div>
-<?php include '../footer.ssi';?>
+<?php print_footer();?>
 
 <?php
 function content($in) {
