@@ -40,6 +40,7 @@ function insertCard($card, $set) {
 
 function getConvertedCost($cost) {
 	$cost = chop($cost);
+	$cost = preg_replace('/\(\w\/\w\)/','H',$cost);
 	$cmc = strlen($cost);
 	if(preg_match("/^([0-9])/", $cost, $matches)) {
 		$cmc = $matches[1] + strlen($cost) - 1;
