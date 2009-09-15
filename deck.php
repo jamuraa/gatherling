@@ -307,7 +307,6 @@ function deckInfoCell($deck) {
 	echo "<tr><td>$line3</td></tr>\n";
 	echo "<tr><td>$line4</td></tr>\n";
 	echo "<tr><td>$line5</td></tr>\n";
-	echo "<tr><td>&nbsp;</td></tr>\n";
 	echo "</table>\n";
 
 }
@@ -336,7 +335,6 @@ function sideboardTable($deck) {
         echo "<a href=\"http://www.magiccards.info/autocard.php?card=";
         echo "{$card}\" target=\"_blank\">{$card}</a></td></tr>\n";
     }
-	echo "<tr><td>&nbsp;</td></tr>";
 	echo "</table>\n";
 }
 
@@ -404,21 +402,18 @@ function maindeckTable($deck) {
 		echo "<a href=\"http://www.magiccards.info/autocard.php?card=";
 		echo "{$card}\" target=\"_blank\">{$card}</a></td></tr>\n";
   }
-	echo "<tr><td>&nbsp;</td></tr>\n";
 	echo "<tr><td colspan=2><i>Spells</td></tr>\n";
   foreach ($other as $card => $amt) { 
 		echo "<tr><td>{$amt} ";
 		echo "<a href=\"http://www.magiccards.info/autocard.php?card=";
 		echo "{$card}\" target=\"_blank\">{$card}</a></td></tr>\n";
 	}
-	echo "<tr><td>&nbsp;</td></tr>";
 	echo "<tr><td colspan=2><i>Lands</td></tr>\n";
   foreach ($lands as $card => $amt) { 
 		echo "<tr><td>{$amt} ";
 		echo "<a href=\"http://www.magiccards.info/autocard.php?card=";
 		echo "{$card}\" target=\"_blank\">{$card}</a></td></tr>\n";
 	}
-	echo "<tr><td>&nbsp;</td></tr>\n";
 	echo "</table>\n";
 }
 
