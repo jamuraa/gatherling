@@ -84,15 +84,6 @@ function content() {
       eventForm($event);
     }
 	} else {
-		echo "<table style=\"border-width: 0px;\" align=\"center\">";
-		echo "<tr><td>";
-		echo "<form action=\"event.php\" method=\"post\">";
-		echo "<input type=\"submit\" name=\"mode\" value=\"Create New Event\">";
-		echo "</form></td><td>";
-		echo "<form action=\"format.php\" method=\"post\">";
-		echo "<input type=\"submit\" name=\"mode\" value=\"View/Add Formats\">";
-		echo "</form></td></tr>";
-		echo "</table><br><br>";
 		eventList($_POST['series'], $_POST['season']);
 	}
 }
@@ -132,7 +123,8 @@ function eventList($series = "", $season = "") {
 	echo "</td></tr>";
 	echo "<tr><td>&nbsp;</td></tr>";
 	echo "<tr><td colspan=\"2\" align=\"center\">";
-	echo "<input type=\"submit\" name=\"mode\" value=\"Filter Events\">";
+  echo "<input type=\"submit\" name=\"mode\" value=\"Create New Event\" />\n";
+  echo "<input type=\"submit\" name=\"mode\" value=\"Filter Events\" />\n";
 	echo "</td></tr></table>";
 	echo "<table style=\"border-width: 0px\" align=\"center\" cellpadding=\"3\">";
 	echo "<tr><td colspan=\"5\">&nbsp;</td></tr>";
