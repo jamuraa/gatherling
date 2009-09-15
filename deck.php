@@ -1,60 +1,51 @@
-<?php session_start();?>
-<?php require_once 'lib.php';?>
-<?php print_header("PDCMagic.com | Gatherling | Deck Database");?>
-<div id="breadcrummer"><div class="innertube"><p class="breadcrumb"><a href="/">PDCMagic.com</a><a href="index.php">Gatherling</a>Decks</p></div></div>
-<div id="contentwrapper">
-<div id="contentcolumn"><br>
-<div class="articles">
-<table width=95% align=center border=1 bordercolor=black 
-cellspacing=0 cellpadding=5>
-<tr><td class=articles bgcolor=#B8E0FE align=center cellpadding=5>
-<h1>DECK DATABASE</h1></td></tr>
-<tr><td bgcolor=white><br>
+<?php session_start();
+require_once 'lib.php';
 
-<?php content();?>
+print_header("PDCMagic.com | Gatherling | Deck Database");
 
-<br></td></tr>
-<tr><td align=center bgcolor=#DDDDDD cellpadding=15>
-<h3><?php version_tagline(); ?></h3> 
-</td></tr></table></div>
-<br /><br /></div></div>
-<?php print_footer();?>
+?> 
+<div class="grid_10 suffix_1 prefix_1">
+<div id="gatherling_main" class="box">
+<div class="uppertitle">Deck Database</div>
+<?php
+if(strcmp($_POST['mode'], "Create Deck") == 0) {
+  $deck = insertDeck();
+  deckProfile($deck);
+}
+elseif(strcmp($_POST['mode'], "Update Deck") == 0) {
+  $deck = new Deck($_POST['id']);
+  if($deck->canEdit($_SESSION['username'])) {
+    $deck = updateDeck($deck);
+    deckProfile($deck);
+  }
+  else {authFailed();}
+}
+elseif(strcmp($_POST['mode'], "Edit Deck") == 0) {
+  $deck = new Deck($_POST['id']); 
+  if($deck->canEdit($_SESSION['username'])) {
+    deckForm($deck);
+  }
+  else{authFailed();}
+}
+elseif(strcmp($_GET['mode'], "create") == 0) {
+  deckForm();
+}
+elseif(strcmp($_GET['mode'], "view") == 0) {
+  if(isset($_GET['event'])) {
+    $event = new Event($_GET['event']);
+    $deck = $event->getPlaceDeck("1st");
+  } else { 
+    $deck = new Deck($_GET['id']);
+  } 
+  deckProfile($deck);
+}
+?> 
+</div> <!-- gatherling_main box -->
+</div> <!-- grid 10 suf 1 pre 1 -->
 
+<?php print_footer(); ?> 
 
 <?php
-function content() {
-	if(strcmp($_POST['mode'], "Create Deck") == 0) {
-		$deck = insertDeck();
-		deckProfile($deck);
-	}
-  elseif(strcmp($_POST['mode'], "Update Deck") == 0) {
-    $deck = new Deck($_POST['id']);
-		if($deck->canEdit($_SESSION['username'])) {
-			$deck = updateDeck($deck);
-			deckProfile($deck);
-		}
-		else {authFailed();}
-	}
-  elseif(strcmp($_POST['mode'], "Edit Deck") == 0) {
-    $deck = new Deck($_POST['id']); 
-		if($deck->canEdit($_SESSION['username'])) {
-			deckForm($deck);
-		}
-		else{authFailed();}
-	}
-	elseif(strcmp($_GET['mode'], "create") == 0) {
-		deckForm();
-	}
-  elseif(strcmp($_GET['mode'], "view") == 0) {
-    if(isset($_GET['event'])) {
-      $event = new Event($_GET['event']);
-      $deck = $event->getPlaceDeck("1st");
-    } else { 
-      $deck = new Deck($_GET['id']);
-    } 
-		deckProfile($deck);
-	}
-}
 
 function deckForm($deck = NULL) {
   $mode = is_null($deck) ? "Create Deck" : "Update Deck";
@@ -122,9 +113,9 @@ function deckForm($deck = NULL) {
 	echo "<tr><td valign=\"top\"><b>Sideboard</td>\n<td>";
 	echo "<textarea rows=\"10\" cols=\"60\" name=\"sideboard\">";
 	echo "{$vals['sideboard']}</textarea></td></tr>\n";
-	//echo "<tr><td valign=\"top\"><b>Comments</td>\n<td>";
-	//echo "<textarea rows=\"10\" cols=\"60\" name=\"notes\">";
-	//echo "{$vals['desc']}</textarea></td></tr>\n";
+	echo "<tr><td valign=\"top\"><b>Comments</td>\n<td>";
+	echo "<textarea rows=\"10\" cols=\"60\" name=\"notes\">";
+	echo "{$vals['desc']}</textarea></td></tr>\n";
 	echo "<tr><td>&nbsp;</td></tr>\n";
 	echo "<tr><td colspan=\"2\" align=\"center\">\n";
 	echo "<input type=\"submit\" name=\"mode\" value=\"$mode\">\n";
@@ -230,55 +221,51 @@ function printPlaceString($medal) {
 
 function deckProfile($deck) {
   if ($deck == NULL || $deck->id == 0) { 
-    echo "<center>Deck is not found.  It is possible that it is not entered yet.</center>"; 
+    echo "<span class=\"error\"><center>Deck is not found.  It is possible that it is not entered yet.</center></span>"; 
     return;
   } 
 	echo "<center><form action=\"deckdl.php\" method=\"post\">\n";
-    echo "<input type=\"hidden\" name=\"id\" value={$deck->id}>\n";
-    echo "<input type=\"submit\" name=\"mode\" ";
-    echo "value=\"Download deck as .txt file\"></form></center><br>\n";
-	echo "<table align=\"center\" style=\"border-width: 0px;\" width=600>\n";
-	echo "<tr><td width=225>";
-	deckInfoCell($deck);
-	echo "</td>\n<td valign=\"top\" align=\"right\">";
-	trophyCell($deck);
-	echo "</td></tr>";
-	echo "<tr><td>";
-	maindeckTable($deck);
-	echo "</td><td valign=\"top\" align=\"right\">";
-	echo "<table style=\"border-width: 0px;\" align=\"right\" width=350>";
-	echo "<tr><td colspan=3 align=\"right\">";
-	matchupTable($deck);
-	echo "</td></tr>";
-	echo "<tr><td width=50></td><td valign=\"top\" align=\"left\" width=150>";
-	symbolTable($deck);
-	echo "</td><td align=\"right\" width=150>";
-	ccTable($deck);
-	echo "</td></tr></table>";
-	echo "</td>\n";
-	echo "<tr><td>";
-	sideboardTable($deck);
-	echo "</td></tr>\n";
-	echo "<tr><td colspan=2>";
-	commentsTable($deck);
-	echo "</td></tr>\n";
-	echo "<tr><td>&nbsp;</td></tr>\n";
-	echo "<tr><td colspan=2 align=\"center\">\n";
+  echo "<input type=\"hidden\" name=\"id\" value={$deck->id}>\n";
+  echo "<input type=\"submit\" name=\"mode\" ";
+  echo "value=\"Download deck as .txt file\"></form></center><br>\n";
+  echo "<div class=\"grid_5 alpha\"><div id=\"gatherling_lefthalf\">\n";
+  deckInfoCell($deck);
+  maindeckTable($deck);
+  sideboardTable($deck);
+  echo "</div> </div>\n"; 
+  echo "<div class=\"grid_5 omega\"><div id=\"gatherling_righthalf\">\n";
+  trophyCell($deck); 
+  matchupTable($deck);
+  echo "<div class=\"grid_2 alpha\">\n";
+  symbolTable($deck); 
+  echo "</div> <div class=\"grid_2 omega\">\n"; 
+  ccTable($deck);
+  echo "</div> </div> </div>\n"; 
+  echo "<div class=\"clear\"></div>"; 
+  echo "<div>";
+  commentsTable($deck);
+  echo "</div>"; 
+  echo "<div class=\"clear\"></div>";
+	echo "<center>\n";
 	echo "<form action=\"deck.php\" method=\"post\">\n";
 	echo "<input type=\"hidden\" name=\"id\" value=\"$deck->id\">\n";
 	echo "<input type=\"submit\" name=\"mode\" value=\"Edit Deck\">\n";
-	echo "</form></td></tr>\n";
-	echo "</table>\n";
+	echo "</form></center>\n";
 }
 
 function commentsTable($deck) {
   $notes = $deck->notes;
 	if($notes == "" || is_null($notes)) {
-		$notes = "<i>No comments have been recorded for this deck.</i>";}
-	$notes = preg_replace("/\n/", "<br>", $notes);
-	$notes = preg_replace("/\[b\]/", "<b>", $notes);
-	$notes = preg_replace("/\[\/b\]/", "</b>", $notes);
-	echo "<table style=\"border-width: 0px;\" cellpadding=1>";
+    $notes = "<i>No comments have been recorded for this deck.</i>";
+  } else { 
+    $notes = strip_tags($notes);
+    $notes = preg_replace("/\n/", "<br />", $notes);
+    $notes = preg_replace("/\[b\]/", "<b>", $notes);
+    $notes = preg_replace("/\[\/b\]/", "</b>", $notes);
+    $notes = preg_replace("/\[i\]/", "<i>", $notes);
+    $notes = preg_replace("/\[\/i\]/", "</i>", $notes);
+  } 
+	echo "<table style=\"border-width: 0px; width: 100%; \" cellpadding=1>";
 	echo "<tr><td><b>COMMENTS</td></tr>";
 	echo "<tr><td>{$notes}</td></tr>";
 	echo "</table>";
@@ -327,8 +314,13 @@ function deckInfoCell($deck) {
 
 function trophyCell($deck) {
   if ($deck->medal == '1st') { 
-    echo $deck->getEvent()->getTrophyImageLink();
-    echo "<br /> <br />";
+    echo "<center>"; 
+    if ($deck->getEvent()->hastrophy) { 
+      echo $deck->getEvent()->getTrophyImageLink();
+    } else { 
+      echo "No trophy uploaded yet!";
+    } 
+    echo "</center><br /> <br />";
   } 
 }
 

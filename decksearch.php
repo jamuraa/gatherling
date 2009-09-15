@@ -1,31 +1,18 @@
-<?php session_start(); ?> 
-<?php include 'lib.php';?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-<title>PDCMagic.com | Gatherling | Basic Deck Search</title>
-<?php print_header();?>
-<?php include 'gathnav.php';?>
-<div id="breadcrummer"><div class="innertube"><p class="breadcrumb"><a href="/">PDCMagic.com</a><a href="index.php">Gatherling</a>Basic Deck Search</p></div></div>
-<div id="contentwrapper">
-<div id="contentcolumn"><br>
-<div class="articles">
-<table width=95% align=center border=1 bordercolor=black cellspacing=0 cellpadding=5>
-<tr><td class=articles bgcolor=#B8E0FE align=center cellpadding=5>
-<h1>Basic Deck Search</h1></td>
-</tr><tr><td bgcolor=white><br>
+<?php session_start();
+include 'lib.php';
+
+print_header("PDCMagic.com | Gatherling | Basic Deck Search");
+?> 
+<div class="grid_10 suffix_1 prefix_1">
+<div id="gatherling_main" class="box">
+<div class="uppertitle"> Basic Deck Search </div>
 
 <?php content(); ?>
 
-<br></td></tr>
-<tr><td align=center bgcolor=#DDDDDD cellpadding=15>
-<h3><?php version_tagline(); ?></h3>
-</td></tr></table></div>
-<br><br></div></div>
-<?php print_footer();?>
+</div> 
+</div>
 
+<?php print_footer();?>
 
 <?php // ------ Search Starts here ------
 function content() {
@@ -55,11 +42,11 @@ function content() {
     $stmt->close(); 
     echo "</table>";
   } else {
-    echo "<form method=\"post\" action=\"{$_SERVER['REQUEST_URI']}\">";
-    echo "Enter a deck name. You may use % as a wildcard.<br><br>";
+    echo "<table><tr><td><form method=\"post\" action=\"{$_SERVER['REQUEST_URI']}\">";
+    echo "Deck name contains: ";
     echo "<input type=\"text\" name=\"deck\">";
     echo "<input type=\"submit\" name=\"mode\" value=\"Gimme some decks!\">";
-    echo "</form>";
+    echo "</form></td></tr></table>";
   }
 }
 ?>

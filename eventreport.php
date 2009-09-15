@@ -1,42 +1,29 @@
-<?php session_start();?>
-<?php include 'lib.php';?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-<title>PDCMagic.com | Gatherling | Event Report</title>
-<?php print_header();?>
-<?php include 'gathnav.php';?>
-<div id="breadcrummer"><div class="innertube"><p class="breadcrumb"><a href="/">PDCMagic.com</a><a href="index.php">Gatherling</a>Event Reports</p></div></div>
-<div id="contentwrapper">
-<div id="contentcolumn"><br>
-<div class="articles">
-<table width=95% align=center border=1 bordercolor=black 
-cellspacing=0 cellpadding=5>
-<tr><td class=articles bgcolor=#B8E0FE align=center cellpadding=5>
-<h1>EVENT REPORT</h1></td></tr>
-<tr><td bgcolor=white><br>
+<?php session_start();
+include 'lib.php';
 
-<?php content(); ?>
+print_header("PDCMagic.com | Gatherling | Event Report");
 
-<br></td></tr>
-<tr><td align=center bgcolor=#DDDDDD cellpadding=15>
-<h3><?php version_tagline(); ?></h3>
-</td></tr></table></div>
-<br /><br /></div></div>
-<?php print_footer();?>
+?> 
+<div class="grid_10 prefix_1 suffix_1">
+<div id="gatherling_main" class="box">
+<div class="uppertitle"> Event Report </div>
 
 <?php
-function content() {
-  if(isset($_GET['event'])) {
-    $event = new Event($_GET['event']);
-		showReport($event);
-	}
-	else {
-		eventList();
-	}
-}
+if (isset($_GET['event'])) { 
+  $event = new Event($_GET['event']);
+  showReport($event);
+} else { 
+  eventList(); 
+} 
+
+?> 
+
+</div> 
+</div> 
+
+<?php print_footer(); ?>
+
+<?php
 
 function eventList($series = "", $season = "") {
   $db = Database::getConnection();
@@ -348,7 +335,11 @@ function infoCell($event) {
 }
 
 function trophyCell($event) {
-  echo "<img src=\"displayTrophy?event={$event->name}\"><br />\n";
+  if ($event->hastrophy) { 
+    echo "<img src=\"displayTrophy?event={$event->name}\"><br />\n";
+  } else { 
+    echo "No trophy available yet! <br />\n";
+  } 
   $deck = $event->getPlaceDeck('1st');
 	echo "<a href=\"profile.php?player={$deck->playername}\">";
 	echo "{$deck->playername}</a>, ";

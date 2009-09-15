@@ -1,38 +1,28 @@
-<?php session_start();?>
-<?php include 'lib.php';?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-<title>PDCMagic.com | Gatherling | Player Profile</title>
-<?php print_header();?>
-<?php include 'gathnav.php';?>
-<div id="breadcrummer"><div class="innertube"><p class="breadcrumb"><a href="/">PDCMagic.com</a><a href="index.php">Gatherling</a>Profile</p></div></div>
-<div id="contentwrapper">
-<div id="contentcolumn"><br>
-<div class="articles">
-<table width=95% align=center border=1 bordercolor=black 
-cellspacing=0 cellpadding=5>
-<tr><td class=articles bgcolor=#B8E0FE align=center cellpadding=5>
-<h1>PLAYER PROFILE</h1></td></tr>
-<tr><td bgcolor=white><br>
+<?php session_start();
+include 'lib.php';
+
+print_header("PDCMagic.com | Gatherling | Player Profile");
+
+$playername = "";
+if(isset($_SESSION['username'])) {$playername = $_SESSION['username'];}
+if(isset($_GET['player'])) {$playername = $_GET['player'];}
+if(isset($_POST['player'])) {$playername = $_POST['player'];}
+	searchForm($playername);
+?> 
+<div class="grid_10 suffix_1 prefix_1">
+<div id="gatherling_main" class="box">
+<div class="uppertitle"> Player Profile </div>
 
 <?php content(); ?>
 
-<br></td></tr>
-<tr><td align=center bgcolor=#DDDDDD cellpadding=15>
-<h3><?php version_tagline(); ?></h3>
-</td></tr></table></div>
-<br /><br /></div></div>
-<?php print_footer();?>
+</div> 
+</div> 
+
+<?php print_footer(); ?>
 
 <?php
 function content() {
-	$playername = "";
-	if(isset($_SESSION['username'])) {$playername = $_SESSION['username'];}
-	if(isset($_GET['player'])) {$playername = $_GET['player'];}
-	if(isset($_POST['player'])) {$playername = $_POST['player'];}
+  global $playername; 
   if(chop($playername) != "") {
     $player = Player::findByName($playername); 
     if (!is_null($player)) { 
@@ -51,23 +41,18 @@ function content() {
         echo "</center>\n";
     }
 	echo "<br><br>\n";
-	searchForm($playername);
 }
 
 function profileTable($player) {
-	echo "<table style=\"border-width: 0px\" align=\"center\" width=600>\n";
-    echo "<tr><td valign=\"top\">";
-    infoTable($player);
-    echo "</td><td align=\"right\" valign=\"top\">";
-    medalTable($player);
-    echo "</td></tr>";
-    echo "<tr><td>&nbsp</td></tr>";
-    echo "<tr><td valign=\"top\">";
-    bestDecksTable($player);
-    echo "</td><td align=\"right\">";
-    trophyTable($player);
-    echo "</td></tr>";
-    echo "</table>";
+  echo "<div class=\"grid_5 alpha\"> <div id=\"gatherling_lefthalf\">\n";
+  infoTable($player);
+  bestDecksTable($player);
+  echo "</div></div>\n";
+  echo "<div class=\"grid_5 omega\"> <div id=\"gatherling_righthalf\">\n";
+  medalTable($player); 
+  trophyTable($player);
+  echo "</div> </div>\n";
+  echo "<div class=\"clear\"></div>";
 }
 
 function infoTable($player) {
@@ -229,13 +214,13 @@ function deckRecordString($deckname, $player) {
 }
 
 function searchForm($name) {
+  echo "<div class=\"grid_10 prefix_1 suffix_1\"> <div class=\"box\" id=\"gatherling_simpleform\">\n"; 
 	echo "<form action=\"profile.php\" mode=\"post\">\n";
-	echo "<table style=\"border-width: 0px;\" align=\"center\">\n";
-	echo "<tr><td colspan=2 align=\"center\"><b>Player Lookup</td></tr>\n";
-	echo "<tr><td>&nbsp;</td></tr>\n";
-	echo "<tr><td><input type=\"text\" name=\"player\" value=\"$name\">";
-	echo "</td><td><input type=\"submit\" name=\"mode\"";
-	echo " value=\"Lookup Profile\"></td></tr></table>\n";
-	echo "</form>\n";
+  echo "<center>Player Lookup: ";
+	echo "<input type=\"text\" name=\"player\" value=\"$name\" />";
+	echo "<input type=\"submit\" name=\"mode\" value=\"Lookup Profile\" />\n";
+  echo "</form></center>\n";
+  echo "<div class=\"clear\"></div>\n";
+  echo "</div> </div>\n";
 }
 ?>

@@ -19,7 +19,7 @@ function print_header($title) {
   <body>
     <div id="maincontainer" class="container_12">
       <div id="headerimage" class="grid_12">
-        <img src="http://pdcmagic.com/img/zen_header1.jpg" />
+        <img src="http://pdcmagic.com/img/zen_header2.jpg" />
       </div>
       <div id="mainmenu_submenu" class="grid_12">
         <ul>
@@ -65,7 +65,7 @@ EOT;
   } 
 
   if ($super) { 
-    echo "<li><a href=\"series.php\">Series CP</a></li>\n";
+    echo "<li><a href=\"index.php\">Series CP*</a></li>\n";
   } 
 
   if ($player == NULL) { 

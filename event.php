@@ -1,33 +1,21 @@
-<?php session_start();?>
-<?php include 'lib.php';?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-<title>PDCMagic.com | Gatherling | Host Control Panel</title>
-<?php print_header();?>
-<?php include 'gathnav.php';?>
-<div id="breadcrummer"><div class="innertube"><p class="breadcrumb"><a href="/">PDCMagic.com</a><a href="index.php">Gatherling</a>Events</p></div></div>
-<div id="contentwrapper">
-<div id="contentcolumn"><br>
-<div class="articles">
-<table width=95% align=center border=1 bordercolor=black cellspacing=0 cellpadding=5>
-<tr><td class=articles bgcolor=#B8E0FE align=center cellpadding=5>
-<h1>Host Control Panel</h1></td>
-</tr><tr><td bgcolor=white><br>
+<?php session_start();
+include 'lib.php';
+
+print_header("PDCMagic.com | Gatherling | Host Control Panel");
+?> 
+<div class="grid_10 suffix_1 prefix_1">
+<div id="gatherling_main" class="box">
+<div class="uppertitle"> Host Control Panel </div>
 
 <?php 
 if(isset($_SESSION['username'])) {content();}
 else {linkToLogin();}
 ?>
 
-<br></td></tr>
-<tr><td align=center bgcolor=#DDDDDD cellpadding=15>
-<h3><?php version_tagline(); ?></h3>
-</td></tr></table></div>
-<br /><br /></div></div>
-<?php print_footer();?>
+<div class="clear"></div> 
+</div> </div> 
+
+<?php print_footer(); ?>
 
 <?php 
 function content() {
@@ -54,7 +42,6 @@ function content() {
     $newevent->season = $oldevent->season;
     $newevent->number = $oldevent->number + 1;
     $newevent->format = $oldevent->format;
-    // TODO: one week plus date
     //$newevent->start = "{$_POST['year']}-{$_POST['month']}-{$_POST['day']} {$_POST['hour']}:00:00";
     $newevent->start = strftime("%Y-%m-%d %H:00:00", strtotime($oldevent->start) + (86400 * 7));
     $newevent->kvalue = $oldevent->kvalue;
