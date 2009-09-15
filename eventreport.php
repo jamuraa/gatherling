@@ -190,10 +190,14 @@ function metastats($event) {
 	echo "<td align=\"center\"><img src=\"/images/rename/b.gif\"></td></tr>\n";
 	echo "<tr>";
 	foreach($colorcnt as $col => $cnt) {
-		if($col != "") {
-			$pcg = round(($cnt / $ndecks)*100);
+    if ($col != "") {
+      if ($ndecks > 0) {
+        $pcg = round(($cnt / $ndecks)*100);
+      } else { 
+        $pcg = "??";
+      }
 			echo "<td align=\"center\">$pcg%</td>\n";
-		}
+		} 
 	}
 	echo "</tr>\n";
 	echo "</table>\n";
