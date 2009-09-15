@@ -1,111 +1,77 @@
-<?php session_start();?>
-<?php 
+<?php session_start();
 require_once 'lib.php';
-
 $player = Player::getSessionPlayer();
 
+print_header("PDCMagic.com | Gatherling | Player Control Panel");
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-<title>PDCMagic.com | Gatherling | Player Control Panel</title>
-<?php print_header(); ?>
-<?php include 'gathnav.php';?>
-<div id="contentwrapper">
-<div id="contentcolumn"><br>
-<div class="articles">
-<table width=95% align=center border=1 bordercolor=black 
-cellspacing=0 cellpadding=5>
-<tr><td class=articles bgcolor=#B8E0FE align=center cellpadding=5>
-<h1>PLAYER CONTROL PANEL</h1></td></tr>
-<tr><td bgcolor=white><br>
+<div class="grid_10 suffix_1 prefix_1"> 
+<div id="gatherling_main" class="box"> 
+<div class="uppertitle"> Player Control Panel </div>
+<?php 
+if ($player == NULL) {  
+  echo "<center> You must <a href=\"login.php\">log in</a> to use your player control panel.</center>\n";
+} elseif (isset($_GET['mode']) && $_GET['mode'] == 'alldecks') { 
+  print_allContainer();
+} elseif (isset($_GET['mode']) && $_GET['mode'] == 'allratings') { 
+  if(!isset($_GET['format'])) {$_GET['format'] = "Composite";}
+	print_ratingsTable($_SESSION['username']);
+	echo "<br><br>";
+	print_ratingHistoryForm($_GET['format']);	
+	echo "<br>";
+	print_ratingsHistory($_GET['format']);
+} elseif (isset($_GET['mode']) && $_GET['mode'] == 'allmatches') {  
+  print_allMatchForm($player); 
+  print_matchTable($player);
+} elseif (isset($_POST['mode']) && $_POST['mode'] == 'Filter Matches') {
+  print_allMatchForm($player);
+  print_matchTable($player);
+} else { 
+  print_mainPlayerCP($player->name); 
+}
+?>
+</div> <!-- gatherling_main box -->
+</div> <!-- grid 10 suff 1 pre 1 -->
 
-<?php content(); ?>
-
-<br></td></tr>
-<tr><td align=center bgcolor=#DDDDDD cellpadding=15>
-<h3><?php version_tagline(); ?></h3>
-</td></tr></table></div>
-<br /><br /></div></div>
 <?php print_footer(); ?>
 
 <?php
-function content() {
-  global $player;
-	if ($player == NULL) {
-		echo "<center>You must <a href=\"login.php\">log in</a> to use your";
-		echo " player control panel.</center>\n";
-	}
-	elseif(isset($_GET['mode']) && $_GET['mode'] == 'alldecks') {
-		allContainer();
-	}
-	elseif(isset($_GET['mode']) && $_GET['mode'] == 'allratings') {
-		if(!isset($_GET['format'])) {$_GET['format'] = "Composite";}
-		ratingsTable($_SESSION['username']);
-		echo "<br><br>";
-		ratingHistoryForm($_GET['format']);	
-		echo "<br>";
-		ratingsHistory($_GET['format']);
-	}
-	elseif(isset($_GET['mode']) && $_GET['mode'] == 'allmatches') {
-		allMatchForm($player);
-		matchTable($player);
-	}
-	elseif(isset($_POST['mode']) && $_POST['mode'] == 'Filter Matches') {
-		allMatchForm($player);
-		matchTable($player);
-	}
-	else {
-		mainPlayerCP($_SESSION['username']);
-	}
+
+function print_mainPlayerCP($player) {
+  $upper = strtoupper($_SESSION['username']);
+  echo "<div class=\"alpha grid_5\">\n";
+  echo "<div id=\"gatherling_lefthalf\">\n";
+  print_conditionalAllDecks(); 
+  print_recentDeckTable(); 
+  print_ratingsTableSmall(); 
+  print_recentMatchTable(); 
+  echo "</div></div>\n";
+  echo "<div class=\"omega grid_5\">\n"; 
+  echo "<div id=\"gatherling_righthalf\">\n";
+  print_statsTable(); 
+  echo "</div></div>\n";
+  echo "<div class=\"clear\"></div>\n";
 }
 
-function mainPlayerCP($player) {
-	$upper = strtoupper($_SESSION['username']);
-	echo "<table align=\"center\" width=600 style=\"border-width: 0px\">\n";
-	echo "<tr><td><b>Welcome, $upper!";
-	conditionalAllDecks();
-	echo "</td></tr>";
-	echo "<tr><td>&nbsp;</td></tr>";
-	echo "<tr><td width=300 valign=\"top\">";
-	
-	echo "<table align=\"center\" width=300 style=\"border-width: 0px\">\n";
-	echo "<tr><td>"; recentDeckTable(); echo "</td></tr>\n";
-	echo "<tr><td>&nbsp;</td></tr>\n";
-	echo "<tr><td>"; ratingsTableSmall(); echo "</td></tr>\n";
-	echo "<tr><td>&nbsp;</td></tr>\n";
-	echo "<tr><td>"; recentMatchTable(); echo "</td></tr>\n";
-	echo "</table>\n";
-	
-	echo "</td>\n<td width=300 align=\"right\" valign=\"top\">";
-	echo "<table style=\"border-width: 0px;\" align=\"right\" width=300>\n";
-	echo "<tr><td align=\"right\">"; statsTable(); echo "</td></tr>\n";
-	echo "</table>\n";
-
-	echo "</td></tr></table>\n";
+function print_allContainer() {
+  $rstar = "<font color=\"#FF0000\">*</font>";
+  echo "<p> Decks marked with a $rstar have less than 60 cards listed. <br />\n";
+  echo " Decks marked with $rstar$rstar have less than 6 cards listed, and were created as placeholder decks.</p>\n";
+  echo "<div class=\"alpha grid_6\">\n";
+  echo "<div id=\"gatherling_lefthalf\">\n";
+  print_allDeckTable();
+  echo "</div> </div> \n";
+  echo "<div class=\"omega grid_4\">\n"; 
+  echo "<div id=\"gatherling_righthalf\">\n";
+	print_noDeckTable();
+  echo "</div> </div> \n";
+  echo "<div class=\"clear\"> </div> ";
 }
 
-function allContainer() {
-	$rstar = "<font color=\"#FF0000\">*</font>";
-	echo "<table style=\"border-width: 0px;\" width=600>\n";
-	echo "<tr><td colspan=2>Decks marked with a $rstar have less than 60 ";
-    echo "cards listed. Decks marked with $rstar$rstar have less than 6 cards ";
-    echo "listed, and were created as placeholder decks.</td></tr>";
-	echo "<tr><td>&nbsp;</td></tr>\n";
-	echo "<tr><td valign=\"top\" width=275>";
-	allDeckTable();
-	echo "</td>\n<td valign=\"top\" width=275 align=\"right\">";
-	noDeckTable();
-	echo "</td></tr></table>";
-}
-
-function recentDeckTable() {
+function print_recentDeckTable() {
   global $player;
   $decks = $player->getRecentDecks(5);
 
-	echo "<table style=\"border-width: 0px;\" width=300>\n";
+	echo "<table style=\"border-width: 5px solid black;\">\n";
 	echo "<tr><td colspan=3><b>RECENT DECKS</td>\n";
 	echo "<td align=\"right\">";
 	echo "<a href=\"player.php?mode=alldecks\">";
@@ -122,7 +88,7 @@ function recentDeckTable() {
 	echo "</table>\n";
 }
 
-function noDeckTable() {
+function print_noDeckTable() {
   global $player;
   $entriesnodecks = $player->getNoDeckEntries();
 	#$query = "SELECT n.medal, e.name, e.format, e.threadurl
@@ -145,7 +111,7 @@ function noDeckTable() {
 	echo "</table>\n";
 }
 
-function allDeckTable() {
+function print_allDeckTable() {
   global $player;
   $decks = $player->getAllDecks();
 	$rstar = "<font color=\"#FF0000\">*</font>";
@@ -169,7 +135,7 @@ function allDeckTable() {
   echo "</table>\n";
 }
 
-function recentMatchTable() {
+function print_recentMatchTable() {
   global $player;
   $matches = $player->getRecentMatches();
   
@@ -197,7 +163,7 @@ function recentMatchTable() {
 	echo "</table>\n";
 }
 
-function matchTable($player, $limit=0) {
+function print_matchTable($player, $limit=0) {
   if (!isset($_POST['format'])) { 
     $_POST['format'] = "%"; 
   }
@@ -214,7 +180,7 @@ function matchTable($player, $limit=0) {
   $matches = $player->getFilteredMatches($_POST['format'], $_POST['series'], $_POST['season'], $_POST['opp']);
 
 	$hc = headerColor();
-	echo "<table style=\"border-width: 0px\" width=600>\n";
+	echo "<table style=\"border-width: 0px\">\n";
 	echo "<tr style=\"background-color: $hc;\"><td><b>Event</td><td align=\"center\"><b>Round</td>";
 	echo "<td><b>Opponent</td>\n";
 	echo "<td><b>Deck</td>\n";
@@ -264,11 +230,11 @@ function matchTable($player, $limit=0) {
 	echo "</table>";
 }
 
-function ratingsTableSmall() {
+function print_ratingsTableSmall() {
   global $player;
 	$composite = $player->getRating("Composite");
 	$standard = $player->getRating("Standard");
-	$futex = $player->getRating("Future Extended");
+	$futex = $player->getRating("Extended");
 	$classic = $player->getRating("Classic");
 	$other = $player->getRating("Other Formats");
 
@@ -278,28 +244,28 @@ function ratingsTableSmall() {
 	echo "<a href=\"player.php?mode=allratings\">(see all)</a></td></tr>\n";
 	echo "<tr><td>Composite</td><td align=\"right\">$composite</td></tr>\n";
 	echo "<tr><td>Standard</td><td align=\"right\">$standard</td></tr>\n";
-	echo "<tr><td>Future Extended</td><td align=\"right\">$futex</td></tr>\n";
+	echo "<tr><td>Extended</td><td align=\"right\">$futex</td></tr>\n";
 	echo "<tr><td>Classic</td><td align=\"right\">$classic</td></tr>\n";
 	echo "<tr><td>Other Formats</td><td align=\"right\">$other</td></tr>\n";
 	echo "</table>";
 }
 
-function ratingsTable() {
+function print_ratingsTable() {
 	echo "<table style=\"border-width: 0px;\" width=400 align=\"center\">\n";
 	echo "<tr><td><b>Format</td>\n";
 	echo "<td align=\"center\"><b>Rating</td>\n";
 	echo "<td align=\"center\"><b>Record</td>\n";
 	echo "<td align=\"center\"><b>Low</td>\n";
 	echo "<td align=\"center\"><b>High</td></tr>\n";
-	ratingLine("Composite");
-	ratingLine("Standard");
-	ratingLine("Future Extended");
-	ratingLine("Classic");
-	ratingLine("Other Formats");
+	print_ratingLine("Composite");
+	print_ratingLine("Standard");
+	print_ratingLine("Extended");
+	print_ratingLine("Classic");
+	print_ratingLine("Other Formats");
 	echo "</table>\n";
 }
 
-function ratingLine($format) {
+function print_ratingLine($format) {
   global $player;
 	$rating = $player->getRating($format);
   $record = $player->getRatingRecord($format);
@@ -320,7 +286,7 @@ function ratingLine($format) {
 	echo "</tr>\n";
 }
 
-function ratingsHistory($format) {
+function print_ratingsHistory($format) {
   global $player;
 	$db = Database::getConnection();
 	$stmt = $db->prepare("SELECT e.name, r.rating, n.medal, n.deck AS id
@@ -334,7 +300,7 @@ function ratingsHistory($format) {
 
   $stmt->store_result();
 
-	echo "<table style=\"border-width: 0px;\" align=\"center\" width=600>\n";
+	echo "<table style=\"border-width: 0px;\" align=\"center\">\n";
 	echo "<tr><td align=\"center\"><b>Pre-Event</td>\n";
 	echo "<td><b>Event</td>\n";
 	echo "<td><b>Deck</td>\n";
@@ -379,7 +345,7 @@ function ratingsHistory($format) {
 	echo "</table>\n";
 }	
 
-function ratingHistoryForm($format) {
+function print_ratingHistoryForm($format) {
 	$formats = array("Composite", "Standard", "Future Extended", "Classic",
 		"Other Formats");
 	echo "<center>\n";
@@ -396,7 +362,7 @@ function ratingHistoryForm($format) {
 	echo "</form></center>\n";
 }
 
-function allMatchForm($player) {
+function print_allMatchForm($player) {
   if (!isset($_POST['format'])) { 
     $_POST['format'] = "%";
   } 
@@ -480,7 +446,7 @@ function oppDropMenu($player, $def) {
 	echo "</select>";
 }
 
-function statsTable() {
+function print_statsTable() {
   global $player;
 	echo "<table style=\"border-width: 0px\">";
 	echo "<tr><td colspan=2><b>STATISTICS</td></tr>\n";
@@ -527,7 +493,7 @@ function statTrophy() {
 	}
 }
 
-function conditionalAllDecks() {
+function print_conditionalAllDecks() {
   global $player;
   $entries = $player->getNoDeckEntries();
   if (count($entries) > 0) { 

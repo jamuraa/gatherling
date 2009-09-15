@@ -7,20 +7,81 @@ $R1 = "#EEEEEE";
 $R2 = "#FFFFFF";
 $CC = $r1;
 
-function print_header() { 
-  if (file_exists("../header2.ssi")) { 
-    include "../header2.ssi"; 
-  } else { 
-    include "header2.ssi";
+function print_header($title) { 
+  echo "<html><head><meta http-equiv=\"X-UA-Compatible\" content=\"IE=8\" />";
+  echo "<title>{$title}</title>";
+  echo <<<EOT
+    <link rel="stylesheet" type="text/css" media="all" href="/css/reset.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="/css/text.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="/css/960.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="/css/pdcmagic.css" />
+  </head>
+  <body>
+    <div id="maincontainer" class="container_12">
+      <div id="headerimage" class="grid_12">
+        <img src="http://pdcmagic.com/img/zen_header1.jpg" />
+      </div>
+      <div id="mainmenu_submenu" class="grid_12">
+        <ul>
+          <li><a href="http://pdcmagic.com/index.html">Home</a></li>
+          <li><a href="http://forums.pdcmagic.com">Forums</a></li>
+          <li><a href="/wordpress/">Articles</a></li>
+          <li><a href="/events/index.php">Events</a></li>
+          <li class="current">
+            <a href="index.php">
+            Gatherling
+            </a>
+          </li>
+          <li><a href="/gatherling/ratings.php">Ratings</a></li>
+          <li class="last"><a href="http://community.wizards.com/pauperonline/wiki/">Wiki</a></li>
+        </ul>
+      </div>
+EOT;
+
+  $player = Player::getSessionPlayer(); 
+
+  if ($player != NULL) { 
+    $host = $player->isHost();
+    $super = $player->isSuper();
   } 
+
+  $tabs = 5;
+  if ($super) { 
+    $tabs = 7;
+  } else if ($host) { 
+    $tabs = 6;
+  }
+
+  echo <<<EOT
+<div id="submenu" class="grid_12 tabs_$tabs">
+  <ul> 
+    <li><a href="profile.php">Profile</a></li>
+    <li><a href="player.php">Player CP</a></li>
+    <li><a href="eventreport.php">Metagame</a></li>
+    <li><a href="decksearch.php">Decks</a></li>
+EOT;
+  if ($host || $super) { 
+    echo "<li><a href=\"event.php\">Host CP</a></li>\n";
+  } 
+
+  if ($super) { 
+    echo "<li><a href=\"series.php\">Series CP</a></li>\n";
+  } 
+
+  if ($player == NULL) { 
+    echo "<li class=\"last\"><a href=\"login.php\">Login</a></li>\n"; 
+  } else { 
+    echo "<li class=\"last\"><a href=\"logout.php\">Logout [{$player->name}]</a></li>\n"; 
+  } 
+
+  echo "</ul> </div>\n";
 } 
 
 function print_footer() { 
-  if (file_exists("../footer.ssi")) { 
-    include "../footer.ssi"; 
-  } else {  
-    include "footer.ssi"; 
-  }
+  echo "<div class=\"grid_10 prefix_1 suffix_1\"> <div id=\"gatherling_footer\" class=\"box\">"; 
+  version_tagline(); 
+  echo "</div> </div>";
+  echo "<div class=\"clear\"></div>\n"; 
 } 
 
 function headerColor() {
@@ -112,6 +173,7 @@ function numDropMenu($field, $title, $max, $def, $min = 0, $special="") {
 }
 
 function version_tagline() { 
-  print "Gatherling version 1.9.1 (\"It's the United States of Don't Touch That Thing Right in Front of You.\")";
+  print "Gatherling version 1.9.2 (\"So now you're the boss. You're the King of Bob.\")";
+  # print "Gatherling version 1.9.1 (\"It's the United States of Don't Touch That Thing Right in Front of You.\")";
   # print "Gatherling version 1.9 (\"It's funny 'cause the squirrel got dead\")";
 } 
