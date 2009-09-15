@@ -91,7 +91,7 @@ function formatForm($format = "") {
     $stmt->execute(); 
     $stmt->bind_result($name, $description);
     $stmt->store_result();
-    if ($stmt->num_rows) == 0) {die(noFormat($format));}
+    if ($stmt->num_rows == 0) {die(noFormat($format));}
     $stmt->fetch();
     $stmt->close();
 	}
