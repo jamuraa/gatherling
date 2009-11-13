@@ -102,10 +102,10 @@ class Match {
   } 
 
   function getLoser() { 
-    if (playerLost($this->playera)) { 
+    if ($this->playerLost($this->playera)) { 
       return $this->playera; 
     } 
-    if (playerLost($this->playerb)) { 
+    if ($this->playerLost($this->playerb)) { 
       return $this->playerb;
     } 
     return NULL; 

@@ -384,6 +384,34 @@ class Event {
 
     return $matches; 
   } 
+  
+  function getRoundMatches($roundnum) {
+    $db = Database::getConnection(); 
+    if ($roundnum > $this->mainrounds) {
+      $subevnum = 2;
+      $roundnum = $roundnum - $this->mainrounds;
+    } else { 
+      $subevnum = 1;
+    }
+    $stmt = $db->prepare("SELECT m.id FROM matches m, subevents s, events e
+        WHERE m.subevent = s.id AND s.parent = e.name AND e.name = ? AND
+        s.timing = ? AND m.round = ?");
+    $stmt->bind_param("sdd", $this->name, $subevnum, $roundnum);
+    $stmt->execute();
+    $stmt->bind_result($matchid);
+
+    $mids = array(); 
+    while ($stmt->fetch()) {
+      $mids[] = $matchid;
+    }
+    $stmt->close(); 
+
+    foreach ($mids as $mid) { 
+      $matches[] = new Match($mid);
+    }
+
+    return $matches;  
+  }
 
   function addMatch($playera, $playerb, $round, $result) { 
     $id = $this->mainid;
@@ -397,6 +425,38 @@ class Event {
     $stmt->execute(); 
     $stmt->close(); 
   } 
+
+
+  // Assigns trophies based on the finals matches which are entered.
+  function assignTropiesFromMatches() {
+    $t8 = array(); 
+    $t4 = array(); 
+    $sec = "";
+    $win = "";
+    $quarter_finals = $this->finalrounds >= 3;
+    if ($quarter_finals) {
+      $quart_round = $this->mainrounds + $this->finalrounds - 2;
+      $matches = $this->getRoundMatches($quart_round);
+      foreach ($matches as $match) {
+        $t8[] = $match->getLoser(); 
+      }
+    }
+    $semi_finals = $this->finalrounds >= 2;
+    if ($semi_finals) {
+      $semi_round = $this->mainrounds + $this->finalrounds - 1;
+      $matches = $this->getRoundMatches($semi_round);
+      foreach ($matches as $match) {
+        $t4[] = $match->getLoser();
+      }
+    }
+
+    $finalmatches = $this->getRoundMatches($this->mainrounds + $this->finalrounds);
+    $finalmatch = $finalmatches[0];
+    $sec = $finalmatch->getLoser();
+    $win = $finalmatch->getWinner();
+  
+    $this->setFinalists($win, $sec, $t4, $t8);
+  }
 
   public static function exists($name) { 
     $db = Database::getConnection(); 

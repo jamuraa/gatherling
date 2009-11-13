@@ -1043,6 +1043,7 @@ function dciinputplayoffs($reg, $data) {
       if($winner == $playerb) {$res = 'B';}			
       $event->addMatch($pa, $pb, $rnd + $event->mainrounds, $res);
 		}
-	}
+  }
+  $event->assignTropiesFromMatches();
 }
 ?>
