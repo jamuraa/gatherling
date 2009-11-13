@@ -21,6 +21,7 @@ calcRating("Modern", $modernQuery);
 calcRating("XPDC Season 1", $xpdcQuery);
 
 function calcRating($format, $query) {
+  global $db;
   $db->query($query) or die($db->error);
 	$result = mysql_query($query, $db) or die(mysql_error());
 	while($row = $result->fetch_assoc()) {
@@ -43,6 +44,7 @@ function insertRatings($players, $format, $date) {
 }
 
 function calcPostEventRatings($event, $format) {
+  global $db;
 	$players = getEntryRatings($event, $format);	
 	$matches = getMatches($event);
 	for($ndx = 0; $ndx < sizeof($matches); $ndx++) {
@@ -91,7 +93,8 @@ function winProb($rating, $oppRating) {
 }
 
 function getMatches($event) {
-	$stmt->prepare("SELECT LCASE(m.playera) AS playera, LCASE(m.playerb) AS playerb, m.result, e.kvalue
+  global $db;
+	$stmt = $db->prepare("SELECT LCASE(m.playera) AS playera, LCASE(m.playerb) AS playerb, m.result, e.kvalue
 		FROM matches AS m, subevents AS s, events AS e
 		WHERE m.subevent=s.id AND s.parent=e.name AND e.name = ?
     ORDER BY s.timing, m.round");
@@ -110,7 +113,8 @@ function getMatches($event) {
 }
 
 function getEntryRatings($event, $format) {
-	$stmt->prepare("SELECT LCASE(n.player) AS player, r.rating, q.qmax, r.wins, r.losses
+  global $db;
+	$stmt = $db->prepare("SELECT LCASE(n.player) AS player, r.rating, q.qmax, r.wins, r.losses
 		FROM entries AS n 
 		LEFT OUTER JOIN ratings AS r ON r.player = n.player
 		LEFT OUTER JOIN 

@@ -72,8 +72,8 @@ function print_recentDeckTable() {
   $decks = $player->getRecentDecks(5);
 
 	echo "<table style=\"border-width: 5px solid black;\">\n";
-	echo "<tr><td colspan=3><b>RECENT DECKS</td>\n";
-	echo "<td align=\"right\">";
+	echo "<tr><td colspan=2><b>RECENT DECKS</td>\n";
+	echo "<td colspan=2 align=\"right\">";
 	echo "<a href=\"player.php?mode=alldecks\">";
   echo "(see all)</a></td>\n";
   foreach ($decks as $deck) {
