@@ -1,19 +1,19 @@
 <?php
 require_once('../lib.php');
-$set = "Zendikar";
-$file = fopen("Zendikar_missed.txt", "r");
+$set = "Masters Edition III";
+$file = fopen("MED3.txt", "r");
 $card = array();
 
 $database = Database::getConnection();
 $stmt = $database->prepare("INSERT INTO cards(cost, convertedcost, name, cardset, type,
-  isw, isu, isb, isr, isg) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+  isw, isu, isb, isr, isg) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"); 
 
 while(!feof($file)) {
   $line = fgets($file);
   if(preg_match("/^(.*):\s+(.*)$/", $line, $matches)) {
     $card[$matches[1]] = $matches[2];
     if($matches[1] == "Set/Rarity") {
-      preg_match("/$set (Common|Uncommon|Rare)/",
+      preg_match("/$set (Common|Uncommon|Rare)/", 
              $card[$matches[1]], $submatches);
       $card[$matches[1]] = $submatches[1];
       if($card['Set/Rarity'] == 'Common') {
@@ -36,10 +36,10 @@ function insertCard($card, $set, $stmt) {
   # new gatherer - card type is now a . because of unicode
     $card['Type'] = str_replace('.', '-', $card['Type']);
   echo "{$card['Name']}<br />\n";
-  $stmt->bind_param("sdsssddddd", $card['Cost'], $cmc, $card['Name'], $set, $card['Type'], $isw, $isu, $isb, $isr, $isg);
-  if (!$stmt->execute()) {
+  $stmt->bind_param("sdsssddddd", $card['Cost'], $cmc, $card['Name'], $set, $card['Type'], $isw, $isu, $isb, $isr, $isg); 
+  if (!$stmt->execute()) { 
     die($stmt->error);
-  }
+  } 
   #mysql_query($query, $db) or die(mysql_error());
   #mysql_close($db);
 }

@@ -33,6 +33,7 @@ function calcRating($format, $query) {
 }
 
 function insertRatings($players, $format, $date) {
+  global $db;
 	foreach($players as $player=>$data) {
 		$rating = $data['rating'];
     $wins = $data['wins']; $losses = $data['losses'];
