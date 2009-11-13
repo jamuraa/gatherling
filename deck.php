@@ -273,40 +273,40 @@ function commentsTable($deck) {
 
 function deckInfoCell($deck) {
 	$ncards = $deck->getCardCount();
-	$mstr = "";
-	$line3 = "<a href=\"profile.php?player={$deck->playername}\">";
-	$line3 = $line3 . "{$deck->playername}</a>\n";
-  $line4 = "<i>{$deck->eventname}";
-	$line5 = date("F j, Y", strtotime($deck->getEvent()->start));
+  $event = $deck->getEvent();
+	$day = date("F j, Y", strtotime($event->start));
 	if($deck->medal == '1st') {
 		$mstr = "<img src=\"/images/1st.gif\">&nbsp;";
-		$line4 = $line4 . ", 1st Place";
-	}
-	if($deck->medal == '2nd') {
+		$placing = $mstr . "1st by";
+	} else if($deck->medal == '2nd') {
 		$mstr = "<img src=\"/images/2nd.gif\">&nbsp;";
-		$line4 = $line4 . ", 2nd Place";
-	}
-	if($deck->medal == 't4') {
+		$placing = $mstr . "2nd by";
+	} else if($deck->medal == 't4') {
 		$mstr = "<img src=\"/images/t4.gif\">&nbsp;";
-		$line4 = $line4 . ", Top 4";
-	}
-	if($deck->medal == 't8') {
+		$placing = $mstr . "Top 4 by";
+	} else if($deck->medal == 't8') {
 		$mstr = "<img src=\"/images/t8.gif\">&nbsp;";
-		$line4 = $line4 . ", Top 8";
-	}
+		$placing = $mstr . "Top 8 by";
+  } else {
+    $placing = "Played by";
+  }
+	$line3 = "{$placing} <a href=\"profile.php?player={$deck->playername}\">";
+  $line3 .= "{$deck->playername}</a> in ";
+  $line3 .= "<span class=\"eventname\" title=\"{$day}\">{$event->name}</span>\n";
+
 	$rstar = "<font color=\"#FF0000\">*</font>";
-	$line1 = $mstr . "<b>" . strtoupper($deck->name) . "</b>";
+  $line1 = "<b>" . strtoupper($deck->name) . "</b>";
+  $deck_format = $event->format;
 	if($ncards < 6) {$line1 .= $rstar;}
 	if($ncards < 60) {$line1 .= $rstar;}
-	$line2 = $deck->getColorImages() . " " . $deck->archetype;
-	$line4 = $line4 . " (" . $deck->recordString() . ")</i>";
+	$line2 = $event->format . " &middot; " . $deck->getColorImages() . " " . $deck->archetype;
+	$line3 .= "<i>(" . $deck->recordString() . ")</i>";
 
 	echo "<table style=\"border-width: 0px\">\n";
 	echo "<tr><td style=\"font-size: 10pt;\">$line1</td></tr>\n";
 	echo "<tr><td>$line2</td></tr>\n";
-	echo "<tr><td>$line3</td></tr>\n";
-	echo "<tr><td>$line4</td></tr>\n";
-	echo "<tr><td>$line5</td></tr>\n";
+  echo "<tr><td>$line3</td></tr>\n";
+  echo "<tr><td>$line4</td></tr>\n";
 	echo "</table>\n";
 
 }
