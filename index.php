@@ -25,13 +25,15 @@ tournaments here, and your ratings for Pauper Magic will also be calculated.</p>
 <div class="uppertitle alpha omega grid_10"> Recent Gatherling News </div>
 <div class="clear"></div>
 <p>
-  <b> 2009-09-14 </b> - 
-  Welcome to the new intro page!  It will have news.  This update includes: 
+  <b> 2009-11-12 </b> - 
+  It's been a while since an update, but I have an update for you all.  Okay well it's mostly 
+  bugfixes for event people.  The hope is to have weeklyish updates from now on with incremental
+  improvements, and major updates every couple months.
   <ul> 
-   <li> Deck comments have returned!  Fill out the comment form when entering your deck. </li> 
-   <li> New layout to match the rest of the new site. </li> 
-   <li> Easier event entry for recurring events for hosts. </li> 
-   <li> Other admin features (super! and secret!) </li>
+   <li> New deck layout which is more compact in the top. </li>
+   <li> New deck layout now lists format that the deck was played in. </li>
+   <li> Easier trophies assignment for hosts. </li> 
+   <li> Some more backend stuff </li>
   </ul>
 </p> 
 </div> <!-- box gatherlingnews -->
