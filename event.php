@@ -295,6 +295,7 @@ function eventForm($event = NULL, $forcenew = false) {
 
 function playerList($event) {
   $entries = $event->getEntries();
+  $numentries = count($entries);
 
   // Start a new form  
   echo "<form action=\"event.php\" method=\"post\" ";
@@ -303,11 +304,15 @@ function playerList($event) {
   echo "<table style=\"border-width: 0px\" align=\"center\">";
   echo "<tr><td colspan=\"2\" align=\"center\">";
 	echo "<table align=\"center\" style=\"border-width: 0px;\">";
-	echo "<tr><td colspan=\"4\" align=\"center\">";
-	echo "<b>Registered Players</td></tr>";
+  echo "<tr><td colspan=\"4\" align=\"center\">";
+  if ($numentries > 0) {
+    echo "<b>{$numentries} Registered Players</b></td></tr>";
+  } else {
+    echo "<b>Registered Players</b></td></tr>";
+  }
 	echo "<tr><td>&nbsp;</td><tr>";
 	echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
-	if(count($entries) > 0) {
+  if($numentries > 0) {
 		echo "<tr><td><b>Player</td><td align=\"center\"><b>Medal</td>";
 		echo "<td><b>Deck</td><td align=\"center\"><b>Delete</td></tr>";
 	} else {

@@ -234,7 +234,7 @@ function print_ratingsTableSmall() {
   global $player;
 	$composite = $player->getRating("Composite");
 	$standard = $player->getRating("Standard");
-	$futex = $player->getRating("Extended");
+	$extended = $player->getRating("Extended");
 	$classic = $player->getRating("Classic");
 	$other = $player->getRating("Other Formats");
 
@@ -244,7 +244,7 @@ function print_ratingsTableSmall() {
 	echo "<a href=\"player.php?mode=allratings\">(see all)</a></td></tr>\n";
 	echo "<tr><td>Composite</td><td align=\"right\">$composite</td></tr>\n";
 	echo "<tr><td>Standard</td><td align=\"right\">$standard</td></tr>\n";
-	echo "<tr><td>Extended</td><td align=\"right\">$futex</td></tr>\n";
+  echo "<tr><td>Extended</td><td align=\"right\">$extended</td></tr>\n";
 	echo "<tr><td>Classic</td><td align=\"right\">$classic</td></tr>\n";
 	echo "<tr><td>Other Formats</td><td align=\"right\">$other</td></tr>\n";
 	echo "</table>";
