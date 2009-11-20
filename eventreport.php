@@ -321,8 +321,18 @@ function infoCell($event) {
   }
 	$date = date('j F Y', strtotime($event->start));
 	echo "$date<br />\n";
-	echo "{$event->format}<br />\n";
-  echo "{$event->getPlayerCount()} Players<br>\n";
+  echo "{$event->format} &middot\n";
+  $playercount = $event->getPlayerCount();
+  echo "{$playercount} Players<br />\n";
+  $deckcount = count($event->getDecks());
+  echo "{$deckcount} Decks &middot; ";
+  $deckpercentexact = round($deckcount * 100 / $playercount, 2);
+  $deckpercent = round($deckcount * 100 / $playercount, 0);
+  if ($deckpercentexact == $deckpercent) {
+    echo "{$deckpercent}% Reported <br />\n";
+  } else { 
+    echo "~{$deckpercent}% Reported <br />\n";
+  } 
   foreach ($event->getSubevents() as $subevent) { 
     if ($subevent->type != "Single Elimination") { 
 			echo "{$subevent->rounds} rounds {$subevent->type}<br />\n";

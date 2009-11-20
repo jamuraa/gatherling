@@ -26,11 +26,12 @@ class Entry {
 
   function __construct($eventname, $playername) { 
     $db = Database::getConnection(); 
-    $stmt = $db->prepare("SELECT deck, medal FROM entries WHERE event = ? AND player = ?"); 
+    $stmt = $db->prepare("SELECT deck, medal, ignored FROM entries WHERE event = ? AND player = ?"); 
     $stmt or die($db->error);
     $stmt->bind_param("ss", $eventname, $playername); 
     $stmt->execute(); 
-    $stmt->bind_result($deckid, $this->medal);
+    $this->ignored = 0;
+    $stmt->bind_result($deckid, $this->medal, $this->ignored);
     if ($stmt->fetch() == NULL) { 
       throw new Exception('Entry for '. $playername .' in '. $eventname .' not found');
     } 
@@ -42,7 +43,7 @@ class Entry {
 
     if ($deckid != NULL) { 
       $this->deck = new Deck($deckid);
-    } else { 
+    } else {
       $this->deck = NULL; 
     } 
   } 
@@ -83,6 +84,16 @@ class Entry {
     } 
     return $this->event->isHost($username) || $this->event->isSteward($username);
   } 
+
+  function setIgnored($new_ignored) { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("UPDATE entries SET ignored = ? WHERE player = ? and event = ?"); 
+    $playername = $this->player->name;
+    $eventname = $this->event->name;
+    $stmt->bind_param("iss", $new_ignored, $playername, $eventname);
+    $stmt->execute(); 
+    $stmt->close();
+  }
 } 
 
 

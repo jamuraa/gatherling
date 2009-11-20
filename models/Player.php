@@ -400,6 +400,20 @@ class Player {
     return $entries;
   }
 
+  function getUnenteredCount() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT count(event) FROM entries n, events e
+      WHERE n.player = ? AND n.deck IS NULL AND n.event = e.name 
+      AND n.ignored = 0"); 
+    $stmt->bind_param("s", $this->name); 
+    $stmt->execute();
+    $stmt->bind_result($noentrycount); 
+    $stmt->fetch(); 
+    $stmt->close(); 
+
+    return $noentrycount;
+  } 
+
   function getRating($format = "Composite", $date = "3000-01-01 00:00:00") { 
     $db = Database::getConnection(); 
     $stmt = $db->prepare("SELECT rating FROM ratings WHERE player = ? 
@@ -777,6 +791,8 @@ class Player {
       $result[] = $series;
     } 
 
+    $stmt->close();
+
     return $result;
   } 
 
@@ -794,7 +810,16 @@ class Player {
       $seasons[] = $season; 
     } 
 
+    $stmt->close();
     return $seasons;
+  } 
+
+  function setIgnoreEvent($eventname, $ignored) { 
+    $db = Database::getConnection();
+    $stmt = $db->prepare("UPDATE entries SET ignored = ? WHERE event = ? AND player = ?");
+    $stmt->bind_param("iss", $ignored, $eventname, $this->name); 
+    $stmt->execute(); 
+    $stmt->close();
   } 
 }
 
