@@ -10,23 +10,39 @@ print_header("PDCMagic.com | Gatherling | Player Control Panel");
 <?php 
 if ($player == NULL) {  
   echo "<center> You must <a href=\"login.php\">log in</a> to use your player control panel.</center>\n";
-} elseif (isset($_GET['mode']) && $_GET['mode'] == 'alldecks') { 
-  print_allContainer();
-} elseif (isset($_GET['mode']) && $_GET['mode'] == 'allratings') { 
-  if(!isset($_GET['format'])) {$_GET['format'] = "Composite";}
-	print_ratingsTable($_SESSION['username']);
-	echo "<br><br>";
-	print_ratingHistoryForm($_GET['format']);	
-	echo "<br>";
-	print_ratingsHistory($_GET['format']);
-} elseif (isset($_GET['mode']) && $_GET['mode'] == 'allmatches') {  
-  print_allMatchForm($player); 
-  print_matchTable($player);
-} elseif (isset($_POST['mode']) && $_POST['mode'] == 'Filter Matches') {
-  print_allMatchForm($player);
-  print_matchTable($player);
 } else { 
-  print_mainPlayerCP($player->name); 
+  // Handle actions
+  if (isset($_POST['action'])) {
+    if ($_POST['action'] == 'setIgnores') { 
+      setPlayerIgnores(); 
+    } 
+  } 
+  // Handle modes 
+  $dispmode = 'playercp';
+  if (isset($_GET['mode'])) { 
+    $dispmode = $_GET['mode']; 
+  }
+  if (isset($_POST['mode'])) { 
+    $dispmode = $_POST['mode']; 
+  } 
+  if ($dispmode == 'alldecks') { 
+    print_allContainer();
+  } elseif ($dispmode == 'allratings') { 
+    if(!isset($_GET['format'])) {$_GET['format'] = "Composite";}
+    print_ratingsTable($_SESSION['username']);
+    echo "<br><br>";
+    print_ratingHistoryForm($_GET['format']);	
+    echo "<br>";
+    print_ratingsHistory($_GET['format']);
+  } elseif ($dispmode == 'allmatches') {  
+    print_allMatchForm($player); 
+    print_matchTable($player);
+  } elseif ($dispmode == 'Filter Matches') {
+    print_allMatchForm($player);
+    print_matchTable($player);
+  } else { 
+    print_mainPlayerCP($player->name); 
+  }
 }
 ?>
 </div> <!-- gatherling_main box -->
@@ -35,6 +51,18 @@ if ($player == NULL) {
 <?php print_footer(); ?>
 
 <?php
+
+function setPlayerIgnores() {
+  global $player; 
+  $noDeckEntries = $player->getNoDeckEntries(); 
+  foreach ($noDeckEntries as $entry) { 
+    if (isset($_POST['ignore'][$entry->event->name])) { 
+      $entry->setIgnored(1);
+    } else { 
+      $entry->setIgnored(0);
+    } 
+  }
+}
 
 function print_mainPlayerCP($player) {
   $upper = strtoupper($_SESSION['username']);
@@ -96,19 +124,29 @@ function print_noDeckTable() {
 	#	WHERE n.player=\"$player\" AND n.deck IS NULL
 	#	AND n.event=e.name
 	#	ORDER BY e.start DESC";
-  
+
+  echo "<form action=\"player.php\" method=\"post\">";
+  echo "<input type=\"hidden\" name=\"action\" value=\"setIgnores\" />";
   echo "<table style=\"border-width: 0px;\" width=275>\n";
-	echo "<tr><td colspan=3 style=\"font-size: 14px; color: red;\">";
+	echo "<tr><td colspan=4 style=\"font-size: 14px; color: red;\">";
   echo "<b>UNENTERED DECKS</td></tr>\n";
   foreach ($entriesnodecks as $entry) { 
 		$imgcell = medalImgStr($entry->medal);
     echo "<tr><td>$imgcell</td>\n";
 		echo "<td align=\"left\"><a style=\"font-size: 11px; color: #D28950;\" href=\"deck.php?mode=create&event={$entry->event->name}&";
 		echo "player={$player->name}\">[Create Deck]</a></td>";
-		echo "<td align=\"right\"><a href=\"{$entry->event->threadurl}\">{$entry->event->name}</a></td>\n";
+    echo "<td align=\"right\"><a href=\"{$entry->event->threadurl}\">{$entry->event->name}</a></td>\n";
+    echo "<td><input type=\"checkbox\" name=\"ignore[{$entry->event->name}]\" value=\"yes\" ";
+    if ($entry->ignored) {
+      echo " checked";
+    } 
+    echo " /> </td> ";
 		echo "</tr>\n";
 	}
-	echo "</table>\n";
+  echo "</table>\n";
+  echo "<input type=\"hidden\" name=\"mode\" value=\"alldecks\" />";
+  echo "<center><input type=\"submit\" value=\"Set Ignored / Unremembered Decks\" /></center>";
+  echo "</form>";
 }
 
 function print_allDeckTable() {
@@ -495,11 +533,10 @@ function statTrophy() {
 
 function print_conditionalAllDecks() {
   global $player;
-  $entries = $player->getNoDeckEntries();
-  if (count($entries) > 0) { 
-    $nodeckcount = count($entries);
+  $noentrycount = $player->getUnenteredCount();
+  if ($noentrycount > 0) { 
 		echo "<br><a href=\"player.php?mode=alldecks\" style=\"color: red;\">";
-		echo "You have $nodeckcount unentered decks<br>";
+		echo "You have $noentrycount unreported decks<br>";
 		echo "Click here to enter them.</a>";
 	}
 }
