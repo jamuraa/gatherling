@@ -792,6 +792,11 @@ function autoInputForm($event) {
 }
 
 function autoInput() {
+  if (count($_POST['pairings']) == 0 ||
+      strlen($_POST['pairings'][0]) == 0) {
+    // No data.
+    return; 
+  } 
 	$pairings = array();
 	$standings = array();
 	for($rnd = 0; $rnd < sizeof($_POST['pairings']); $rnd++) {
@@ -807,9 +812,25 @@ function autoInput() {
 				$standings[$rnd] = extractStandings($_POST['standings'][$rnd - 1]);
 			}
 		}
-	}
+  }
   $event = new Event($_POST['name']);
-	$sid = $event->mainid;
+  $sid = $event->mainid;
+  $onlyfirstround = true;
+  for ($rnd = 1; $rnd < sizeof($_POST['pairings']); $rnd++) {
+    if (strlen($_POST['pairings'][$rnd]) > 0) {
+      $onlyfirstround = false; 
+      break;
+    }
+  }
+  if ($onlyfirstround) {
+    for ($pair = 0; $pair < sizeof($pairings[0]); $pair++) {
+      $event->addPlayer($pairings[0][$pair][0]);
+      $event->addPlayer($pairings[0][$pair][1]);
+    }
+    // There are no interesting matches to see, so let's go to the registration list
+    $_POST['view'] = "reg";
+    return;
+  }
 	for($rnd = 0; $rnd < sizeof($pairings); $rnd++) {
 		for($pair = 0; $pair < sizeof($pairings[$rnd]); $pair++) {
 			$printrnd = $rnd + 1;
