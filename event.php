@@ -164,9 +164,6 @@ function eventList($series = "", $season = "") {
 	$result->close(); 
 	
 	echo "<tr><td colspan=\"5\" width=\"500\">&nbsp;</td></tr>";
-#	echo "<tr><td colspan=\"5\" align=\"center\">";
-#	echo "<input type=\"submit\" name=\"mode\" value=\"Create New Event\">";
-#	echo "</td></tr>";
 	echo "</table></form>";
 }
 
@@ -269,14 +266,18 @@ function eventForm($event = NULL, $forcenew = false) {
     if (!Event::exists($nexteventname)) { 
       echo " <input type=\"submit\" name=\"mode\" value=\"Create Next Event\" />";
     } 
-		echo "<input type=\"hidden\" name=\"update\" value=\"1\">";
-		echo "</td></tr>";
+    echo "<input type=\"hidden\" name=\"update\" value=\"1\" />";
+    echo "</td></tr>";
+    echo "</table>";
+    echo "</form>";
+    echo "<table style=\"border-width: 0px\" align=\"center\">";
 		$view = "reg";
 		$view = isset($_GET['view']) ? $_GET['view'] : $view;
 		$view = isset($_POST['view']) ? $_POST['view'] : $view;
 		echo "<tr><td colspan=\"2\">&nbsp;</td></tr>";
 		controlPanel($event, $view);
-		echo "<tr><td colspan=\"2\">&nbsp;</td></tr>";
+    echo "<tr><td colspan=\"2\">&nbsp;</td></tr>";
+    echo "</table>";
 		if (strcmp($view, "reg") == 0) {
 			playerList($event);
 		} elseif (strcmp($view, "match") == 0) {
@@ -289,13 +290,18 @@ function eventForm($event = NULL, $forcenew = false) {
 			fileInputForm($event);
 		}
 	}
-	echo "</table></form>";
+	echo "</table>";
 }
 
 function playerList($event) {
   $entries = $event->getEntries();
 
-	echo "<tr><td colspan=\"2\" align=\"center\">";
+  // Start a new form  
+  echo "<form action=\"event.php\" method=\"post\" ";
+  echo "enctype=\"multipart/form-data\">";
+  echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
+  echo "<table style=\"border-width: 0px\" align=\"center\">";
+  echo "<tr><td colspan=\"2\" align=\"center\">";
 	echo "<table align=\"center\" style=\"border-width: 0px;\">";
 	echo "<tr><td colspan=\"4\" align=\"center\">";
 	echo "<b>Registered Players</td></tr>";
@@ -336,17 +342,22 @@ function playerList($event) {
 	echo "</td></tr>";
 	echo "<tr><td colspan=\"4\" width=\"400\">&nbsp;</td></tr>";
 	echo "<tr><td align=\"center\" colspan=\"4\">";
-	#medalDropMenu();
-	#echo "</td><td>";
-	echo "<input type=\"submit\" name=\"mode\" value=\"Update Registration\">";
+  echo "<input type=\"submit\" name=\"mode\" value=\"Update Registration\">";
+  echo "</form>";
 	echo "</td></tr>";
 	echo "</table>";
-	echo "</td></tr>";
+  echo "</td></tr>";
+  echo "</table>";
 }
 
 function matchList($event) {
   $matches = $event->getMatches();
-
+  
+  // Start a new form  
+  echo "<form action=\"event.php\" method=\"post\" ";
+  echo "enctype=\"multipart/form-data\">";
+  echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
+  echo "<table style=\"border-width: 0px\" align=\"center\">";
 	echo "<tr><td align=\"center\" colspan=\"2\">";
 	echo "<table align=\"center\" style=\"border-width: 0px;\">";
 	echo "<tr><td align=\"center\" colspan=\"5\">";
@@ -399,8 +410,10 @@ function matchList($event) {
 	echo "<tr><td align=\"center\" colspan=\"5\">";
 	echo "<input type=\"submit\" name=\"mode\" ";
 	echo "value=\"Update Match Listing\"></td></tr>";
-	echo "</table>";
-	echo "</td></tr>";
+  echo "</table>";
+  echo "</form>";
+  echo "</td></tr>";
+  echo "</table>";
 }
 
 function medalList($event) {
@@ -424,8 +437,13 @@ function medalList($event) {
       $def8[$t8used++] = $finalist['player']; 
     } 
   } 
-
-	echo "<tr><td colspan=\"2\">";
+  // Start a new form  
+  echo "<form action=\"event.php\" method=\"post\" ";
+  echo "enctype=\"multipart/form-data\">";
+  echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
+  echo "<table style=\"border-width: 0px\" align=\"center\">";
+  
+  echo "<tr><td colspan=\"2\">";
 	echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
 	echo "<table align=\"center\" style=\"border-width: 0px;\">";
 	echo "<tr><td align=\"center\" colspan=\"2\"><b>Medals</td></tr>";
@@ -458,10 +476,12 @@ function medalList($event) {
 	}
 	echo "<tr><td>&nbsp;</td></tr>";
 	echo "<tr><td colspan=\"2\" align=\"center\">";
-	echo "<input type=\"submit\" name=\"mode\" value=\"Update Medals\">";
+  echo "<input type=\"submit\" name=\"mode\" value=\"Update Medals\">";
+  echo "</form>";
 	echo "</td></tr>";
 	echo "</table>";
-	echo "</td></tr>";
+  echo "</td></tr>";
+  echo "</table>";
 }
 
 function kValueDropMenu($kvalue) {	
@@ -738,7 +758,13 @@ function updateMedals() {
 }
 
 function autoInputForm($event) {
-	echo "<tr><td colspan=\"2 align=\"center\">";
+  // Start a new form  
+  echo "<form action=\"event.php\" method=\"post\" ";
+  echo "enctype=\"multipart/form-data\">";
+  echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
+  echo "<table style=\"border-width: 0px\" align=\"center\">";
+  
+  echo "<tr><td colspan=\"2 align=\"center\">";
 	echo "<table align=\"center\" style=\"border-width: 0px;\">";
   $totalrnds = 0;
   foreach ($event->getSubevents() as $subevent) { 
@@ -785,10 +811,12 @@ function autoInputForm($event) {
 	echo "<tr><td colspan=\"2\" align=\"center\">";
 	echo "<input type=\"hidden\" name=\"view\" value=\"match\">";
 	echo "<input type=\"submit\" name=\"mode\" ";
-	echo "value=\"Auto-Input Event Data\">";
+  echo "value=\"Auto-Input Event Data\">";
+  echo "</form>";
 	echo "</td></tr>";
-	echo "</table>";
-	echo "</td></tr>";
+  echo "</table>";
+  echo "</td></tr>";
+  echo "</table>";
 }
 
 function autoInput() {
@@ -968,6 +996,11 @@ function authFailed() {
 }
 
 function fileInputForm($event) {
+  // Start a new form  
+  echo "<form action=\"event.php\" method=\"post\" ";
+  echo "enctype=\"multipart/form-data\">";
+  echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
+
 	echo "<table style=\"border-width: 0px;\" align=\"center\">\n";
 	echo "<tr><td><b>*delt.dat</td><td>\n";
 	echo "<input type=\"file\" name=\"delt\" id=\"delt\" size=40></td></tr>\n";
@@ -977,8 +1010,10 @@ function fileInputForm($event) {
 	echo "<input type=\"file\" name=\"elim\" id=\"elim\" size=40></td></tr>\n";
 	echo "<tr><td>&nbsp;</td></tr>\n";
 	echo "<tr><td colspan=2 align=\"center\">\n";
-	echo "<input type=\"submit\" name=\"mode\" value=\"Parse DCI Files\">\n";
-	echo "</td></tr></table>\n";
+  echo "<input type=\"submit\" name=\"mode\" value=\"Parse DCI Files\">\n";
+  echo "</form>\n";
+  echo "</td></tr></table>\n";
+
 }
 
 function dciInput() {
