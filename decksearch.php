@@ -61,13 +61,14 @@ function content() {
     } else {
       echo "<center>{$stmt->num_rows()} decks {$search_desc}</center>\n";
       echo "<table align=\"center\" style=\"border-width: 0px;\" cellpadding=3>";
+      echo "<tr><th>Deck Name</th><th>Played by</th><th>Event</th> </tr>";
       while($stmt->fetch()) {
-        echo "<tr><td><a href=\"deck.php?mode=view&id={$id}\">";
+        echo "<tr><td><img src=\"/images/{$medal}.gif\">\n";
+        echo "<a href=\"deck.php?mode=view&id={$id}\">";
         if (empty($name)) {
           $name = "** NO NAME **";
         } 
         echo "{$name}</a></td>";
-        echo "<td><img src=\"/images/{$medal}.gif\"></td>\n";
         echo "<td>{$player}</td>";
         echo "<td>{$event}";
         echo "</td></tr>\n";
