@@ -6,6 +6,15 @@ class Player {
   public $host;
   public $super; 
 
+
+  static function isLoggedIn() {
+    return isset($_SESSION['username']);
+  }
+
+  static function loginName() {
+    return $_SESSION['username'];
+  } 
+
   static function getSessionPlayer() { 
     if (!isset($_SESSION['username'])) { 
       return NULL;
@@ -404,7 +413,7 @@ class Player {
     $db = Database::getConnection(); 
     $stmt = $db->prepare("SELECT count(event) FROM entries n, events e
       WHERE n.player = ? AND n.deck IS NULL AND n.event = e.name 
-      AND n.ignored = 0"); 
+      AND n.ignored = false"); 
     $stmt->bind_param("s", $this->name); 
     $stmt->execute();
     $stmt->bind_result($noentrycount); 
