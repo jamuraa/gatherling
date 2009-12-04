@@ -23,8 +23,15 @@ tournaments here, and your ratings for Pauper Magic will also be calculated.</p>
 <? if ($player != NULL): ?>
 <b> Welcome back <?php echo $player->name ?> </b>
 <ul> 
-<li> <a href="profile.php"> Check out your profile </a> </li>
-<li> <a href="player.php?mode=alldecks"> Enter your own decklists </a> </li> 
+<li> <a href="profile.php">Check out your profile</a> </li>
+<li> <a href="player.php?mode=alldecks">Enter your own decklists</a> </li> 
+<? $event = Event::findMostRecentByHost($player->name);
+if (!is_null($event)) { ?>
+<li> <a href="event.php?name=<? echo $event->name ?>">Manage <? echo $event->name ?></a> </li>
+<? } ?> 
+<? if ($player->host) { ?>
+<li> <a href="event.php">Host Control Panel</a> </li>
+<? } ?> 
 </ul>
 <? else: ?> 
 <center> <b> Login to Gatherling </b> </center>

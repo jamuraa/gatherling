@@ -468,4 +468,19 @@ class Event {
     $stmt->close(); 
     return $event_exists;
   } 
+
+  public static function findMostRecentByHost($host_name) {
+    $db = Database::getConnection();
+    $stmt = $db->prepare("SELECT name FROM events WHERE host = ? OR cohost = ? ORDER BY start DESC LIMIT 1");
+    $stmt->bind_param("ss", $host_name, $host_name);
+    $stmt->execute();
+    $event_name = "";
+    $stmt->bind_result($event_name); 
+    $event_exists = $stmt->fetch();
+    $stmt->close();
+    if ($event_exists) {
+      return new Event($event_name);
+    } 
+    return NULL;
+  }
 }
