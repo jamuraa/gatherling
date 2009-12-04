@@ -64,6 +64,16 @@ if (!is_null($event)) { ?>
 <div class="box" id="gatherling_news">
 <div class="uppertitle alpha omega grid_10"> Latest Gatherling News </div>
 <div class="clear"></div>
+<p> 
+  <b> 2009-12-04 </b> -
+  I took a week off because of the thanksgiving holiday, but here is the next iteration!  Next week I expect to take off as well, but the week after we should have another iteration.
+  <ul> 
+    <li> Deck search by card name! You can search by card name, deck name, and any combination.  Card names must be exact, deck names are still a partial string search</li>
+    <li> Hosts will see a couple new links on the landing page for convenience </li> 
+    <li> Fixed a bug which would cause ugly error messages when dealing with decks and getting logged out </li>
+    <li> Ratings page now displays the date of the last event ratings were calculated for, in addition to the event name </li>
+  </ul>
+</p>
 <p>
   <b> 2009-11-19 </b> - 
   Welcome to the second update in the new release cycle.  This week we have just a couple of things 
