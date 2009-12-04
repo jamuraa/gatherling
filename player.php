@@ -384,7 +384,7 @@ function print_ratingsHistory($format) {
 }	
 
 function print_ratingHistoryForm($format) {
-	$formats = array("Composite", "Standard", "Future Extended", "Classic",
+	$formats = array("Composite", "Standard", "Extended", "Classic",
 		"Other Formats");
 	echo "<center>\n";
 	echo "<form action=\"player.php\" method=\"get\">\n";
