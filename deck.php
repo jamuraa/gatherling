@@ -8,29 +8,7 @@ print_header("PDCMagic.com | Gatherling | Deck Database");
 <div id="gatherling_main" class="box">
 <div class="uppertitle">Deck Database</div>
 <?php
-if(strcmp($_POST['mode'], "Create Deck") == 0) {
-  $deck = insertDeck();
-  deckProfile($deck);
-}
-elseif(strcmp($_POST['mode'], "Update Deck") == 0) {
-  $deck = new Deck($_POST['id']);
-  if($deck->canEdit($_SESSION['username'])) {
-    $deck = updateDeck($deck);
-    deckProfile($deck);
-  }
-  else {authFailed();}
-}
-elseif(strcmp($_POST['mode'], "Edit Deck") == 0) {
-  $deck = new Deck($_POST['id']); 
-  if($deck->canEdit($_SESSION['username'])) {
-    deckForm($deck);
-  }
-  else{authFailed();}
-}
-elseif(strcmp($_GET['mode'], "create") == 0) {
-  deckForm();
-}
-elseif(strcmp($_GET['mode'], "view") == 0) {
+if (strcmp($_GET['mode'], "view") == 0) {
   if(isset($_GET['event'])) {
     $event = new Event($_GET['event']);
     $deck = $event->getPlaceDeck("1st");
@@ -38,7 +16,25 @@ elseif(strcmp($_GET['mode'], "view") == 0) {
     $deck = new Deck($_GET['id']);
   } 
   deckProfile($deck);
+} else { 
+  // Need to auth for everything else.
+  $deck_player = isset($_POST['player']) ? $_POST['player'] : Player::loginName();
+  $deck = isset($_POST['id']) ? new Deck($_POST['id']) : NULL;
+  if (checkDeckAuth($_POST['event'], $deck_player, $deck)) {
+    if (strcmp($_POST['mode'], "Create Deck") == 0) {
+      $deck = insertDeck();
+      deckProfile($deck);
+    } elseif (strcmp($_POST['mode'], "Update Deck") == 0) {
+      $deck = updateDeck($deck);
+      deckProfile($deck);
+    } elseif (strcmp($_POST['mode'], "Edit Deck") == 0) {
+      deckForm($deck);
+    } elseif (strcmp($_GET['mode'], "create") == 0) {
+      deckForm();
+    }
+  }
 }
+
 ?> 
 </div> <!-- gatherling_main box -->
 </div> <!-- grid 10 suf 1 pre 1 -->
@@ -57,20 +53,9 @@ function deckForm($deck = NULL) {
     $event = (isset($_POST['player'])) ? $_POST['event'] : $_GET['event'];
   } 
 
-  $auth = false;
-  if (is_null($deck)) {
-    // Creating a deck.
-    $entry = new Entry($event, $player);
-    $auth = $entry->canCreateDeck($_SESSION['username']);
-  } else {
-    // Updating a deck.
-    $auth = $deck->canEdit($_SESSION['username']);
+  if (!checkDeckAuth($event, $player, $deck)) {
+    return;
   }
-
-  if (!$auth) { 
-    authFailed(); 
-    return; 
-  } 
 
   $vals = array();
   if(!is_null($deck)) {
@@ -466,6 +451,30 @@ function authFailed() {
     echo "event host or deck owner to modify this deck. If you <b>are</b> the event host ";
     echo "or feel that you should have privilege to modify this deck, you ";
     echo "should contact jamuraa via the forums.<br><br>";
+}
+
+function loginRequired() {
+  echo "<center>You can't do that unless you <a href=\"login.php\">log in first</a></center>";
+}
+
+function checkDeckAuth($event, $player, $deck = NULL) {
+  if (!Player::isLoggedIn()) {
+    loginRequired();
+    return false;
+  } 
+  if (is_null($deck)) {
+    // Creating a deck.
+    $entry = new Entry($event, $player);
+    $auth = $entry->canCreateDeck(Player::loginName());
+  } else {
+    // Updating a deck.
+    $auth = $deck->canEdit(Player::loginName());
+  }
+
+  if (!$auth) { 
+    authFailed();
+  } 
+  return $auth; 
 }
 
 ?>

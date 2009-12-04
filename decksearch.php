@@ -16,37 +16,75 @@ print_header("PDCMagic.com | Gatherling | Basic Deck Search");
 
 <?php // ------ Search Starts here ------
 function content() {
-  if(isset($_POST['mode'])) {
+  if(isset($_GET['deck']) || isset($_GET['card'])) {
     $db = Database::getConnection(); 
-    $stmt = $db->prepare("SELECT SUM(dc.qty) AS q, d.id, d.name, n.player, n.event, n.medal 
-		  FROM decks d, entries n, deckcontents dc, events e  
-      WHERE d.name LIKE ? AND n.deck=d.id 
-      AND dc.deck=d.id AND dc.issideboard=0
-      AND n.event=e.name
-      GROUP BY dc.deck
-      HAVING q>=60
-      ORDER BY e.start DESC, n.medal");
-    $decknamesearch = "%" . $_POST['deck'] . "%";
-    $stmt->bind_param("s", $decknamesearch);
+    $decknamesearch = "%" . $_GET['deck'] . "%";
+    $cardsearch = $_GET['card'];
+    // TODO: I need a better way of doing this
+    if (empty($_GET['card'])) {
+      $stmt = $db->prepare("SELECT d.id, d.name, n.player, n.event, n.medal 
+        FROM decks d, entries n, deckcontents dc, events e, cards c 
+        WHERE d.name LIKE ? AND n.deck=d.id 
+        AND dc.deck=d.id AND dc.issideboard=0
+        AND n.event=e.name
+        GROUP BY dc.deck
+        ORDER BY e.start DESC, n.medal");
+      $stmt->bind_param("s", $decknamesearch);
+    } else { 
+      $stmt = $db->prepare("SELECT d.id, d.name, n.player, n.event, n.medal 
+        FROM decks d, entries n, deckcontents dc, events e, cards c 
+        WHERE d.name LIKE ? AND n.deck=d.id 
+        AND dc.deck=d.id AND dc.issideboard=0
+        AND n.event=e.name
+        AND dc.card=c.id AND c.name = ?
+        GROUP BY dc.deck
+        ORDER BY e.start DESC, n.medal");
+      $stmt->bind_param("ss", $decknamesearch, $cardsearch);
+    }
     $stmt->execute(); 
-    $stmt->bind_result($qty, $id, $name, $player, $event, $medal);
-    echo "<table align=\"center\" style=\"border-width: 0px;\" cellpadding=3>";
-    while($stmt->fetch()) {
-      echo "<tr><td><a href=\"deck.php?mode=view&id={$id}\">";
-      echo "{$name}</a></td>";
-      echo "<td><img src=\"/images/{$medal}.gif\"></td>\n";
-      echo "<td>{$player}</td>";
-      echo "<td>{$event}";
-      echo "</td></tr>\n";
+    $stmt->store_result();
+    $stmt->bind_result($id, $name, $player, $event, $medal);
+
+    $search_desc = "";
+    if (!empty($_GET['card'])) {
+      $search_desc .= " with {$cardsearch} in them";
+    } 
+    if (!empty($_GET['deck'])) {
+      if (!empty($search_desc)) { 
+        $search_desc .= " AND "; 
+      }
+      $search_desc .= " with '{$_GET['deck']}' in the deck name"; 
+    } 
+
+    if ($stmt->num_rows() == 0) { 
+      echo "<center>No decks {$search_desc}! Try again!</center>\n";
+    } else {
+      echo "<center>{$stmt->num_rows()} decks {$search_desc}</center>\n";
+      echo "<table align=\"center\" style=\"border-width: 0px;\" cellpadding=3>";
+      echo "<tr><th>Deck Name</th><th>Played by</th><th>Event</th> </tr>";
+      while($stmt->fetch()) {
+        echo "<tr><td><img src=\"/images/{$medal}.gif\">\n";
+        echo "<a href=\"deck.php?mode=view&id={$id}\">";
+        if (empty($name)) {
+          $name = "** NO NAME **";
+        } 
+        echo "{$name}</a></td>";
+        echo "<td>{$player}</td>";
+        echo "<td>{$event}";
+        echo "</td></tr>\n";
+      }
+      echo "</table>";
     }
     $stmt->close(); 
-    echo "</table>";
   } else {
-    echo "<table><tr><td><form method=\"post\" action=\"{$_SERVER['REQUEST_URI']}\">";
-    echo "Deck name contains: ";
-    echo "<input type=\"text\" name=\"deck\">";
-    echo "<input type=\"submit\" name=\"mode\" value=\"Gimme some decks!\">";
-    echo "</form></td></tr></table>";
+    echo "<form method=\"get\" action=\"{$_SERVER['REQUEST_URI']}\"><table>";
+    echo "<tr><td>Deck name contains: </td> <td>";
+    echo "<input type=\"text\" name=\"deck\"></td></tr>";
+    echo "<tr><td>Deck contains card: </td><td>"; 
+    echo "<input type=\"text\" name=\"card\"></td></tr>";
+    echo "<tr><td colspan=2 style=\"text-align: center;\">";
+    echo "<input type=\"submit\" value=\"Gimme some decks!\"></td></tr>";
+    echo "</table></form>";
   }
 }
 ?>
