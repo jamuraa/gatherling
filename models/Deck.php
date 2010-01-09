@@ -139,7 +139,7 @@ class Deck {
   function getEvent() { 
     return new Event($this->eventname); 
   } 
-
+  
   function getCardCount() { 
     $count = 0; 
     foreach ($this->maindeck_cards as $card => $qty) { 

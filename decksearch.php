@@ -21,16 +21,16 @@ function content() {
     $decknamesearch = "%" . $_GET['deck'] . "%";
     $cardsearch = $_GET['card'];
     // TODO: I need a better way of doing this
-    if (empty($_GET['card'])) {
+    if (empty($_GET['card']) && !empty($_GET['deck'])) {
       $stmt = $db->prepare("SELECT d.id, d.name, n.player, n.event, n.medal 
         FROM decks d, entries n, deckcontents dc, events e, cards c 
         WHERE d.name LIKE ? AND n.deck=d.id 
         AND dc.deck=d.id AND dc.issideboard=0
         AND n.event=e.name
         GROUP BY dc.deck
-        ORDER BY e.start DESC, n.medal");
+        ORDER BY e.start DESC, n.medal LIMIT 20");
       $stmt->bind_param("s", $decknamesearch);
-    } else { 
+    } else if (!empty($_GET['card']) && !empty($_GET['deck'])) { 
       $stmt = $db->prepare("SELECT d.id, d.name, n.player, n.event, n.medal 
         FROM decks d, entries n, deckcontents dc, events e, cards c 
         WHERE d.name LIKE ? AND n.deck=d.id 
@@ -38,9 +38,20 @@ function content() {
         AND n.event=e.name
         AND dc.card=c.id AND c.name = ?
         GROUP BY dc.deck
-        ORDER BY e.start DESC, n.medal");
+        ORDER BY e.start DESC, n.medal LIMIT 20");
       $stmt->bind_param("ss", $decknamesearch, $cardsearch);
+    } else if (!empty($_GET['card']) && empty($_GET['deck'])) {
+      $stmt = $db->prepare("SELECT d.id, d.name, n.player, n.event, n.medal
+        FROM decks d, entries n, deckcontents dc, events e, cards c
+        WHERE n.deck=d.id
+        AND dc.deck=d.id AND dc.issideboard=0
+        AND n.event=e.name
+        AND dc.card=c.id AND c.name = ?
+        GROUP BY dc.deck
+        ORDER BY e.start DESC, n.medal LIMIT 20");
+      $stmt->bind_param("s", $cardsearch);
     }
+
     $stmt->execute(); 
     $stmt->store_result();
     $stmt->bind_result($id, $name, $player, $event, $medal);
@@ -59,7 +70,11 @@ function content() {
     if ($stmt->num_rows() == 0) { 
       echo "<center>No decks {$search_desc}! Try again!</center>\n";
     } else {
-      echo "<center>{$stmt->num_rows()} decks {$search_desc}</center>\n";
+      if ($stmt->num_rows() == 20) { 
+        echo "<center>More than 20 decks {$search_desc}</center>\n";
+      } else {
+        echo "<center>{$stmt->num_rows()} decks {$search_desc}</center>\n";
+      }
       echo "<table align=\"center\" style=\"border-width: 0px;\" cellpadding=3>";
       echo "<tr><th>Deck Name</th><th>Played by</th><th>Event</th> </tr>";
       while($stmt->fetch()) {

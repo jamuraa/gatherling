@@ -350,7 +350,7 @@ function infoCell($event) {
 
 function trophyCell($event) {
   if ($event->hastrophy) { 
-    echo "<img src=\"displayTrophy?event={$event->name}\"><br />\n";
+    echo "<img src=\"displayTrophy.php?event={$event->name}\"><br />\n";
   } else { 
     echo "No trophy available yet! <br />\n";
   } 
