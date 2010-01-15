@@ -6,9 +6,9 @@
 # AND MAKE THE FILE UNREADABLE BY HTACCESS!
 #
 # === MYSQL PARAMETERS ===
-$CONFIG['db_hostname'] = 'localhost'
-$CONFIG['db_username'] = 'username'
-$CONFIG['db_password'] = 'password'
-$CONFIG['db_database'] = 'gatherling'
+$CONFIG['db_hostname'] = 'localhost';
+$CONFIG['db_username'] = 'username';
+$CONFIG['db_password'] = 'password';
+$CONFIG['db_database'] = 'gatherling';
 
 # THAT'S ALL FOLKS!
