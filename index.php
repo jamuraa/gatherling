@@ -36,21 +36,19 @@ if (!is_null($event)) { ?>
 <? else: ?> 
 <center> <b> Login to Gatherling </b> </center>
 <form action="login.php" method="post">
-  <table align="center" style="border-width: 0px" cellpadding="3">
+  <table class="form" align="center" style="border-width: 0px" cellpadding="3">
     <tr>
-      <td><b>MTGO Username</b></td>
+      <th>MTGO Username</th>
       <td><input type="text" name="username" value="" /></td>
     </tr>
     <tr>
-      <td><b>Gatherling Password</b></td>
+      <th>Gatherling Password</td>
       <td><input type="password" name="password" value="" /></td>
     </tr>
     <tr> 
-      <td colspan="2">
-        <center>
+      <td colspan="2" class="buttons">
         <input type="submit" name="mode" value="Log In" /> <br />
         <a href="register.php">Need to register?</a>
-        </center>
       </td>
     </tr>
   </table>

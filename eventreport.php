@@ -326,8 +326,13 @@ function infoCell($event) {
   echo "{$playercount} Players<br />\n";
   $deckcount = count($event->getDecks());
   echo "{$deckcount} Decks &middot; ";
-  $deckpercentexact = round($deckcount * 100 / $playercount, 2);
-  $deckpercent = round($deckcount * 100 / $playercount, 0);
+  if ($playercount == 0) { 
+    $deckpercentexact = 0; 
+    $deckpercent = 0;
+  } else {
+    $deckpercentexact = round($deckcount * 100 / $playercount, 2);
+    $deckpercent = round($deckcount * 100 / $playercount, 0);
+  }
   if ($deckpercentexact == $deckpercent) {
     echo "{$deckpercent}% Reported <br />\n";
   } else { 
