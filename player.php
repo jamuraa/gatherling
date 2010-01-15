@@ -112,6 +112,7 @@ function print_mainPlayerCP($player) {
   echo "<div class=\"alpha grid_5\">\n";
   echo "<div id=\"gatherling_lefthalf\">\n";
   print_conditionalAllDecks(); 
+  print_mostRecentEntry();
   print_recentDeckTable(); 
   print_ratingsTableSmall(); 
   print_recentMatchTable(); 
@@ -141,6 +142,29 @@ function print_allContainer() {
   echo "</div> </div> \n";
   echo "<div class=\"clear\"> </div> ";
 }
+
+function print_mostRecentEntry() {
+  global $player;
+  $event = $player->getLastEventPlayed();
+  $entry = new Entry($event->name, $player->name);
+  
+  echo "<table style=\"border-width: 5px solid black;\">\n";
+  echo "<tr><td colspan=4><b>MOST RECENT TOURNEY</td></tr>\n";
+  $cell1 = medalImgStr($entry->medal);
+  $cell4 = $entry->recordString();
+  echo "<tr><td>$cell1</td>\n";
+  if ($entry->deck) {
+    $deck = $entry->deck;
+		echo "<td><a href=\"deck.php?mode=view&id={$deck->id}\">";
+		echo "{$deck->name}</a></td>\n";
+  } else { 
+		echo "<td align=\"left\"><a style=\"font-size: 11px; color: #D28950;\" href=\"deck.php?mode=create&event={$entry->event->name}&";
+		echo "player={$player->name}\">[Create Deck]</a></td>";
+  }
+  echo "<td><a href=\"{$event->threadurl}\">{$event->name}</a></td>\n";
+  echo "<td align=\"right\">$cell4</td></tr>\n";
+  echo "</table>\n";
+} 
 
 function print_recentDeckTable() {
   global $player;

@@ -8,17 +8,15 @@ print_header("PDCMagic.com | Gatherling | Login");
     <div class="uppertitle"> Login to Gatherling </div> 
 <?php if (isset($_POST['mode'])) { print_loginFailed(); } ?> 
 <form action="login.php" method="post">
-<table align="center" style="border-width: 0px" cellpadding="3">
-<tr><td><b>MTGO Username</td>
+<table class="form" align="center" style="border-width: 0px" cellpadding="3">
+<tr><th>MTGO Username</th>
 <td><input type="text" name="username" value=""></td></tr>
-<tr><td><b>Gatherling Password</td>
+<tr><th>Gatherling Password</th>
 <td><input type="password" name="password" value="">
 </td></tr>
 <tr><td>&nbsp;</td></tr>
-<tr><td colspan="2" align="center">
-<input type="submit" name="mode" value="Log In">
-<tr><td>&nbsp;</td></tr>
-<tr><td colspan="2" align="center">
+<tr><td colspan="2" class="buttons">
+<input type="submit" name="mode" value="Log In"><br />
 Please <a href="register.php">Click Here</a> if you need to register.
 </td> </tr> 
 </table>

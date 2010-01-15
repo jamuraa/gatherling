@@ -16,7 +16,7 @@ print_header("PDCMagic.com | Gatherling | Basic Deck Search");
 
 <?php // ------ Search Starts here ------
 function content() {
-  if(isset($_GET['deck']) || isset($_GET['card'])) {
+  if(!empty($_GET['deck']) || !empty($_GET['card'])) {
     $db = Database::getConnection(); 
     $decknamesearch = "%" . $_GET['deck'] . "%";
     $cardsearch = $_GET['card'];
@@ -92,12 +92,12 @@ function content() {
     }
     $stmt->close(); 
   } else {
-    echo "<form method=\"get\" action=\"{$_SERVER['REQUEST_URI']}\"><table>";
-    echo "<tr><td>Deck name contains: </td> <td>";
+    echo "<form method=\"get\" action=\"{$_SERVER['REQUEST_URI']}\"><table class=\"form\">";
+    echo "<tr><th>Deck name contains</th> <td>";
     echo "<input type=\"text\" name=\"deck\"></td></tr>";
-    echo "<tr><td>Deck contains card: </td><td>"; 
+    echo "<tr><th>Deck contains card</th><td>"; 
     echo "<input type=\"text\" name=\"card\"></td></tr>";
-    echo "<tr><td colspan=2 style=\"text-align: center;\">";
+    echo "<tr><td colspan=2 class=\"buttons\">";
     echo "<input type=\"submit\" value=\"Gimme some decks!\"></td></tr>";
     echo "</table></form>";
   }
