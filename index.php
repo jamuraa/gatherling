@@ -63,6 +63,16 @@ if (!is_null($event)) { ?>
 <div class="uppertitle alpha omega grid_10"> Latest Gatherling News </div>
 <div class="clear"></div>
 <p> 
+  <b> 2010-01-14 </b> - 
+  Updates are back!  We have a bunch of little things this week, but again, bigger stuff up ahead.
+  <ul> 
+    <li> Deck search now is limited to 20 decks for performance reasons </li>
+    <li> Users can change their own password now, from the Player CP </li> 
+    <li> Forms look slightly nicer now </li> 
+    <li> Other random bugs that were fixed </li>
+  </ul>
+</p>
+<p> 
   <b> 2009-12-04 </b> -
   I took a week off because of the thanksgiving holiday, but here is the next iteration!  Next week I expect to take off as well, but the week after we should have another iteration.
   <ul> 
@@ -72,18 +82,6 @@ if (!is_null($event)) { ?>
     <li> Ratings page now displays the date of the last event ratings were calculated for, in addition to the event name </li>
   </ul>
 </p>
-<p>
-  <b> 2009-11-19 </b> - 
-  Welcome to the second update in the new release cycle.  This week we have just a couple of things 
-  which are visible to the average player, but one of them has been waiting a while.
-  <ul> 
-   <li> Metagame reports will now tell you the number of decks and the percentage of decks reported. </li>
-   <li> Players can now ignore decks that they can't remember or recover.  Click the checkbox next to the deck on the page with all of your decks.
-        If you end up with zero unignored decks, the large annoying reminder will go away on the main Player CP.</li>
-   <li> New gatherling landing page layout with login form for faster login! </li> 
-   <li> A couple things for hosts. </li>
-  </ul>
-</p> 
 <br /> 
 <div class="clear"></div>
 </div> <!-- box gatherlingnews -->

@@ -173,7 +173,8 @@ function numDropMenu($field, $title, $max, $def, $min = 0, $special="") {
 }
 
 function version_tagline() { 
-  print "Gatherling version 1.9.5 (\"The grade that you receive will be your last, WE SWEAR!\")";
+  print "Gatherling version 1.9.6 (\"Just relax and let your mind go blank. That shouldn't be too hard for you.\")";
+  # print "Gatherling version 1.9.5 (\"The grade that you receive will be your last, WE SWEAR!\")";
   # print "Gatherling version 1.9.4 (\"We're gonna need some more FBI guys, I guess.\")";
   # print "Gatherling version 1.9.3 (\"This is the Ocean, silly, we're not the only two in here.\")";
   # print "Gatherling version 1.9.2 (\"So now you're the boss. You're the King of Bob.\")";
