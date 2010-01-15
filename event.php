@@ -109,20 +109,20 @@ function eventList($series = "", $season = "") {
 	$result = $db->query($query);
 
 	echo "<form action=\"event.php\" method=\"post\">";
-	echo "<table style=\"border-width: 0px\" align=\"center\">";
+	echo "<table class=\"form\" style=\"border-width: 0px\" align=\"center\">";
 	echo "<tr><td colspan=\"2\" align=\"center\"><b>Filters</td></tr>";
 	echo "<tr><td>&nbsp;</td></tr>";
-	echo "<tr><td>Format</td><td>";
+	echo "<tr><th>Format</th><td>";
 	formatDropMenu($_POST['format'], 1);
 	echo "</td></tr>";
-	echo "<tr><td>Series</td><td>";
+	echo "<tr><th>Series</th><td>";
 	seriesDropMenu($_POST['series'], 1);
 	echo "</td></tr>";
-	echo "<tr><td>Season</td><td>";
+	echo "<tr><th>Season</th><td>";
 	seasonDropMenu($_POST['season'], 1);
 	echo "</td></tr>";
 	echo "<tr><td>&nbsp;</td></tr>";
-	echo "<tr><td colspan=\"2\" align=\"center\">";
+	echo "<tr><td colspan=\"2\" class=\"buttons\">";
   echo "<input type=\"submit\" name=\"mode\" value=\"Create New Event\" />\n";
   echo "<input type=\"submit\" name=\"mode\" value=\"Filter Events\" />\n";
 	echo "</td></tr></table>";
@@ -178,7 +178,7 @@ function eventForm($event = NULL, $forcenew = false) {
   }
 	echo "<form action=\"event.php\" method=\"post\" ";
 	echo "enctype=\"multipart/form-data\">";
-	echo "<table style=\"border-width: 0px\" align=\"center\">";
+	echo "<table class=\"form\" style=\"border-width: 0px\" align=\"center\">";
 	if ($event->start != NULL) {
 		$date = $event->start;
 		preg_match('/([0-9]+)-([0-9]+)-([0-9]+) ([0-9]+):.*/', $date, $datearr);
@@ -186,13 +186,13 @@ function eventForm($event = NULL, $forcenew = false) {
 		$month = $datearr[2];
 		$day = $datearr[3];
 		$hour = $datearr[4];
-		echo "<tr><td><b>Currently Editing</td>";
-		echo "<td><i>{$event->name}</td>";
+		echo "<tr><th>Currently Editing</th>";
+		echo "<td><i>{$event->name}</i></td>";
 		echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
 		echo "</tr><tr><td>&nbsp;</td></tr>";
 	}
 	else {
-		echo "<tr><td valign=\"top\"><b>Event Name</td>";
+		echo "<tr><th>Event Name</th>";
 		echo "<td><input type=\"radio\" name=\"naming\" value=\"auto\" checked>";
 		echo "Automatically name this event based on Series, Season, and Number.";
 		echo "<br><input type=\"radio\" name=\"naming\" value=\"custom\">";
@@ -202,65 +202,65 @@ function eventForm($event = NULL, $forcenew = false) {
     echo "</td></tr>";
     $year = strftime('Y', time());
 	}
-	echo "<tr><td><b>Date & Time</td><td>";
+	echo "<tr><th>Date & Time</th><td>";
 	numDropMenu("year", "- Year -", 2010, $year, 2005);
 	monthDropMenu($month);
 	numDropMenu("day", "- Day- ", 31, $day, 1);
 	hourDropMenu($hour);
 	echo "</td></tr>";
-	echo "<tr><td><b>Series</td><td>";
+	echo "<tr><th>Series</th><td>";
 	seriesDropMenu($event->series);
 	echo "</td></tr>";
-	echo "<tr><td><b>Season</td><td>";
+	echo "<tr><th>Season</th><td>";
 	seasonDropMenu($event->season);
 	echo "</td></tr>";
-	echo "<tr><td><b>Number</td><td>";
+	echo "<tr><th>Number</th><td>";
 	numDropMenu("number", "- Event Number -", 20, $event->number, 0, "Custom");
 	echo "</td><tr>";
-	echo "<tr><td><b>Format</td><td>";
+	echo "<tr><th>Format</th><td>";
 	formatDropMenu($event->format);
 	echo "</td></tr>";
-	echo "<tr><td><b>K-Value:</td><td>";
+	echo "<tr><th>K-Value</th><td>";
 	kValueDropMenu($event->kvalue);
 	echo "</td></tr>";
-	echo "<tr><td><b>Host/Cohost</td><td>";
+	echo "<tr><th>Host/Cohost</th><td>";
 	stringField("host", $event->host, 20);
 	echo "&nbsp;/&nbsp;";
 	stringField("cohost", $event->cohost, 20);
 	echo "</td></tr>";
-	echo "<tr><td><b>Event Thread URL</td><td>";
+	echo "<tr><th>Event Thread URL</th><td>";
 	stringField("threadurl", $event->threadurl, 60);
 	echo "</td></tr>";
-	echo "<tr><td><b>Metagame URL</td><td>";
+	echo "<tr><th>Metagame URL</th><td>";
 	stringField("metaurl", $event->metaurl, 60);
 	echo "</td></tr>";
-	echo "<tr><td><b>Report URL</td><td>";
+	echo "<tr><th>Report URL</th><td>";
 	stringField("reporturl", $event->reporturl, 60);
 	echo "</td></tr>";
-	echo "<tr><td><b>Main Event Structure</td><td>";
+	echo "<tr><th>Main Event Structure</th><td>";
 	numDropMenu("mainrounds", "- No. of Rounds -", 10, $event->mainrounds, 1);
 	echo " rounds of ";
 	structDropMenu("mainstruct", $event->mainstruct);
 	echo "</td></tr>";
-	echo "<tr><td><b>Finals Structure</td><td>";
+	echo "<tr><th>Finals Structure</th><td>";
 	numDropMenu("finalrounds", "- No. of Rounds -", 10, $event->finalrounds, 0);
 	echo " rounds of ";
 	structDropMenu("finalstruct", $event->finalstruct);
 	echo "</td></tr>";
 	if($edit == 0) {
 		echo "<tr><td>&nbsp;</td></tr>";
-		echo "<tr><td colspan=\"2\" align=\"center\">";
+		echo "<tr><td colspan=\"2\" class=\"buttons\">";
 		echo "<input type=\"submit\" name=\"mode\" value=\"Create New Event\">";
 		echo "<input type=\"hidden\" name=\"insert\" value=\"1\">";
 		echo "</td></tr>";
 	} else {
-		echo "<tr><td><b>Finalize Event</td>";
+		echo "<tr><th>Finalize Event</td>";
 		echo "<td><input type=\"checkbox\" name=\"finalize\" value=\"1\" ";
 		if($event->finalized == 1) {echo "checked";}
 		echo "></td></tr>";
 		trophyField($event);	
 		echo "<tr><td>&nbsp;</td></tr>";
-    echo "<tr><td colspan=\"2\" align=\"center\">";
+    echo "<tr><td colspan=\"2\" class=\"buttons\">";
     echo " <input type=\"submit\" name=\"mode\" value=\"Update Event Info\" />";
     $nexteventname = sprintf("%s %d.%02d",$event->series, $event->season, $event->number + 1);
     if (!Event::exists($nexteventname)) { 
@@ -622,7 +622,7 @@ function trophyField($event) {
 		echo "<tr><td colspan=\"2\" align=\"center\">";
 		echo "<img src=\"displayTrophy.php?event={$event->name}\"></td></tr>";
 	}
-  echo "<tr><td valign=\"top\"><b>Trophy Image</td><td>";
+  echo "<tr><th>Trophy Image</th><td>";
   echo "<input type=\"file\" id=\"trophy\" name=\"trophy\">&nbsp";
   echo "<input type=\"submit\" name=\"mode\" value=\"Upload Trophy\">";
   echo "</tr>";

@@ -25,4 +25,4 @@ if (version_compare(phpversion(), 6) === -1) {
   }
 }
 
-
+require_once 'config.php';

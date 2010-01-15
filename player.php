@@ -15,12 +15,31 @@ if ($player == NULL) {
   if (isset($_POST['action'])) {
     if ($_POST['action'] == 'setIgnores') { 
       setPlayerIgnores(); 
+    } else if ($_POST['action'] == 'changePassword') {
+      $success = false;
+      if ($_POST['newPassword2'] == $_POST['newPassword']) {
+        if (strlen($_POST['newPassword']) >= 6) {
+          $authenticated = Player::checkPassword($_POST['username'], $_POST['oldPassword']);
+          if ($authenticated) {
+            $player = new Player($_POST['username']); 
+            $player->setPassword($_POST['newPassword']);
+            $result = "Password changed.";
+            $success = true;
+          } else { 
+            $result = "Password *not* changed, your old password was incorrect!";
+          }
+        } else { 
+          $result = "Password *not* changed, your new password needs to be longer!";
+        }
+      } else { 
+        $result = "Password *not* changed, your new passwords did not match!";
+      }
     } 
   } 
   // Handle modes 
   $dispmode = 'playercp';
   if (isset($_GET['mode'])) { 
-    $dispmode = $_GET['mode']; 
+    $dispmode = $_GET['mode'];
   }
   if (isset($_POST['mode'])) { 
     $dispmode = $_POST['mode']; 
@@ -40,6 +59,8 @@ if ($player == NULL) {
   } elseif ($dispmode == 'Filter Matches') {
     print_allMatchForm($player);
     print_matchTable($player);
+  } elseif ($dispmode == 'changepass') {
+    print_changePassForm($player, $result);
   } else { 
     print_mainPlayerCP($player->name); 
   }
@@ -51,6 +72,28 @@ if ($player == NULL) {
 <?php print_footer(); ?>
 
 <?php
+
+function print_changePassForm($player, $result) { 
+  echo "<center><h3>Changing your password</h3>
+    New passwords are required to be at least 6 characters long.</center>\n";
+  echo "<center style=\"color: red; font-weight: bold;\">{$result}</center>\n";
+  echo "<form action=\"player.php\" method=\"post\">\n";
+  echo "<input name=\"action\" type=\"hidden\" value=\"changePassword\" />\n";
+  echo "<input name=\"mode\" type=\"hidden\" value=\"changepass\" />\n";
+  echo "<input name=\"username\" type=\"hidden\" value=\"{$player->name}\" />\n";
+  echo "<table class=\"form\">";
+  echo "<tr><th>Current Password</th>\n";
+  echo "<td> <input name=\"oldPassword\" type=\"password\" /></td> </tr> \n";
+  echo "<tr><th>New Password</th>\n";
+  echo "<td> <input name=\"newPassword\" type=\"password\" /></td> </tr> \n";
+  echo "<tr><th>Repeat New Password</th>\n";
+  echo "<td> <input name=\"newPassword2\" type=\"password\" /></td> </tr> \n";
+  echo "<tr> <td colspan=\"2\" class=\"buttons\">\n";
+  echo "<input name=\"submit\" type=\"submit\" value=\"Change Password\" />\n";
+  echo "</td> </tr> </table> \n";
+  echo "</form>\n"; 
+  echo "<div class=\"clear\"> </div>\n";
+} 
 
 function setPlayerIgnores() {
   global $player; 
@@ -69,6 +112,7 @@ function print_mainPlayerCP($player) {
   echo "<div class=\"alpha grid_5\">\n";
   echo "<div id=\"gatherling_lefthalf\">\n";
   print_conditionalAllDecks(); 
+  print_mostRecentEntry();
   print_recentDeckTable(); 
   print_ratingsTableSmall(); 
   print_recentMatchTable(); 
@@ -76,6 +120,10 @@ function print_mainPlayerCP($player) {
   echo "<div class=\"omega grid_5\">\n"; 
   echo "<div id=\"gatherling_righthalf\">\n";
   print_statsTable(); 
+  echo "<b>ACTIONS</b><br />\n";
+  echo "<ul>\n";
+  echo "<li><a href=\"player.php?mode=changepass\">Change your password</a></li>\n";
+  echo "</ul>\n";
   echo "</div></div>\n";
   echo "<div class=\"clear\"></div>\n";
 }
@@ -94,6 +142,29 @@ function print_allContainer() {
   echo "</div> </div> \n";
   echo "<div class=\"clear\"> </div> ";
 }
+
+function print_mostRecentEntry() {
+  global $player;
+  $event = $player->getLastEventPlayed();
+  $entry = new Entry($event->name, $player->name);
+  
+  echo "<table style=\"border-width: 5px solid black;\">\n";
+  echo "<tr><td colspan=4><b>MOST RECENT TOURNEY</td></tr>\n";
+  $cell1 = medalImgStr($entry->medal);
+  $cell4 = $entry->recordString();
+  echo "<tr><td>$cell1</td>\n";
+  if ($entry->deck) {
+    $deck = $entry->deck;
+		echo "<td><a href=\"deck.php?mode=view&id={$deck->id}\">";
+		echo "{$deck->name}</a></td>\n";
+  } else { 
+		echo "<td align=\"left\"><a style=\"font-size: 11px; color: #D28950;\" href=\"deck.php?mode=create&event={$entry->event->name}&";
+		echo "player={$player->name}\">[Create Deck]</a></td>";
+  }
+  echo "<td><a href=\"{$event->threadurl}\">{$event->name}</a></td>\n";
+  echo "<td align=\"right\">$cell4</td></tr>\n";
+  echo "</table>\n";
+} 
 
 function print_recentDeckTable() {
   global $player;
@@ -384,7 +455,7 @@ function print_ratingsHistory($format) {
 }	
 
 function print_ratingHistoryForm($format) {
-	$formats = array("Composite", "Standard", "Future Extended", "Classic",
+	$formats = array("Composite", "Standard", "Extended", "Classic",
 		"Other Formats");
 	echo "<center>\n";
 	echo "<form action=\"player.php\" method=\"get\">\n";

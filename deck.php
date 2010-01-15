@@ -20,6 +20,9 @@ if (strcmp($_GET['mode'], "view") == 0) {
   // Need to auth for everything else.
   $deck_player = isset($_POST['player']) ? $_POST['player'] : Player::loginName();
   $deck = isset($_POST['id']) ? new Deck($_POST['id']) : NULL;
+  if (!isset($_POST['event'])) {
+    $_POST['event'] = $_GET['event'];
+  }
   if (checkDeckAuth($_POST['event'], $deck_player, $deck)) {
     if (strcmp($_POST['mode'], "Create Deck") == 0) {
       $deck = insertDeck();
@@ -279,8 +282,12 @@ function deckInfoCell($deck) {
   $line3 .= "{$deck->playername}</a> in ";
   $line3 .= "<span class=\"eventname\" title=\"{$day}\">{$event->name}</span>\n";
 
-	$rstar = "<font color=\"#FF0000\">*</font>";
-  $line1 = "<b>" . strtoupper($deck->name) . "</b>";
+  $rstar = "<font color=\"#FF0000\">*</font>";
+  $name = $deck->name;
+  if (empty($name)) {
+    $name = "** NO NAME **";
+  } 
+  $line1 = "<b>" . strtoupper($name) . "</b>";
   $deck_format = $event->format;
 	if($ncards < 6) {$line1 .= $rstar;}
 	if($ncards < 60) {$line1 .= $rstar;}

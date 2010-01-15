@@ -34,7 +34,7 @@ class Player {
     } 
     $stmt->close(); 
 
-    $hashpwd = hash('sha256', $_POST['password']);
+    $hashpwd = hash('sha256', $password);
 
     return strcmp($srvpass, $hashpwd) == 0;
   } 
@@ -830,5 +830,14 @@ class Player {
     $stmt->execute(); 
     $stmt->close();
   } 
+
+  function setPassword($new_password) {
+    $db = Database::getConnection();
+    $stmt = $db->prepare("UPDATE players SET password = ? WHERE name = ?");
+    $hash_pass = hash('sha256', $new_password);
+    $stmt->bind_param("ss", $hash_pass, $this->name);
+    $stmt->execute();
+    $stmt->close();
+  }
 }
 
