@@ -18,6 +18,9 @@ if (strcmp($_GET['mode'], "view") == 0) {
   deckProfile($deck);
 } else { 
   // Need to auth for everything else.
+  if (!isset($_POST['player']) and isset($_GET['player'])) { 
+    $_POST['player'] = $_GET['player'];
+  }
   $deck_player = isset($_POST['player']) ? $_POST['player'] : Player::loginName();
   $deck = isset($_POST['id']) ? new Deck($_POST['id']) : NULL;
   if (!isset($_POST['event'])) {
@@ -228,7 +231,10 @@ function deckProfile($deck) {
   symbolTable($deck); 
   echo "</div> <div class=\"grid_2 omega\">\n"; 
   ccTable($deck);
-  echo "</div> </div> </div>\n"; 
+  echo "</div>\n";
+  echo "<div class=\"clear\"></div>"; 
+  exactMatchTable($deck);
+  echo " </div> </div>\n"; 
   echo "<div class=\"clear\"></div>"; 
   echo "<div>";
   commentsTable($deck);
@@ -329,6 +335,29 @@ function sideboardTable($deck) {
     }
 	echo "</table>\n";
 }
+
+function exactMatchTable($deck) { 
+  $decks = $deck->findIdenticalDecks(); 
+  if (count($decks) == 0) { 
+    return false;
+  } 
+	echo "<table style=\"border-width: 0px\" cellpadding=1 align=\"right\">\n";
+	echo "<tr><th colspan=5 align=\"left\"><b>THIS DECK ALSO PLAYED AS</td></tr>\n";
+  foreach ($decks as $deck) { 
+    if (!isset($deck->playername)) { 
+      continue;
+    } 
+		$cell1 = medalImgStr($deck->medal);
+		$cell4 = $deck->recordString();
+    echo "<tr><td>$cell1</td>\n";
+		echo "<td style=\"width: 140px\"><a href=\"deck.php?mode=view&id={$deck->id}\">";
+		echo "{$deck->name}</a></td>\n";
+    echo "<td>{$deck->playername}</td>\n"; 
+		echo "<td><a href=\"{$deck->getEvent()->threadurl}\">{$deck->eventname}</a></td>\n";
+    echo "<td style=\"text-align: right; width: 30px;\">$cell4</td></tr>\n";
+  }
+  echo "</table>\n";
+} 
 
 function matchupTable($deck) {
   $matches = $deck->getMatches();

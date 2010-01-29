@@ -79,4 +79,3 @@ if ($version < 2) {
   echo ".. DB now at version 2! <br />";
 }
 
-

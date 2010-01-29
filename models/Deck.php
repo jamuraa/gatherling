@@ -320,8 +320,8 @@ class Deck {
   function findIdenticalDecks() { 
     if (!isset($this->identicalDecks)) {
       $db = Database::getConnection();
-      $stmt = $db->prepare("SELECT id FROM decks WHERE whole_hash = ?");
-      $stmt->bind_param("s", $this->whole_hash);
+      $stmt = $db->prepare("SELECT d.id FROM decks d, entries n, events e WHERE deck_hash = ? AND id != ? AND n.deck = d.id AND e.name = n.event ORDER BY e.start DESC");
+      $stmt->bind_param("sd", $this->deck_hash, $this->id);
       $same_ids = array();
       $this_id = 0;
       $stmt->execute();
@@ -330,11 +330,14 @@ class Deck {
         $same_ids[] = $this_id;
       } 
       $stmt->close(); 
-
+  
       $decks = array();
 
       foreach ($same_ids as $other_deck_id) { 
-        $decks[] = new Deck($id);
+        $possibledeck = new Deck($other_deck_id); 
+        if (isset($possibledeck->playername)) { 
+          $decks[] = $possibledeck; 
+        } 
       } 
       $this->identical_decks = $decks;
     }
