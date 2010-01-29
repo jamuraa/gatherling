@@ -62,6 +62,16 @@ if (!is_null($event)) { ?>
 <div class="box" id="gatherling_news">
 <div class="uppertitle alpha omega grid_10"> Latest Gatherling News </div>
 <div class="clear"></div>
+<p>
+  <b> 2010-01-29 </b> -
+  We've got a little peek of the newest functionality this week.  Soon you'll be able to verify your accounts here on Gatherling with infobot on MTGO!   Also, we now have a listing of decks that are played if they are an exact duplicate.  Check it out - <a href="deck.php?mode=view&id=3085">Burn</a> has been played quite a bit.
+  <ul> 
+    <li> Decks now show exact duplicate decks played. </li> 
+    <li> Most-played decks are shown on deck search page. </li>
+    <li> Users can verify with infobot (once infobot updates) </li> 
+    <li> Some other minor bugs fixed </li>
+  </ul>
+</p>
 <p> 
   <b> 2010-01-14 </b> - 
   Updates are back!  We have a bunch of little things this week, but again, bigger stuff up ahead.
@@ -70,16 +80,6 @@ if (!is_null($event)) { ?>
     <li> Users can change their own password now, from the Player CP </li> 
     <li> Forms look slightly nicer now </li> 
     <li> Other random bugs that were fixed </li>
-  </ul>
-</p>
-<p> 
-  <b> 2009-12-04 </b> -
-  I took a week off because of the thanksgiving holiday, but here is the next iteration!  Next week I expect to take off as well, but the week after we should have another iteration.
-  <ul> 
-    <li> Deck search by card name! You can search by card name, deck name, and any combination.  Card names must be exact, deck names are still a partial string search</li>
-    <li> Hosts will see a couple new links on the landing page for convenience </li> 
-    <li> Fixed a bug which would cause ugly error messages when dealing with decks and getting logged out </li>
-    <li> Ratings page now displays the date of the last event ratings were calculated for, in addition to the event name </li>
   </ul>
 </p>
 <br /> 

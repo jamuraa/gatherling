@@ -34,7 +34,16 @@ if ($player == NULL) {
       } else { 
         $result = "Password *not* changed, your new passwords did not match!";
       }
-    } 
+    } else if ($_POST['action'] == 'verifyAccount') { 
+      $success = false;
+      if ($player->checkChallenge($_POST['challenge'])) { 
+        $player->setVerified(true);
+        $result = "Successfully verified your account with MTGO.";
+        $success = true; 
+      } else { 
+        $result = "Your challenge is wrong.  Get a new one by sending the message 'ua pdcmagic' to infobot on MTGO!"; 
+      } 
+    }  
   } 
   // Handle modes 
   $dispmode = 'playercp';
@@ -61,8 +70,10 @@ if ($player == NULL) {
     print_matchTable($player);
   } elseif ($dispmode == 'changepass') {
     print_changePassForm($player, $result);
+  } elseif ($dispmode == 'verifymtgo') { 
+    print_verifyMtgoForm($player, $result);
   } else { 
-    print_mainPlayerCP($player->name); 
+    print_mainPlayerCP($player); 
   }
 }
 ?>
@@ -95,6 +106,32 @@ function print_changePassForm($player, $result) {
   echo "<div class=\"clear\"> </div>\n";
 } 
 
+function print_verifyMtgoForm($player, $result) { 
+  echo "<center><h3>Verifying your MTGO account</h3>
+    Verify your MTGO account by following these simple steps:<br />
+    1. Chat 'ua pdcmagic' to infobot to get a verification code <br />
+    2. Enter the verification code here to be verified <br />
+    \n";
+  echo "<center style=\"color: red; font-weight: bold;\">{$result}</center>\n";
+  if ($player->verified == 1) { 
+    echo "<center>You are already verified!</center>\n";
+    echo "<a href=\"player.php\">Go back to the Player CP</a>\n";
+  } else { 
+    echo "<form action=\"player.php\" method=\"post\">\n";
+    echo "<input name=\"action\" type=\"hidden\" value=\"verifyAccount\" />\n";
+    echo "<input name=\"mode\" type=\"hidden\" value=\"verifymtgo\" />\n";
+    echo "<input name=\"username\" type=\"hidden\" value=\"{$player->name}\" />\n";
+    echo "<table class=\"form\">";
+    echo "<tr><th>Verification Code</th>\n";
+    echo "<td> <input name=\"challenge\" type=\"text\" /></td> </tr> \n";
+    echo "<tr> <td colspan=\"2\" class=\"buttons\">\n";
+    echo "<input name=\"submit\" type=\"submit\" value=\"Verify Account\" />\n";
+    echo "</td> </tr> </table> \n";
+    echo "</form>\n"; 
+  }
+  echo "<div class=\"clear\"> </div>\n";
+} 
+
 function setPlayerIgnores() {
   global $player; 
   $noDeckEntries = $player->getNoDeckEntries(); 
@@ -112,7 +149,6 @@ function print_mainPlayerCP($player) {
   echo "<div class=\"alpha grid_5\">\n";
   echo "<div id=\"gatherling_lefthalf\">\n";
   print_conditionalAllDecks(); 
-  print_mostRecentEntry();
   print_recentDeckTable(); 
   print_ratingsTableSmall(); 
   print_recentMatchTable(); 
@@ -123,6 +159,9 @@ function print_mainPlayerCP($player) {
   echo "<b>ACTIONS</b><br />\n";
   echo "<ul>\n";
   echo "<li><a href=\"player.php?mode=changepass\">Change your password</a></li>\n";
+  if ($player->verified == 0) { 
+    echo "<li><a href=\"player.php?mode=verifymtgo\">Verify your MTGO account</a></li>\n";
+  }
   echo "</ul>\n";
   echo "</div></div>\n";
   echo "<div class=\"clear\"></div>\n";
@@ -143,38 +182,30 @@ function print_allContainer() {
   echo "<div class=\"clear\"> </div> ";
 }
 
-function print_mostRecentEntry() {
-  global $player;
-  $event = $player->getLastEventPlayed();
-  $entry = new Entry($event->name, $player->name);
-  
-  echo "<table style=\"border-width: 5px solid black;\">\n";
-  echo "<tr><td colspan=4><b>MOST RECENT TOURNEY</td></tr>\n";
-  $cell1 = medalImgStr($entry->medal);
-  $cell4 = $entry->recordString();
-  echo "<tr><td>$cell1</td>\n";
-  if ($entry->deck) {
-    $deck = $entry->deck;
-		echo "<td><a href=\"deck.php?mode=view&id={$deck->id}\">";
-		echo "{$deck->name}</a></td>\n";
-  } else { 
-		echo "<td align=\"left\"><a style=\"font-size: 11px; color: #D28950;\" href=\"deck.php?mode=create&event={$entry->event->name}&";
-		echo "player={$player->name}\">[Create Deck]</a></td>";
-  }
-  echo "<td><a href=\"{$event->threadurl}\">{$event->name}</a></td>\n";
-  echo "<td align=\"right\">$cell4</td></tr>\n";
-  echo "</table>\n";
-} 
-
 function print_recentDeckTable() {
   global $player;
-  $decks = $player->getRecentDecks(5);
+  $event = $player->getLastEventPlayed(); 
+  $entry = new Entry($event->name, $player->name); 
+  if ($entry->deck) { 
+    $decks = $player->getRecentDecks(6);
+  } else { 
+    $decks = $player->getRecentDecks(5);
+  }
 
 	echo "<table style=\"border-width: 5px solid black;\">\n";
 	echo "<tr><td colspan=2><b>RECENT DECKS</td>\n";
 	echo "<td colspan=2 align=\"right\">";
 	echo "<a href=\"player.php?mode=alldecks\">";
   echo "(see all)</a></td>\n";
+  if (!$entry->deck) { 
+    $cell1 = medalImgStr($entry->medal);
+    $cell4 = $entry->recordString();
+    echo "<tr><td>$cell1</td>\n";
+		echo "<td align=\"left\"><a style=\"font-size: 11px; color: #D28950;\" href=\"deck.php?mode=create&event={$entry->event->name}&";
+		echo "player={$player->name}\">[Create Deck]</a></td>";
+    echo "<td><a href=\"{$event->threadurl}\">{$event->name}</a></td>\n";
+    echo "<td align=\"right\">$cell4</td></tr>\n";
+  } 
   foreach ($decks as $deck) {
 		$cell1 = medalImgStr($deck->medal);
 		$cell4 = $deck->recordString();

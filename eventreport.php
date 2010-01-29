@@ -107,9 +107,6 @@ function eventList($series = "", $season = "") {
   }
 
   echo "<tr><td colspan=\"5\" width=\"500\">&nbsp;</td></tr>";
-#   echo "<tr><td colspan=\"5\" align=\"center\">";
-#   echo "<input type=\"submit\" name=\"mode\" value=\"Create New Event\">";
-#   echo "</td></tr>";
   echo "</table></form>";
 }
 
@@ -364,7 +361,7 @@ function trophyCell($event) {
 	echo "{$deck->playername}</a>, ";
 	$info = deckInfo($deck);
 	echo "<img src=\"/images/rename/{$info[1]}.gif\"> ";
-	echo "<a href=\"deck.php?mode=view&id={$deck->name}\">";
+	echo "<a href=\"deck.php?mode=view&id={$deck->id}\">";
 	echo "{$info[0]}</a><br>\n";
 }
 ?>

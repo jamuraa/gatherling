@@ -22,12 +22,12 @@ class Deck {
       return;
     } 
     $database = Database::getConnection(); 
-    $stmt = $database->prepare("SELECT name, archetype, notes 
+    $stmt = $database->prepare("SELECT name, archetype, notes, deck_hash, sideboard_hash, whole_hash
       FROM decks d 
       WHERE id = ?");
     $stmt->bind_param("d", $id);
     $stmt->execute();
-    $stmt->bind_result($this->name, $this->archetype, $this->notes);
+    $stmt->bind_result($this->name, $this->archetype, $this->notes, $this->deck_hash, $this->sideboard_hash, $this->whole_hash);
     
     if ($stmt->fetch() == NULL) { 
       throw new Exception('Deck id '. $id .' has not been found.');
@@ -84,6 +84,8 @@ class Deck {
     $stmt->fetch(); 
     $stmt->close();
 
+
+    
   }
 
   function getEntry() { 
@@ -314,6 +316,69 @@ class Deck {
     $db->autocommit(TRUE);
     return true;
   }
+
+  function findIdenticalDecks() { 
+    if (!isset($this->identicalDecks)) {
+      $db = Database::getConnection();
+      $stmt = $db->prepare("SELECT d.id FROM decks d, entries n, events e WHERE deck_hash = ? AND id != ? AND n.deck = d.id AND e.name = n.event ORDER BY e.start DESC");
+      $stmt->bind_param("sd", $this->deck_hash, $this->id);
+      $same_ids = array();
+      $this_id = 0;
+      $stmt->execute();
+      $stmt->bind_result($this_id);
+      while ($stmt->fetch()) { 
+        $same_ids[] = $this_id;
+      } 
+      $stmt->close(); 
+  
+      $decks = array();
+
+      foreach ($same_ids as $other_deck_id) { 
+        $possibledeck = new Deck($other_deck_id); 
+        if (isset($possibledeck->playername)) { 
+          $decks[] = $possibledeck; 
+        } 
+      } 
+      $this->identical_decks = $decks;
+    }
+    return $this->identical_decks;
+  }
+
+  function calculateHashes() {
+    # Deck HASHES are an easy way to compare two decks for EQUALITY.
+    # They are computed as follows:
+    #  A string is built with the following format:
+    #   "(amt)(Cardname)(amt)(Cardname)..."
+    #  The cardnames are unique per Magic: The Gathering
+    #  The cardnames are lexographically sorted!
+    #  The amounts are NOT PADDED: 1 => 1, 10 => 10, 100 => 100
+    #  There is NO SPACE BETWEEN THE amount and the cardname, or between cards
+    #  Make this string for the main deck and the sideboard. 
+    #  Concatenate these strings: maindeckStr + "<sb>" + sideboardStr
+    #  Make a SHA-1 hash of this string for the whole_hash
+    #  Make a SHA-1 hash of the maindeckStr for the maindeck_hash
+    #  Make a SHA-1 hash of the sideboardStr for the sideboard_hash
+    $cards = array_keys($this->maindeck_cards);
+    sort($cards, SORT_STRING);
+    $maindeckStr = "";
+    foreach ($cards as $cardname) { 
+      $maindeckStr .= $this->maindeck_cards[$cardname] . $cardname;
+    }
+    $this->deck_hash = sha1($maindeckStr);
+    $sideboardStr = "";
+    $cards = array_keys($this->sideboard_cards);
+    sort($cards, SORT_STRING);
+    foreach ($cards as $cardname) { 
+      $sideboardStr .= $this->sideboard_cards[$cardname] . $cardname;
+    }
+    $this->sideboard_hash = sha1($sideboardStr);
+    $this->whole_hash = sha1($maindeckStr . "<sb>" . $sideboardStr); 
+    $db = Database::getConnection();
+    $stmt = $db->prepare("UPDATE decks SET sideboard_hash = ?, deck_hash = ?, whole_hash = ? where id = ?");
+    $stmt->bind_param("sssd", $this->sideboard_hash, $this->deck_hash, $this->whole_hash, $this->id);
+    $stmt->execute();
+    $stmt->close();
+  } 
 
 }
 

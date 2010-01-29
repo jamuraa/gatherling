@@ -77,11 +77,11 @@ class Player {
 
   function __construct($name) { 
     $database = Database::getConnection();
-    $stmt = $database->prepare("SELECT password, host, super FROM players WHERE name = ?");
+    $stmt = $database->prepare("SELECT password, host, super, mtgo_confirmed FROM players WHERE name = ?");
     $stmt->bind_param("s", $name);
     $stmt->execute();
-    $stmt->bind_result($this->password, $this->host, $this->super);
-    if ($stmt->fetch() == NULL) { 
+    $stmt->bind_result($this->password, $this->host, $this->super, $this->verified);
+    if ($stmt->fetch() == NULL) {
       throw new Exception('Player '. $name .' is not found.');
     } 
     $this->name = $name;
@@ -839,5 +839,38 @@ class Player {
     $stmt->execute();
     $stmt->close();
   }
+
+  function setVerified($toset) { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("UPDATE players SET mtgo_confirmed = ? WHERE name = ?"); 
+    $setint = $toset ? 1 : 0;
+    $stmt->bind_param("is", $setint, $this->name); 
+    $stmt->execute(); 
+    $stmt->close(); 
+  } 
+
+  function setChallenge($new_challenge) { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("UPDATE players SET mtgo_challenge = ? WHERE name = ?"); 
+    $stmt->bind_param("ss", $new_challenge, $this->name);
+    $stmt->execute(); 
+    $stmt->close(); 
+  } 
+
+  function checkChallenge($challenge) {
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT name FROM players WHERE mtgo_challenge = ? AND name = ?");
+    print_r($db->error);
+    $stmt->bind_param("ss", $challenge, $this->name);
+    $stmt->execute(); 
+    $stmt->bind_result($verifyplayer); 
+    $stmt->fetch();
+    $stmt->close();
+    if ($verifyplayer == $this->name) { 
+      return true; 
+    } else { 
+      return false; 
+    } 
+  }  
 }
 
