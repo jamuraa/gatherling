@@ -1,8 +1,3 @@
--- MySQL dump 10.13  Distrib 5.1.41, for debian-linux-gnu (x86_64)
---
--- Host: localhost    Database: gatherling
--- ------------------------------------------------------
--- Server version	5.1.41-3
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,11 +9,6 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
---
--- Table structure for table `archetypes`
---
-
 DROP TABLE IF EXISTS `archetypes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -30,10 +20,17 @@ CREATE TABLE `archetypes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `bans`
---
-
+LOCK TABLES `archetypes` WRITE;
+/*!40000 ALTER TABLE `archetypes` DISABLE KEYS */;
+INSERT INTO `archetypes` (`name`, `description`, `priority`) VALUES ('Aggro',NULL,2);
+INSERT INTO `archetypes` (`name`, `description`, `priority`) VALUES ('Aggro-Combo',NULL,1);
+INSERT INTO `archetypes` (`name`, `description`, `priority`) VALUES ('Aggro-Control',NULL,1);
+INSERT INTO `archetypes` (`name`, `description`, `priority`) VALUES ('Combo',NULL,2);
+INSERT INTO `archetypes` (`name`, `description`, `priority`) VALUES ('Combo-Control',NULL,1);
+INSERT INTO `archetypes` (`name`, `description`, `priority`) VALUES ('Control',NULL,2);
+INSERT INTO `archetypes` (`name`, `description`, `priority`) VALUES ('Rogue',NULL,0);
+/*!40000 ALTER TABLE `archetypes` ENABLE KEYS */;
+UNLOCK TABLES;
 DROP TABLE IF EXISTS `bans`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -47,10 +44,6 @@ CREATE TABLE `bans` (
   CONSTRAINT `bans_ibfk_2` FOREIGN KEY (`format`) REFERENCES `formats` (`name`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `cards`
---
 
 DROP TABLE IF EXISTS `cards`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -70,12 +63,8 @@ CREATE TABLE `cards` (
   PRIMARY KEY (`id`),
   KEY `cardset` (`cardset`),
   CONSTRAINT `cards_ibfk_1` FOREIGN KEY (`cardset`) REFERENCES `cardsets` (`name`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4334 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4603 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `cardsets`
---
 
 DROP TABLE IF EXISTS `cardsets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -88,10 +77,19 @@ CREATE TABLE `cardsets` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `deckcontents`
---
+DROP TABLE IF EXISTS `db_version`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_version` (
+  `version` int(11) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+LOCK TABLES `db_version` WRITE;
+/*!40000 ALTER TABLE `db_version` DISABLE KEYS */;
+INSERT INTO `db_version` (`version`) VALUES (2);
+/*!40000 ALTER TABLE `db_version` ENABLE KEYS */;
+UNLOCK TABLES;
 DROP TABLE IF EXISTS `deckcontents`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -106,11 +104,6 @@ CREATE TABLE `deckcontents` (
   CONSTRAINT `deckcontents_ibfk_2` FOREIGN KEY (`deck`) REFERENCES `decks` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `decks`
---
-
 DROP TABLE IF EXISTS `decks`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -119,14 +112,20 @@ CREATE TABLE `decks` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(40) NOT NULL,
   `notes` text,
+  `deck_hash` varchar(40) DEFAULT NULL,
+  `sideboard_hash` varchar(40) DEFAULT NULL,
+  `whole_hash` varchar(40) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `archetype` (`archetype`)
-) ENGINE=InnoDB AUTO_INCREMENT=9335 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
+) ENGINE=InnoDB AUTO_INCREMENT=10559 DEFAULT CHARSET=latin1;
 
---
--- Table structure for table `entries`
---
+DROP TABLE IF EXISTS `decktypes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `decktypes` (
+  `name` varchar(40) COLLATE latin1_general_ci NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 DROP TABLE IF EXISTS `entries`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -137,6 +136,7 @@ CREATE TABLE `entries` (
   `medal` enum('1st','2nd','t4','t8','dot') NOT NULL DEFAULT 'dot',
   `deck` bigint(20) unsigned DEFAULT NULL,
   `ignored` tinyint(1) DEFAULT NULL,
+  `notes` text,
   PRIMARY KEY (`event`,`player`),
   KEY `player` (`player`),
   KEY `deck` (`deck`),
@@ -145,10 +145,6 @@ CREATE TABLE `entries` (
   CONSTRAINT `entries_ibfk_4` FOREIGN KEY (`event`) REFERENCES `events` (`name`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `events`
---
 
 DROP TABLE IF EXISTS `events`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -179,10 +175,6 @@ CREATE TABLE `events` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `formats`
---
-
 DROP TABLE IF EXISTS `formats`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -193,10 +185,6 @@ CREATE TABLE `formats` (
   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `matches`
---
 
 DROP TABLE IF EXISTS `matches`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -215,12 +203,8 @@ CREATE TABLE `matches` (
   CONSTRAINT `matches_ibfk_1` FOREIGN KEY (`playera`) REFERENCES `players` (`name`) ON UPDATE CASCADE,
   CONSTRAINT `matches_ibfk_2` FOREIGN KEY (`playerb`) REFERENCES `players` (`name`) ON UPDATE CASCADE,
   CONSTRAINT `matches_ibfk_3` FOREIGN KEY (`subevent`) REFERENCES `subevents` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=33391 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=37427 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `players`
---
 
 DROP TABLE IF EXISTS `players`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -230,13 +214,11 @@ CREATE TABLE `players` (
   `host` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `password` varchar(80) CHARACTER SET latin1 DEFAULT NULL,
   `super` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `mtgo_confirmed` tinyint(1) DEFAULT NULL,
+  `mtgo_challenge` varchar(5) COLLATE latin1_general_ci DEFAULT NULL,
   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `ratings`
---
 
 DROP TABLE IF EXISTS `ratings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -252,26 +234,18 @@ CREATE TABLE `ratings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `series`
---
-
 DROP TABLE IF EXISTS `series`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `series` (
   `name` varchar(40) NOT NULL,
   `isactive` tinyint(1) DEFAULT '0',
-  `logo` mediumblob,
+  `logo` blob,
   `imgtype` varchar(40) DEFAULT NULL,
   `imgsize` bigint(20) unsigned DEFAULT NULL,
   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `setlegality`
---
 
 DROP TABLE IF EXISTS `setlegality`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -286,10 +260,6 @@ CREATE TABLE `setlegality` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `stewards`
---
-
 DROP TABLE IF EXISTS `stewards`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -300,10 +270,6 @@ CREATE TABLE `stewards` (
   KEY `player` (`player`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `subevents`
---
 
 DROP TABLE IF EXISTS `subevents`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -317,12 +283,8 @@ CREATE TABLE `subevents` (
   PRIMARY KEY (`id`),
   KEY `parent` (`parent`),
   CONSTRAINT `subevents_ibfk_1` FOREIGN KEY (`parent`) REFERENCES `events` (`name`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1764 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1946 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `trophies`
---
 
 DROP TABLE IF EXISTS `trophies`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -346,3 +308,4 @@ CREATE TABLE `trophies` (
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
