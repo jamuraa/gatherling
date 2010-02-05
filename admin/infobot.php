@@ -6,7 +6,7 @@ if (strncmp($_SERVER['HTTP_USER_AGENT'], "infobot", 7) != 0) {
   die("You're not infobot!");
 } 
 
-if (md5($_POST['passkey']) != "7fce3792472af52ad1489e786c382b19") {
+if (md5($_GET['passkey']) != "7fce3792472af52ad1489e786c382b19") {
   die("Wrong passkey");
 }
 
@@ -18,7 +18,7 @@ $key = sha1($random_num);
 
 $challenge = substr($key, 0, 5);
 
-$player = Player::findByName($_POST['username']);
+$player = Player::findByName($_GET['username']);
 
 if (!$player) { 
   echo "<UaReply>You're not registered on PDCMagic!</UaReply>";

@@ -103,7 +103,7 @@ function content() {
     echo "<table><tr><th colspan=2><b>MOST PLAYED DECKS</b></th></tr>";
     echo "<tr><th>Deck Name</th><th>Played</th></tr>";
     $db = Database::getConnection(); 
-    $stmt = $db->prepare("SELECT count(d.deck_hash) as cnt, d.name, d.id FROM decks d WHERE 5 < (SELECT count(*) from deckcontents where deck = d.id group by deck) group by d.deck_hash order by cnt desc limit 20");
+    $stmt = $db->prepare("SELECT count(d.deck_hash) as cnt, d.name, d.id FROM decks d, entries n where n.deck = d.id AND 5 < (SELECT count(*) from deckcontents where deck = d.id group by deck) group by d.deck_hash order by cnt desc limit 20");
     $stmt->execute(); 
     $stmt->bind_result($count, $name, $deckid); 
     while ($stmt->fetch()) { 
