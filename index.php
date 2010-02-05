@@ -62,6 +62,16 @@ if (!is_null($event)) { ?>
 <div class="box" id="gatherling_news">
 <div class="uppertitle alpha omega grid_10"> Latest Gatherling News </div>
 <div class="clear"></div>
+ <p>
+  <b> 2010-02-05 </b> -
+  Infobot verification has come completely online now, so you can go to your player control panel, and click the link to verify your account.  You will need access to MTGO so you can private chat 'infobot' in-game.
+  Added some more apparent-ness to the verification, so get yourself verified to get a little icon! 
+  <ul> 
+    <li> Added an icon next to the name of players who are verified </li> 
+    <li> Added links to players at many places where there were only names before </li>
+    <li> Decks don't show duplicates if they are placeholders </li>
+  </ul>
+</p>
 <p>
   <b> 2010-01-29 </b> -
   We've got a little peek of the newest functionality this week.  Soon you'll be able to verify your accounts here on Gatherling with infobot on MTGO!   Also, we now have a listing of decks that are played if they are an exact duplicate.  Check it out - <a href="deck.php?mode=view&id=3085">Burn</a> has been played quite a bit.
@@ -70,16 +80,6 @@ if (!is_null($event)) { ?>
     <li> Most-played decks are shown on deck search page. </li>
     <li> Users can verify with infobot (once infobot updates) </li> 
     <li> Some other minor bugs fixed </li>
-  </ul>
-</p>
-<p> 
-  <b> 2010-01-14 </b> - 
-  Updates are back!  We have a bunch of little things this week, but again, bigger stuff up ahead.
-  <ul> 
-    <li> Deck search now is limited to 20 decks for performance reasons </li>
-    <li> Users can change their own password now, from the Player CP </li> 
-    <li> Forms look slightly nicer now </li> 
-    <li> Other random bugs that were fixed </li>
   </ul>
 </p>
 <br /> 

@@ -189,7 +189,8 @@ function hourDropMenu($hour) {
 }
 
 function version_tagline() { 
-  print "Gatherling version 1.9.7 (\"Try blue, it's the new red!\")";
+  print "Gatherling version 1.9.8 (\"I'm tellin' you, man, every third blink is slower.\")";
+  # print "Gatherling version 1.9.7 (\"Try blue, it's the new red!\")";
   # print "Gatherling version 1.9.6 (\"Just relax and let your mind go blank. That shouldn't be too hard for you.\")";
   # print "Gatherling version 1.9.5 (\"The grade that you receive will be your last, WE SWEAR!\")";
   # print "Gatherling version 1.9.4 (\"We're gonna need some more FBI guys, I guess.\")";
