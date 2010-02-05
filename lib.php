@@ -82,6 +82,7 @@ function print_footer() {
   version_tagline(); 
   echo "</div> </div>";
   echo "<div class=\"clear\"></div>\n"; 
+  include_once('util/tracking.php');
 } 
 
 function headerColor() {
