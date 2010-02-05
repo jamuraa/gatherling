@@ -338,6 +338,9 @@ function sideboardTable($deck) {
 }
 
 function exactMatchTable($deck) { 
+  if ($deck->cardcount < 5) { 
+    return; 
+  } 
   $decks = $deck->findIdenticalDecks(); 
   if (count($decks) == 0) { 
     return false;

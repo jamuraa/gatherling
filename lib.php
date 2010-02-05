@@ -65,7 +65,7 @@ EOT;
   } 
 
   if ($super) { 
-    echo "<li><a href=\"index.php\">Series CP*</a></li>\n";
+    echo "<li><a href=\"seriescp.php\">Series CP</a></li>\n";
   } 
 
   if ($player == NULL) { 
@@ -171,6 +171,21 @@ function numDropMenu($field, $title, $max, $def, $min = 0, $special="") {
         echo "<option value=\"$n\" $selStr>$n</option>";
     }
     echo "</select>";
+}
+
+function hourDropMenu($hour) {
+	if(strcmp($hour, "") == 0) {$hour = -1;}
+	echo "<select name=\"hour\">";
+	echo "<option value=\"\">- Hour -</option>";
+	for($h = 0; $h < 24; $h++) {
+		$selStr = ($hour == $h) ? "selected" : "";
+		$hstring = $h . " AM";
+		if($h == 0) {$hstring = "Midnight";}
+		elseif($h == 12) {$hstring = "Noon";}
+		elseif($h > 12) {$hstring = ($h - 12) . " PM";}
+		echo "<option value=\"$h\" $selStr>$hstring</option>";
+	}
+	echo "</select>";
 }
 
 function version_tagline() { 

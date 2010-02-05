@@ -8,7 +8,7 @@ print_header("PDCMagic.com | Gatherling | Host Control Panel");
 <div class="uppertitle"> Host Control Panel </div>
 
 <?php 
-if(isset($_SESSION['username'])) {content();}
+if (Player::isLoggedIn()) {content();}
 else {linkToLogin();}
 ?>
 
@@ -522,21 +522,6 @@ function kValueDropMenu($kvalue) {
 
 function stringField($field, $def, $len) {
 	echo "<input type=\"text\" name=\"$field\" value=\"$def\" size=\"$len\">";
-}
-
-function hourDropMenu($hour) {
-	if(strcmp($hour, "") == 0) {$hour = -1;}
-	echo "<select name=\"hour\">";
-	echo "<option value=\"\">- Hour -</option>";
-	for($h = 0; $h < 24; $h++) {
-		$selStr = ($hour == $h) ? "selected" : "";
-		$hstring = $h . " AM";
-		if($h == 0) {$hstring = "Midnight";}
-		elseif($h == 12) {$hstring = "Noon";}
-		elseif($h > 12) {$hstring = ($h - 12) . " PM";}
-		echo "<option value=\"$h\" $selStr>$hstring</option>";
-	}
-	echo "</select>";
 }
 
 function monthDropMenu($month) {

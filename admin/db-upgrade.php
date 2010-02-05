@@ -79,3 +79,17 @@ if ($version < 2) {
   echo ".. DB now at version 2! <br />";
 }
 
+if ($version < 3) { 
+  echo "Updating to version 3... <br />";
+  # Version 3 Changes: 
+  #  - Add "series_stewards" table with playername, series name.
+  #  - Add "day" and "time" to "series" table to track when they start (eastern times)
+  $db->autocommit(FALSE);
+  do_query("CREATE TABLE series_stewards (player varchar(40), series varchar(40), FOREIGN KEY (player) REFERENCES players(name), FOREIGN KEY (series) REFERENCES series(name))");
+  do_query("ALTER TABLE series ADD COLUMN (day ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), normalstart TIME)");
+  $db->commit(); 
+  $db->autocommit(TRUE);
+  echo "... EB now at version 3! <br />";
+}
+
+
