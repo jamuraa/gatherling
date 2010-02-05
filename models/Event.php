@@ -483,4 +483,41 @@ class Event {
     } 
     return NULL;
   }
+
+  public function findPrev() { 
+    if ($this->number == 0) { 
+      return NULL; 
+    } 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT name FROM events WHERE series = ? AND season = ? AND number = ? LIMIT 1");
+    $num = $this->number - 1;
+    $stmt->bind_param("sdd", $this->series, $this->season, $num); 
+    $stmt->execute(); 
+    $stmt->bind_result($event_name);
+    $exists = $stmt->fetch();
+    $stmt->close(); 
+    if ($exists) { 
+      return new Event($event_name);
+    } 
+    return NULL; 
+  }
+
+  public function findNext() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT name FROM events WHERE series = ? AND season = ? AND number = ? LIMIT 1");
+    $num = $this->number + 1;
+    $stmt->bind_param("sdd", $this->series, $this->season, $num); 
+    $stmt->execute(); 
+    $stmt->bind_result($event_name);
+    $exists = $stmt->fetch();
+    $stmt->close(); 
+    if ($exists) { 
+      return new Event($event_name);
+    } 
+    return NULL; 
+  }
+
+  public function makeLink($text) { 
+    return "<a href=\"event.php?name=" . urlencode($this->name) . "\">{$text}</a>";
+  }  
 }

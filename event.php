@@ -187,9 +187,22 @@ function eventForm($event = NULL, $forcenew = false) {
 		$day = $datearr[3];
 		$hour = $datearr[4];
 		echo "<tr><th>Currently Editing</th>";
-		echo "<td><i>{$event->name}</i></td>";
+    echo "<td><i>{$event->name}</i>";
 		echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
-		echo "</tr><tr><td>&nbsp;</td></tr>";
+    echo "</td>";
+    echo "</tr><tr><td>&nbsp;</td><td>"; 
+    $prevevent = $event->findPrev();
+    if ($prevevent) { 
+      echo $prevevent->makeLink("&laquo; Previous");
+    } 
+    $nextevent = $event->findNext();
+    if ($nextevent) { 
+      if ($prevevent) { 
+        echo " | "; 
+      } 
+      echo $nextevent->makeLink("Next &raquo;");
+    }
+    echo "</td></tr>";
 	}
 	else {
 		echo "<tr><th>Event Name</th>";
@@ -201,7 +214,7 @@ function eventForm($event = NULL, $forcenew = false) {
 		echo "size=\"40\">";
     echo "</td></tr>";
     $year = strftime('Y', time());
-	}
+  }
 	echo "<tr><th>Date & Time</th><td>";
 	numDropMenu("year", "- Year -", 2010, $year, 2005);
 	monthDropMenu($month);
