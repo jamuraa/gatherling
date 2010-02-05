@@ -65,7 +65,7 @@ EOT;
   } 
 
   if ($super) { 
-    echo "<li><a href=\"index.php\">Series CP*</a></li>\n";
+    echo "<li><a href=\"seriescp.php\">Series CP</a></li>\n";
   } 
 
   if ($player == NULL) { 
@@ -82,6 +82,7 @@ function print_footer() {
   version_tagline(); 
   echo "</div> </div>";
   echo "<div class=\"clear\"></div>\n"; 
+  include_once('util/tracking.php');
 } 
 
 function headerColor() {
@@ -172,8 +173,24 @@ function numDropMenu($field, $title, $max, $def, $min = 0, $special="") {
     echo "</select>";
 }
 
+function hourDropMenu($hour) {
+	if(strcmp($hour, "") == 0) {$hour = -1;}
+	echo "<select name=\"hour\">";
+	echo "<option value=\"\">- Hour -</option>";
+	for($h = 0; $h < 24; $h++) {
+		$selStr = ($hour == $h) ? "selected" : "";
+		$hstring = $h . " AM";
+		if($h == 0) {$hstring = "Midnight";}
+		elseif($h == 12) {$hstring = "Noon";}
+		elseif($h > 12) {$hstring = ($h - 12) . " PM";}
+		echo "<option value=\"$h\" $selStr>$hstring</option>";
+	}
+	echo "</select>";
+}
+
 function version_tagline() { 
-  print "Gatherling version 1.9.7 (\"Try blue, it's the new red!\")";
+  print "Gatherling version 1.9.8 (\"I'm tellin' you, man, every third blink is slower.\")";
+  # print "Gatherling version 1.9.7 (\"Try blue, it's the new red!\")";
   # print "Gatherling version 1.9.6 (\"Just relax and let your mind go blank. That shouldn't be too hard for you.\")";
   # print "Gatherling version 1.9.5 (\"The grade that you receive will be your last, WE SWEAR!\")";
   # print "Gatherling version 1.9.4 (\"We're gonna need some more FBI guys, I guess.\")";

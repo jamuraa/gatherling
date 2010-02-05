@@ -80,7 +80,10 @@ function infoTable($player) {
 	$pcgS = 0;
   if($sum > 0) {$pcgS = round(($max/$sum)*100);}
 
-	$line1 = strtoupper($player->name);
+  $line1 = strtoupper($player->name);
+  if ($player->verified) { 
+    $line1 .= "  <img src=\"/images/gatherling/verified.png\" title=\"Verified their MTGO account\" />";
+  }
 
   $matches = $player->getAllMatches(); 
   $nummatches = count($matches);

@@ -860,7 +860,6 @@ class Player {
   function checkChallenge($challenge) {
     $db = Database::getConnection(); 
     $stmt = $db->prepare("SELECT name FROM players WHERE mtgo_challenge = ? AND name = ?");
-    print_r($db->error);
     $stmt->bind_param("ss", $challenge, $this->name);
     $stmt->execute(); 
     $stmt->bind_result($verifyplayer); 
@@ -871,6 +870,33 @@ class Player {
     } else { 
       return false; 
     } 
+  } 
+
+  public function stewardsSeries() { 
+    if ($this->isSuper()) { 
+      return Series::allNames(); 
+    } 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT series FROM series_stewards WHERE player = ?"); 
+    $stmt->bind_param("s", $this->name);
+    $stmt->execute();
+    $series = array(); 
+    $stmt->bind_result($seriesname);
+    while ($stmt->fetch()) { 
+      $series[] = $seriesname; 
+    } 
+    $stmt->close(); 
+    return $series;
+  }
+
+  public function linkTo() { 
+    $result = "<a href=\"profile.php?player={$this->name}\">$this->name";
+    if ($this->verified == 1) {
+      $result .= " <img src=\"/images/gatherling/verified.png\" width=\"12\" height=\"12\" />";
+    }
+    $result .= "</a>";
+      
+    return $result; 
   }  
 }
 

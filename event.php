@@ -8,7 +8,7 @@ print_header("PDCMagic.com | Gatherling | Host Control Panel");
 <div class="uppertitle"> Host Control Panel </div>
 
 <?php 
-if(isset($_SESSION['username'])) {content();}
+if (Player::isLoggedIn()) {content();}
 else {linkToLogin();}
 ?>
 
@@ -187,9 +187,22 @@ function eventForm($event = NULL, $forcenew = false) {
 		$day = $datearr[3];
 		$hour = $datearr[4];
 		echo "<tr><th>Currently Editing</th>";
-		echo "<td><i>{$event->name}</i></td>";
+    echo "<td><i>{$event->name}</i>";
 		echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
-		echo "</tr><tr><td>&nbsp;</td></tr>";
+    echo "</td>";
+    echo "</tr><tr><td>&nbsp;</td><td>"; 
+    $prevevent = $event->findPrev();
+    if ($prevevent) { 
+      echo $prevevent->makeLink("&laquo; Previous");
+    } 
+    $nextevent = $event->findNext();
+    if ($nextevent) { 
+      if ($prevevent) { 
+        echo " | "; 
+      } 
+      echo $nextevent->makeLink("Next &raquo;");
+    }
+    echo "</td></tr>";
 	}
 	else {
 		echo "<tr><th>Event Name</th>";
@@ -201,7 +214,7 @@ function eventForm($event = NULL, $forcenew = false) {
 		echo "size=\"40\">";
     echo "</td></tr>";
     $year = strftime('Y', time());
-	}
+  }
 	echo "<tr><th>Date & Time</th><td>";
 	numDropMenu("year", "- Year -", 2010, $year, 2005);
 	monthDropMenu($month);
@@ -313,14 +326,19 @@ function playerList($event) {
 	echo "<tr><td>&nbsp;</td><tr>";
 	echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
   if($numentries > 0) {
-		echo "<tr><td><b>Player</td><td align=\"center\"><b>Medal</td>";
-		echo "<td><b>Deck</td><td align=\"center\"><b>Delete</td></tr>";
+		echo "<tr><th></th><th style=\"text-align: left\">Player</th><th>Medal</th>";
+		echo "<th style=\"text-align: left\">Deck</th><th>Delete</th></tr>";
 	} else {
-		echo "<tr><td align=\"center\" colspan=\"4\"><i>";
-		echo "No players are currently registered for this event.</td></tr>";
+		echo "<tr><td align=\"center\" colspan=\"5\"><i>";
+		echo "No players are currently registered for this event.</i></td></tr>";
   }
   foreach ($entries as $entry) { 
-		echo "<tr><td>{$entry->player->name}</td>";
+    echo "<tr><td>";
+    if ($entry->player->verified) { 
+      echo "<img src=\"/images/gatherling/verified.png\" title=\"Player verified on MTGO\" />";
+    } 
+    echo "</td>"; 
+		echo "<td>{$entry->player->name}</td>";
 		if(strcmp("", $entry->medal) != 0) {
 			$img = "<img src=\"/images/{$entry->medal}.gif\">";
 		}
@@ -406,7 +424,7 @@ function matchList($event) {
 	echo "<tr><td align=\"center\" colspan=\"5\">";
 	echo "<b>Add a Match</b></td></tr>";
 	echo "<tr><td align=\"center\" colspan=\"5\">";
-	roundDropMenu($event);
+	roundDropMenu($event, $_POST['newmatchround']);
 	playerDropMenu($event, "A");
 	playerDropMenu($event, "B");
 	resultDropMenu();
@@ -504,21 +522,6 @@ function kValueDropMenu($kvalue) {
 
 function stringField($field, $def, $len) {
 	echo "<input type=\"text\" name=\"$field\" value=\"$def\" size=\"$len\">";
-}
-
-function hourDropMenu($hour) {
-	if(strcmp($hour, "") == 0) {$hour = -1;}
-	echo "<select name=\"hour\">";
-	echo "<option value=\"\">- Hour -</option>";
-	for($h = 0; $h < 24; $h++) {
-		$selStr = ($hour == $h) ? "selected" : "";
-		$hstring = $h . " AM";
-		if($h == 0) {$hstring = "Midnight";}
-		elseif($h == 12) {$hstring = "Noon";}
-		elseif($h > 12) {$hstring = ($h - 12) . " PM";}
-		echo "<option value=\"$h\" $selStr>$hstring</option>";
-	}
-	echo "</select>";
 }
 
 function monthDropMenu($month) {
@@ -686,12 +689,16 @@ function playerDropMenu($event, $letter, $def="\n") {
 	echo "</select>";
 }
 
-function roundDropMenu($event) {
+function roundDropMenu($event, $selected) {
 	echo "<select name=\"newmatchround\">";
 	echo "<option value=\"\">- Round -</option>";
 	for($r = 1; $r <= ($event->mainrounds + $event->finalrounds); $r++) {
 		$star = ($r > $event->mainrounds) ? "*" : "";
-		echo "<option value=\"$r\">$r$star</option>";
+    echo "<option value=\"$r\""; 
+    if ($selected == $r) { 
+      echo " selected"; 
+    } 
+    echo ">$r$star</option>";
 	}	
 	echo "</select>";
 }
