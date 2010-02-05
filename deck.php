@@ -284,9 +284,10 @@ function deckInfoCell($deck) {
   } else {
     $placing = "Played by";
   }
-	$line3 = "{$placing} <a href=\"profile.php?player={$deck->playername}\">";
-  $line3 .= "{$deck->playername}</a> in ";
-  $line3 .= "<span class=\"eventname\" title=\"{$day}\">{$event->name}</span>\n";
+  $line3 = "{$placing} ";
+  $deckplayer = new Player($deck->playername);
+  $line3 .= $deckplayer->linkTo();
+  $line3 .= " in <span class=\"eventname\" title=\"{$day}\">{$event->name}</span>\n";
 
   $rstar = "<font color=\"#FF0000\">*</font>";
   $name = $deck->name;
@@ -403,7 +404,7 @@ function matchupTable($deck) {
 		echo "<tr><td align=\"right\">$rnd:&nbsp;</td>\n";
 		echo "<td align=\"left\"><b><font color=\"$color\">$res</font>&nbsp;</td>\n";
 		echo "<td>vs.&nbsp;</td>\n";
-		echo "<td align=\"left\"><a href=\"profile.php?player={$opp->name}\">{$opp->name}</a>&nbsp;</td>\n";
+		echo "<td align=\"left\">" . $opp->linkTo() . "&nbsp;</td>\n";
 		echo "<td align=\"right\">$deckcell&nbsp;</td></tr>\n";
 	}
 	echo "<tr><td>&nbsp;</td></tr>";

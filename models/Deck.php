@@ -205,6 +205,10 @@ class Deck {
     return $this->getEntry()->getMatches();
   } 
 
+  function getPlayer() { 
+    return new Player($this->playername); 
+  } 
+
   function canEdit($username) { 
     if (strcasecmp($username, $this->playername) == 0) { 
       return true; 

@@ -297,8 +297,9 @@ function print_recentMatchTable() {
       $opp = $match->playerb;
     }
 		echo "<tr><td><b><font color=\"$color\">$res</font></b></td>\n";
-		echo "<td>vs.</td>\n";
-		echo "<td><a href=\"profile.php?player=$opp\">$opp</td></tr>\n";
+    echo "<td>vs.</td>\n";
+    $oppplayer = new Player($opp); 
+    echo "<td>" . $oppplayer->linkTo() . "</td></tr>\n";
 	}
 	echo "</table>\n";
 }
@@ -360,8 +361,8 @@ function print_matchTable($player, $limit=0) {
 		}
 		else {echo "<tr style=\"background-color: $bg;\"><td></td>\n";}
 		$oldname = $event->name;
-		echo "<td align=\"center\">$rnd</td>\n";
-		echo "<td><a href=\"profile.php?player=$opp\">$opp</a></td>\n";	
+    echo "<td align=\"center\">$rnd</td>\n";
+    echo "<td>" . $opponent->linkTo() . "</td>\n";
 		echo "<td>$deckStr</td>\n";
 		echo "<td align=\"center\">$oppRating</td>\n";
 		echo "<td align=\"center\"><b><font color=\"$color\">$res</font>";
@@ -598,7 +599,10 @@ function print_statsTable() {
   echo "</td></tr>\n";
   $rivalname = $player->getRival(); 
   $rivalrec = $player->getRecordVs($rivalname);
-	echo "<tr><td>Biggest Rival</td><td align=\"right\"> {$rivalname} ({$rivalrec})";
+  $rival = new Player($rivalname);
+  echo "<tr><td>Biggest Rival</td><td align=\"right\"> "; 
+  echo $rival->linkTo(); 
+  echo " ({$rivalrec})";
 	echo "</td></tr>";
 	echo "<tr><td>Favorite Card</td><td align=\"right\"> {$player->getFavoriteNonLand()}";
 	echo "</td></tr>\n";
@@ -613,7 +617,6 @@ function print_statsTable() {
 	echo "<tr><td colspan=2 align=\"center\">"; statTrophy(); 
 	echo "</td></tr>\n";
 	echo "</table>\n";
-#Rival
 #Fave Series
 #Fave Format
 #highrating

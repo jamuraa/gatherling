@@ -145,9 +145,9 @@ function finalists($event) {
 		$deckSTR .= "<a href=\"deck.php?mode=view&id={$finalist['deck']}\">";
 		$deckSTR .= "{$deckinfoarr[0]}</a>";
 		if($deckinfoarr[2] < 60) {$deckSTR .= $redstar;}
-		if($deckinfoarr[2] < 6)  {$deckSTR .= $redstar;}
-		$playerSTR = "by <a href=\"profile.php?player={$finalist['player']}\">";
-		$playerSTR .= "{$finalist['player']}</a>";
+    if($deckinfoarr[2] < 6)  {$deckSTR .= $redstar;}
+    $thisplayer = new Player($finalist['player']);  
+		$playerSTR = "by {$thisplayer->linkTo()}";
 		echo "<tr><td>$medalSTR</td>\n<td>$deckSTR</td>\n";
 		echo "<td align=\"right\">$playerSTR</td></tr>\n";
 	}
@@ -250,16 +250,16 @@ function fullmetagame($event) {
 			echo "<tr style=\"background-color: $bg;\"><td>";
 			echo "<img src=\"/images/rename/$color.gif\">&nbsp;</td>\n";
 			echo "<td colspan=4 align=\"left\"><i>{$row['srtordr']} Players ";
-			#echo "<img src=\"/images/rename/$color.gif\">\n";
 			echo "</td></tr>\n";
 		}
 		echo "<tr style=\"background-color: $bg;\"><td></td>\n";
 		echo "<td align=\"left\">";
-		if($row['medal'] != "z") {
-			echo "<img src=\"/images/{$row['medal']}.gif\">&nbsp;";}
-		echo "</td>\n<td align=\"left\">";
-		echo "<a href=\"profile.php?player={$row['player']}\">";
-		echo "{$row['player']}</a></td>\n";
+		if ($row['medal'] != "z") {
+      echo "<img src=\"/images/{$row['medal']}.gif\">&nbsp;";
+    }
+    echo "</td>\n<td align=\"left\">";
+    $play = new Player($row['player']);
+		echo $play->linkTo() . "</td>\n";
 		echo "<td align=\"left\">";
 		echo"<a href=\"deck.php?mode=view&id={$row['id']}\">";
 		echo "{$row['deckname']}</a></td>\n";
@@ -342,9 +342,9 @@ function infoCell($event) {
 			$finalists = pow(2, $subevent->rounds);
 			echo "Top $finalists playoff<br />\n";
 		}
-	}
-	echo "Hosted by <a href=\"profile.php?player={$event->host}\">";
-	echo "{$event->host}</a><br>\n";
+  }
+  $host = new Player($event->host);
+	echo "Hosted by {$host->linkTo()}<br />";
 	if (!is_null($event->reporturl)) {
     echo "<a href=\"{$event->reporturl}\">Event Report</a><br>\n";
   }
@@ -357,8 +357,7 @@ function trophyCell($event) {
     echo "No trophy available yet! <br />\n";
   } 
   $deck = $event->getPlaceDeck('1st');
-	echo "<a href=\"profile.php?player={$deck->playername}\">";
-	echo "{$deck->playername}</a>, ";
+  echo $deck->getPlayer()->linkTo();
 	$info = deckInfo($deck);
 	echo "<img src=\"/images/rename/{$info[1]}.gif\"> ";
 	echo "<a href=\"deck.php?mode=view&id={$deck->id}\">";

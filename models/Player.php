@@ -871,6 +871,16 @@ class Player {
     } else { 
       return false; 
     } 
+  } 
+
+  public function linkTo() { 
+    $result = "<a href=\"profile.php?player={$this->name}\">$this->name";
+    if ($this->verified == 1) {
+      $result .= " <img src=\"/images/gatherling/verified.png\" width=\"12\" height=\"12\" />";
+    }
+    $result .= "</a>";
+      
+    return $result; 
   }  
 }
 

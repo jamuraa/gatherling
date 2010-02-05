@@ -326,14 +326,19 @@ function playerList($event) {
 	echo "<tr><td>&nbsp;</td><tr>";
 	echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
   if($numentries > 0) {
-		echo "<tr><td><b>Player</td><td align=\"center\"><b>Medal</td>";
-		echo "<td><b>Deck</td><td align=\"center\"><b>Delete</td></tr>";
+		echo "<tr><th></th><th style=\"text-align: left\">Player</th><th>Medal</th>";
+		echo "<th style=\"text-align: left\">Deck</th><th>Delete</th></tr>";
 	} else {
-		echo "<tr><td align=\"center\" colspan=\"4\"><i>";
-		echo "No players are currently registered for this event.</td></tr>";
+		echo "<tr><td align=\"center\" colspan=\"5\"><i>";
+		echo "No players are currently registered for this event.</i></td></tr>";
   }
   foreach ($entries as $entry) { 
-		echo "<tr><td>{$entry->player->name}</td>";
+    echo "<tr><td>";
+    if ($entry->player->verified) { 
+      echo "<img src=\"/images/gatherling/verified.png\" title=\"Player verified on MTGO\" />";
+    } 
+    echo "</td>"; 
+		echo "<td>{$entry->player->name}</td>";
 		if(strcmp("", $entry->medal) != 0) {
 			$img = "<img src=\"/images/{$entry->medal}.gif\">";
 		}
@@ -419,7 +424,7 @@ function matchList($event) {
 	echo "<tr><td align=\"center\" colspan=\"5\">";
 	echo "<b>Add a Match</b></td></tr>";
 	echo "<tr><td align=\"center\" colspan=\"5\">";
-	roundDropMenu($event);
+	roundDropMenu($event, $_POST['newmatchround']);
 	playerDropMenu($event, "A");
 	playerDropMenu($event, "B");
 	resultDropMenu();
@@ -699,12 +704,16 @@ function playerDropMenu($event, $letter, $def="\n") {
 	echo "</select>";
 }
 
-function roundDropMenu($event) {
+function roundDropMenu($event, $selected) {
 	echo "<select name=\"newmatchround\">";
 	echo "<option value=\"\">- Round -</option>";
 	for($r = 1; $r <= ($event->mainrounds + $event->finalrounds); $r++) {
 		$star = ($r > $event->mainrounds) ? "*" : "";
-		echo "<option value=\"$r\">$r$star</option>";
+    echo "<option value=\"$r\""; 
+    if ($selected == $r) { 
+      echo " selected"; 
+    } 
+    echo ">$r$star</option>";
 	}	
 	echo "</select>";
 }

@@ -84,7 +84,8 @@ function content() {
           $name = "** NO NAME **";
         } 
         echo "{$name}</a></td>";
-        echo "<td>{$player}</td>";
+        $aplay = new Player($player);
+        echo "<td>{$aplay->linkTo()}</td>";
         echo "<td>{$event}";
         echo "</td></tr>\n";
       }
