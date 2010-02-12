@@ -73,6 +73,14 @@ class Series {
     $stmt->close(); 
   } 
 
+  function removeSteward($name) { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("DELETE FROM series_stewards WHERE series = ? AND player = ?");
+    $stmt->bind_param("ss", $this->name, $name); 
+    $stmt->execute(); 
+    $stmt->close(); 
+  } 
+
   function authCheck($playername) { 
     if ($this->isSteward($playername)) { 
       return true; 
@@ -83,7 +91,7 @@ class Series {
 
   function getEvents() { 
     $db = Database::getConnection(); 
-    $stmt = $db->prepare("SELECT name FROM events WHERE series = ? ORDER BY timing"); 
+    $stmt = $db->prepare("SELECT name FROM events WHERE series = ?"); 
     $stmt->bind_param("s", $this->name);
     $stmt->execute(); 
     $stmt->bind_result($eventname); 
@@ -93,6 +101,27 @@ class Series {
       $events[] = $eventname; 
     } 
     $stmt->close(); 
+
+    return $events;
+  }
+
+  function getRecentEvents($number = 10) { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT name FROM events WHERE series = ? ORDER BY start DESC LIMIT ?"); 
+    $stmt->bind_param("sd", $this->name, $number);
+    $stmt->execute(); 
+    $stmt->bind_result($eventname); 
+
+    $eventnames = array();
+    while ($stmt->fetch()) { 
+      $eventnames[] = $eventname;
+    } 
+    $stmt->close(); 
+
+    $events = array();
+    foreach ($eventnames as $name) { 
+      $events[] = new Event($name);
+    } 
 
     return $events;
   } 
