@@ -1,7 +1,7 @@
 <?php
 require_once('../lib.php');
-$set = "Masters Edition III";
-$file = fopen("MED3.txt", "r");
+$set = $argv[1];
+$file = fopen($argv[2], "r");
 $card = array();
 
 $database = Database::getConnection();

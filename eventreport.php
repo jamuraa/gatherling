@@ -357,10 +357,14 @@ function trophyCell($event) {
     echo "No trophy available yet! <br />\n";
   } 
   $deck = $event->getPlaceDeck('1st');
-  echo $deck->getPlayer()->linkTo();
-	$info = deckInfo($deck);
-	echo "<img src=\"/images/rename/{$info[1]}.gif\"> ";
-	echo "<a href=\"deck.php?mode=view&id={$deck->id}\">";
-	echo "{$info[0]}</a><br>\n";
+  if (!$deck) { 
+    echo "No winner yet!";
+  } else { 
+    echo $deck->getPlayer()->linkTo();
+    $info = deckInfo($deck);
+    echo "<img src=\"/images/rename/{$info[1]}.gif\"> ";
+    echo "<a href=\"deck.php?mode=view&id={$deck->id}\">";
+    echo "{$info[0]}</a><br>\n";
+  } 
 }
 ?>

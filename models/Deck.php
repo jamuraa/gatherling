@@ -318,6 +318,7 @@ class Deck {
 
     $db->commit();
     $db->autocommit(TRUE);
+    $this->calculateHashes();
     return true;
   }
 
