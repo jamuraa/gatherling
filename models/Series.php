@@ -120,4 +120,13 @@ class Series {
     $stmt->close(); 
     return $names;
   }
+
+  public function setLogo($content, $type, $size) { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("UPDATE series SET logo = ?, imgsize = ?, imgtype = ? WHERE name = ?"); 
+    $stmt->bind_param("bdss", $null, $size, $type, $this->name); 
+    $stmt->send_long_data(0, $content);
+    $stmt->execute() or die($stmt->error); 
+    $stmt->close(); 
+  } 
 }

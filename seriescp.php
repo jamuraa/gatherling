@@ -43,6 +43,7 @@ function do_page() {
     echo "<center> Managing {$active_series} </center>";
   } 
   printSeriesForm($active_series);
+  printLogoForm($active_series);
 } 
 
 function printNoSeries() { 
@@ -100,12 +101,35 @@ function printSeriesForm($seriesname) {
   # Submit button 
   echo "<tr><td colspan=\"2\" class=\"buttons\">";
   echo "<input type=\"submit\" name=\"action\" value=\"Update Series\" /> </td> </tr>";
-  echo "</table>";
+  echo "</table> </form>";
 }
 
+function printLogoForm($seriesname) { 
+  $series = new Series($seriesname); 
+  echo "<form action=\"seriescp.php\" method=\"post\" enctype=\"multipart/form-data\">";
+  echo "<table class=\"form\" style=\"border-width: 0px;\" align=\"center\">"; 
+  echo "<input type=\"hidden\" name=\"series\" value=\"{$seriesname}\" />";
+  echo "<tr><th> Current Logo </th>";
+  echo "<td> <img src=\"displaySeries.php?series={$seriesname}\" /> </td> </tr>";
+  echo "<tr><th> Upload New Logo </th>";
+  echo "<td> <input type=\"file\" name=\"logo\" /> ";
+  echo "<input type=\"submit\" name=\"action\" value=\"Change Logo\" /> </td> </tr>";
+  echo "</table> </form> "; 
+} 
+
 function handleActions() { 
+  if (!isset($_POST['series'])) { 
+    return;
+  } 
+  $seriesname = $_POST['series'];
+  $series = new Series($seriesname); 
+  if (!$series) { 
+    return;
+  } 
+  if (!$series->authCheck(Player::loginName())) {
+    return;
+  }
   if ($_POST['action'] == "Update Series") {
-    $seriesname = $_POST['series'];
     $newactive = $_POST['isactive'];
     $newtime = $_POST['hour'];
     $newday = $_POST['start_day'];
@@ -116,5 +140,19 @@ function handleActions() {
       $series->start_day = $newday;
       $series->save();
     } 
-  } 
+  } else if ($_POST['action'] == "Change Logo") {
+    if ($_FILES['logo']['size'] > 0) {
+      $file = $_FILES['logo'];
+      $name = $file['name'];
+      $tmp = $file['tmp_name']; 
+      $size = $file['size']; 
+      $type = $file['type'];
+
+      $f = fopen($tmp, 'r');
+      $content = fread($f, filesize($tmp)); 
+      fclose($f);
+      
+      $series->setLogo($content, $type, $size); 
+    }
+  }
 } 
