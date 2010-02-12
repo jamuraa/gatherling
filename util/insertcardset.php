@@ -1,7 +1,7 @@
 <?php
 require_once('../lib.php');
-$set = "Zendikar";
-$file = fopen("Zendikar_missed.txt", "r");
+$set = $argv[1];
+$file = fopen($argv[2], "r");
 $card = array();
 
 $database = Database::getConnection();
