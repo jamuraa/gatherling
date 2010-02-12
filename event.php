@@ -867,6 +867,10 @@ function autoInput() {
       $event->addPlayer($pairings[0][$pair][0]);
       $event->addPlayer($pairings[0][$pair][1]);
     }
+    $byeplayer = extractBye($_POST['pairings'][0]);
+    if ($byeplayer) { 
+      $event->addPlayer($byeplayer);
+    } 
     // There are no interesting matches to see, so let's go to the registration list
     $_POST['view'] = "reg";
     return;
@@ -953,6 +957,20 @@ function extractPairings($text) {
 	}
 	return $pairings;
 }
+
+function extractBye($text) {
+	$lines = split("\n", $text);
+	$loc = 0;
+	for($ndx = 0; $ndx < sizeof($lines); $ndx++) {
+		if(preg_match("/^\s*[0-9]+\s+([0-9]+\s+)?([0-9a-z_.\- ]+),.*\s+\* BYE \*/i", 
+      $lines[$ndx], $m)) {
+      return $m[2];
+		}		
+	}
+	return NULL;
+}
+
+
 
 function extractStandings($text) {
 	$standings = array();
