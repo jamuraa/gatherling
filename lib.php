@@ -5,7 +5,7 @@ require_once 'bootstrap.php';
 $HC = "#DDDDDD";
 $R1 = "#EEEEEE";
 $R2 = "#FFFFFF";
-$CC = $r1;
+$CC = $R1;
 
 function print_header($title) { 
   echo "<html><head><meta http-equiv=\"X-UA-Compatible\" content=\"IE=8\" />";
@@ -39,6 +39,9 @@ function print_header($title) {
 EOT;
 
   $player = Player::getSessionPlayer(); 
+
+  $super = false;
+  $host = false;
 
   if ($player != NULL) { 
     $host = $player->isHost();
@@ -189,7 +192,7 @@ function hourDropMenu($hour) {
 }
 
 function version_tagline() { 
-  print "Gatherling version 1.9.9 (\"You'd think they'd never seen a girl and a cat on a broom before\")"
+  print "Gatherling version 1.9.9 (\"You'd think they'd never seen a girl and a cat on a broom before\")";
   # print "Gatherling version 1.9.8 (\"I'm tellin' you, man, every third blink is slower.\")";
   # print "Gatherling version 1.9.7 (\"Try blue, it's the new red!\")";
   # print "Gatherling version 1.9.6 (\"Just relax and let your mind go blank. That shouldn't be too hard for you.\")";

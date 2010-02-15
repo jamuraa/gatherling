@@ -19,21 +19,21 @@ tournaments here, and your ratings for Pauper Magic will also be calculated.</p>
 <ul> 
 </div>
 <div class="grid_5 omega">
-<? $player = Player::getSessionPlayer(); ?>
-<? if ($player != NULL): ?>
+<?php $player = Player::getSessionPlayer(); ?>
+<?php if ($player != NULL): ?>
 <b> Welcome back <?php echo $player->name ?> </b>
 <ul> 
 <li> <a href="profile.php">Check out your profile</a> </li>
 <li> <a href="player.php?mode=alldecks">Enter your own decklists</a> </li> 
-<? $event = Event::findMostRecentByHost($player->name);
+<?php $event = Event::findMostRecentByHost($player->name);
 if (!is_null($event)) { ?>
-<li> <a href="event.php?name=<? echo $event->name ?>">Manage <? echo $event->name ?></a> </li>
-<? } ?> 
-<? if ($player->host) { ?>
+<li> <a href="event.php?name=<?php echo $event->name ?>">Manage <?php echo $event->name ?></a> </li>
+<?php } ?> 
+<?php if ($player->host) { ?>
 <li> <a href="event.php">Host Control Panel</a> </li>
-<? } ?> 
+<?php } ?> 
 </ul>
-<? else: ?> 
+<?php else: ?> 
 <center> <b> Login to Gatherling </b> </center>
 <form action="login.php" method="post">
   <table class="form" align="center" style="border-width: 0px" cellpadding="3">
@@ -53,7 +53,7 @@ if (!is_null($event)) { ?>
     </tr>
   </table>
 </form> 
-<? endif; ?>
+<?php endif; ?>
 </div> <!-- grid_5 omega (login/links) -->
 
 <div class="clear"></div>
@@ -85,7 +85,7 @@ if (!is_null($event)) { ?>
 </div> <!-- box gatherlingnews -->
 </div> <!-- grid 10 pre 1 suff 1-->
 
-<? print_footer(); ?> 
+<?php print_footer(); ?> 
 
 </div>  <!-- container -->
 </body>

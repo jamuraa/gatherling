@@ -859,15 +859,17 @@ class Player {
 
   function checkChallenge($challenge) {
     $db = Database::getConnection(); 
-    $stmt = $db->prepare("SELECT name FROM players WHERE mtgo_challenge = ? AND name = ?");
-    $stmt->bind_param("ss", $challenge, $this->name);
+    $stmt = $db->prepare("SELECT name, mtgo_challenge FROM players WHERE name = ?");
+    $stmt->bind_param("s", $this->name);
     $stmt->execute(); 
-    $stmt->bind_result($verifyplayer); 
+    $stmt->bind_result($verifyplayer, $db_challenge); 
     $stmt->fetch();
     $stmt->close();
-    if ($verifyplayer == $this->name) { 
+    if ((strcasecmp($verifyplayer,$this->name) == 0) && (strcasecmp($db_challenge,$challenge) == 0)) { 
       return true; 
-    } else { 
+    } else {
+      $error_log = "Player = '{$this->name}' Challenge = '{$challenge}' Verify = '{$verifyplayer}' DBChallenge = '{$db_challenge}'\n";
+      file_put_contents("/var/www/pdcmagic.com/gatherling/challenge.log", $error_log, FILE_APPEND);
       return false; 
     } 
   } 

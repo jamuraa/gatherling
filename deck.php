@@ -305,7 +305,6 @@ function deckInfoCell($deck) {
 	echo "<tr><td style=\"font-size: 10pt;\">$line1</td></tr>\n";
 	echo "<tr><td>$line2</td></tr>\n";
   echo "<tr><td>$line3</td></tr>\n";
-  echo "<tr><td>$line4</td></tr>\n";
 	echo "</table>\n";
 
 }

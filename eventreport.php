@@ -163,7 +163,7 @@ function metastats($event) {
 		$deckarr = deckInfo($deck);
 		if($deckarr[1] != "blackout") {
 			$archcnt[$deckarr[3]]++;
-			for($ndx = 0; $ndx < strlen($deckarr); $ndx++) {
+			for($ndx = 0; $ndx < strlen($deckarr[1]); $ndx++) {
 				$colorcnt[$deckarr[1]{$ndx}]++;
 			}
 		}
