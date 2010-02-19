@@ -520,5 +520,39 @@ class Event {
 
   public function makeLink($text) { 
     return "<a href=\"event.php?name=" . urlencode($this->name) . "\">{$text}</a>";
-  }  
+  }
+
+  public function linkTo() { 
+    return $this->makeLink($this->name);
+  } 
+
+  public static function count() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT count(name) FROM events");
+    $stmt->execute(); 
+    $stmt->bind_result($result);
+    $stmt->fetch(); 
+    $stmt->close(); 
+    return $result;
+  } 
+
+  public static function getOldest() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT name FROM events ORDER BY start LIMIT 1");
+    $stmt->execute(); 
+    $stmt->bind_result($eventname);
+    $stmt->fetch(); 
+    $stmt->close(); 
+    return new Event($eventname);
+  } 
+  
+  public static function getNewest() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT name FROM events ORDER BY start DESC LIMIT 1");
+    $stmt->execute(); 
+    $stmt->bind_result($eventname);
+    $stmt->fetch(); 
+    $stmt->close(); 
+    return new Event($eventname);
+  } 
 }

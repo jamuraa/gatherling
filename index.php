@@ -17,6 +17,12 @@ tournaments here, and your ratings for Pauper Magic will also be calculated.</p>
 <li> <a href="eventreport.php"> See a list of recent events </a> </li> 
 <li> <a href="decksearch.php"> Search for decks with a certain card </a> </li> 
 <ul> 
+<b>Random statistics about Gatherling:</b> 
+<ul> 
+<li> There are <?php echo Deck::uniqueCount() ?> unique decks. </li>
+<li> We have recorded <?php echo Match::count() ?> matches from <?php echo Event::count() ?> events.</li> 
+<li> There are <?php echo Player::activeCount() ?> active players in gatherling. </li>
+</ul>
 </div>
 <div class="grid_5 omega">
 <?php $player = Player::getSessionPlayer(); ?>
