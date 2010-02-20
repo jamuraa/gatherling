@@ -9,11 +9,14 @@ print_header("PDCMagic.com | Gatherling | Deck Database");
 <div class="uppertitle">Deck Database</div>
 <?php
 if (strcmp($_GET['mode'], "view") == 0) {
+  $deck = NULL;
   if(isset($_GET['event'])) {
     $event = new Event($_GET['event']);
     $deck = $event->getPlaceDeck("1st");
   } else { 
-    $deck = new Deck($_GET['id']);
+    if (isset($_GET['id'])) {
+      $deck = new Deck($_GET['id']);
+    }
   } 
   deckProfile($deck);
 } else { 

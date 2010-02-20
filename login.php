@@ -38,7 +38,7 @@ function print_loginFailed() {
 }
 
 function testLogin() {
-	$success = 0;
+  $success = 0;
   if(isset($_POST['username']) && isset($_POST['password'])) {
     $auth = Player::checkPassword($_POST['username'], $_POST['password']);
     if ($auth) { 

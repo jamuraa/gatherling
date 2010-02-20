@@ -726,7 +726,7 @@ class Player {
     $stmt->execute(); 
     $stmt->bind_result($cnt, $medal);
 
-    $medals = array(); 
+    $medals = array("1st" => 0, "2nd" => 0, "t4" => 0, "t8" => 0); 
     while ($stmt->fetch()) { 
       $medals[$medal] = $cnt; 
     } 
