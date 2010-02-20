@@ -50,6 +50,7 @@ function do_page() {
   printSeriesForm($active_series);
   printLogoForm($active_series);
   printRecentEventsTable($active_series);
+  printPointsForm($active_series);
   printStewardsForm($active_series);
 } 
 
@@ -136,6 +137,45 @@ function printStewardsForm($series) {
   echo "<tr> <td colspan=\"2\"> Add new: <input type=\"text\" name=\"addsteward\" /> </td> </tr> "; 
   echo "</table> ";
   echo "<input type=\"submit\" value=\"Update Organizers\" name=\"action\" /> ";
+}
+
+function printPointsRule($rule, $key, $rules) { 
+  echo "<tr> <th> {$rule} </th>";
+  echo "<td> <input type=\"text\" value=\"{$rules[$key]}\" name=\"new_rules[{$key}]\" /> </td> </tr> ";
+} 
+
+function printPointsForm($series) { 
+  $chosen_season = (isset($_GET['season']) ? $_GET['season'] : $series->currentSeason());
+  echo "<h3><center> Season Points Management </center> </h3>";
+  echo "<p style=\"width:75%; text-align: left;\">Here you can edit the way that season points are calculated for each player.  Choose the season that you want your point rules to be active for, and then put in the number of season points for each type of event.  You can adjust the points a player gets for each event individually as well, to take away points for not posting a deck for example or giving extra points for a tiebreaker-miss of top eight.</p>";
+  echo "<p style=\"width:75%; text-align: left;\">Points are cumulative, so if someone gets the first place, they will get points for first place, participation, each round they played (in the main event, not the finals), for each match they won, lost, and got a bye, as well as the points for posting a decklist if they do post.  However, The first place to top 8 points are NOT added together, you only get points for where you end up (calculated by the medals).  An event winner doesn't get points for the second place, top 4 or top 8.</p>";
+  echo "<p style=\"width:75%; text-align: left;\"><strong>Points are NOT counted for events with the 'Custom' number!</strong></p>";
+  echo "<center>"; 
+  echo "<form action=\"seriescp.php\">";
+  echo "<input type=\"hidden\" name=\"series\" value=\"{$series->name}\" />";
+  seasonDropMenu($chosen_season); 
+  echo "<input type=\"submit\" value=\"Choose\" />";
+  echo "</form>";
+  echo "</center>";
+  $seasonrules = $series->getSeasonRules($chosen_season);
+  echo "<form action=\"seriescp.php\" method=\"post\">";
+  echo "<input type=\"hidden\" name=\"series\" value=\"{$series->name}\" />";
+  echo "<input type=\"hidden\" name=\"season\" value=\"{$chosen_season}\" />";
+  echo "<table class=\"form\" style=\"border-width: 0px;\" align=\"center\">";
+  echo "<tr> <th class=\"top\"> Event </th> <th class=\"top\"> Points </th></tr>";
+  printPointsRule("First Place", "first_pts", $seasonrules);    
+  printPointsRule("Second Place", "second_pts", $seasonrules);    
+  printPointsRule("Top 4", "semi_pts", $seasonrules);    
+  printPointsRule("Top 8", "quarter_pts", $seasonrules);    
+  printPointsRule("Participating", "participation_pts", $seasonrules);    
+  printPointsRule("Each round played", "rounds_pts", $seasonrules);    
+  printPointsRule("Match win", "win_pts", $seasonrules);    
+  printPointsRule("Match loss", "loss_pts", $seasonrules);    
+  printPointsRule("Round bye", "bye_pts", $seasonrules);    
+  printPointsRule("Posting a decklist", "decklist_pts", $seasonrules); 
+  echo "<tr> <td colspan=\"2\" class=\"buttons\">";
+  echo "<input type=\"submit\" name=\"action\" value=\"Update Points Rules\" />";
+  echo "</td> </table> </form>";
 } 
 
 function printLogoForm($series) { 
@@ -228,5 +268,8 @@ function handleActions() {
       return;
     }
     $series->addSteward($addition); 
+  } else if ($_POST['action'] == "Update Points Rules") { 
+    $new_rules = $_POST['new_rules']; 
+    $series->setSeasonRules($_POST['season'], $new_rules); 
   } 
 } 

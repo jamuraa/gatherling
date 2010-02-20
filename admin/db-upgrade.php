@@ -87,9 +87,25 @@ if ($version < 3) {
   $db->autocommit(FALSE);
   do_query("CREATE TABLE series_stewards (player varchar(40), series varchar(40), FOREIGN KEY (player) REFERENCES players(name), FOREIGN KEY (series) REFERENCES series(name))");
   do_query("ALTER TABLE series ADD COLUMN (day ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), normalstart TIME)");
+  do_query("UPDATE db_version SET version = 3");
   $db->commit(); 
   $db->autocommit(TRUE);
-  echo "... EB now at version 3! <br />";
+  echo "... DB now at version 3! <br />";
 }
 
+if ($version < 4) { 
+  echo "Updating to version 4... <br />";
+  # Version 4 changes: 
+  #  - Add "series_seasons" table for tracking seasons in a series, and "standard" rewards for each season.
+  #  - Add "player_points" table for tracking "extra" player points. 
+  $db->autocommit(FALSE); 
+  do_query("CREATE TABLE series_seasons (series varchar(40), season integer, first_pts integer, second_pts integer, semi_pts integer, quarter_pts integer, participation_pts integer, rounds_pts integer, decklist_pts integer, win_pts integer, loss_pts integer, bye_pts integer, FOREIGN KEY (series) REFERENCES series(name)), PRIMARY KEY(series, season)");
+  do_query("CREATE TABLE season_points (series varchar(40), season integer, event varchar(40), player varchar(40), adjustment integer, reason varchar(140), FOREIGN KEY (series) REFERENCES series(name), FOREIGN KEY (event) REFERENCES event(name), FOREIGN KEY (player) REFERENCES player(name))"); 
+
+  do_query("UPDATE db_version SET version = 4");
+  $db->commit(); 
+  $db->autocommit(TRUE);
+
+  echo "... EB now at version 4! <br />";
+} 
 
