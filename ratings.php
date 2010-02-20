@@ -81,9 +81,10 @@ function ratingsTable($format, $min=20) {
   echo "<td align=\"center\" colspan=\"3\"><b>Record</td></tr>\n";
   while($stmt->fetch()) { 
 		$rank++;
-		echo "<tr><td align=\"center\">$rank</td><td>";
-		echo "<a href=\"profile.php?player={$playername}\">";
-		echo "{$playername}</a></td>\n";
+    echo "<tr><td align=\"center\">$rank</td><td>";
+    $player = new Player($playername); 
+    echo $player->linkTo();
+		echo "</td>\n";
 		echo "<td align=\"center\">{$rating}</td>\n";
 		echo "<td align=\"right\" width=35>{$wins}&nbsp;</td>\n";
 		echo "<td align=\"center\">-</td><td width=35 align=\"left\">&nbsp;{$losses}</td></tr>";

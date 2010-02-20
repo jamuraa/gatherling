@@ -900,5 +900,16 @@ class Player {
       
     return $result; 
   }  
+
+  public static function activeCount() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT count(name) FROM players where password is not null");
+    $stmt->execute(); 
+    $stmt->bind_result($result);
+    $stmt->fetch(); 
+    $stmt->close(); 
+    return $result;
+  } 
+
 }
 

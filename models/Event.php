@@ -520,5 +520,75 @@ class Event {
 
   public function makeLink($text) { 
     return "<a href=\"event.php?name=" . urlencode($this->name) . "\">{$text}</a>";
-  }  
+  }
+
+  public function linkTo() { 
+    return $this->makeLink($this->name);
+  } 
+
+  public static function count() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT count(name) FROM events");
+    $stmt->execute(); 
+    $stmt->bind_result($result);
+    $stmt->fetch(); 
+    $stmt->close(); 
+    return $result;
+  } 
+
+  public static function getOldest() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT name FROM events ORDER BY start LIMIT 1");
+    $stmt->execute(); 
+    $stmt->bind_result($eventname);
+    $stmt->fetch(); 
+    $stmt->close(); 
+    return new Event($eventname);
+  } 
+  
+  public static function getNewest() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT name FROM events ORDER BY start DESC LIMIT 1");
+    $stmt->execute(); 
+    $stmt->bind_result($eventname);
+    $stmt->fetch(); 
+    $stmt->close(); 
+    return new Event($eventname);
+  } 
+
+  public function getSeasonPointAdjustment($player) { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT adjustment, reason FROM season_points WHERE event = ? AND player = ?");
+    $stmt or die($db->error); 
+    $stmt->bind_param("ss", $this->name, $player); 
+    $stmt->execute(); 
+    $stmt->bind_result($adjustment, $reason);
+    $exists = $stmt->fetch() != NULL;
+    $stmt->close(); 
+    if ($exists) {
+      return array('adjustment' => $adjustment, 'reason' => $reason);
+    } else { 
+      return NULL; 
+    }  
+  } 
+  
+  public function setSeasonPointAdjustment($player, $points, $reason) { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT player FROM season_points WHERE event = ? AND player = ?");
+    $stmt or die($db->error); 
+    $stmt->bind_param("ss", $this->name, $player); 
+    $stmt->execute(); 
+    $exists = $stmt->fetch() != NULL;
+    $stmt->close(); 
+    if ($exists) { 
+      $stmt = $db->prepare("UPDATE season_points SET reason = ?, adjustment = ? WHERE event = ? AND player = ?");
+      $stmt->bind_param("sdss", $reason, $points, $this->name, $player); 
+    } else {
+      $stmt = $db->prepare("INSERT INTO season_points(series, season, event, player, adjustment, reason) values(?, ?, ?, ?, ?, ?)"); 
+      $stmt->bind_param("sdssds", $this->series, $this->season, $this->name, $player, $points, $reason);
+    } 
+    $stmt->execute(); 
+    $stmt->close();
+    return true;
+  } 
 }

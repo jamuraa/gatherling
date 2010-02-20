@@ -119,5 +119,15 @@ class Match {
     } 
     return NULL;
   } 
+
+  static function count() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT count(id) FROM matches");
+    $stmt->execute(); 
+    $stmt->bind_result($result);
+    $stmt->fetch(); 
+    $stmt->close(); 
+    return $result;
+  } 
 } 
 

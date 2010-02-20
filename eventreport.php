@@ -358,6 +358,7 @@ function infoCell($event) {
 	if (!is_null($event->reporturl)) {
     echo "<a href=\"{$event->reporturl}\">Event Report</a><br>\n";
   }
+  echo "<a href=\"seriesreport.php?series={$event->series}&season={$event->season}\">Season Leaderboard</a>";
 }
 
 function trophyCell($event) {

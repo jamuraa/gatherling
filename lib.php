@@ -46,13 +46,15 @@ EOT;
   if ($player != NULL) { 
     $host = $player->isHost();
     $super = $player->isSuper();
+    $steward = count($player->stewardsSeries()) > 0;
   } 
 
   $tabs = 5;
-  if ($super) { 
-    $tabs = 7;
-  } else if ($host) { 
-    $tabs = 6;
+  if ($super || $steward) { 
+    $tabs += 1;
+  }
+  if ($host) { 
+    $tabs += 1;
   }
 
   echo <<<EOT
@@ -67,7 +69,7 @@ EOT;
     echo "<li><a href=\"event.php\">Host CP</a></li>\n";
   } 
 
-  if ($super) { 
+  if ($steward || $super) { 
     echo "<li><a href=\"seriescp.php\">Series CP</a></li>\n";
   } 
 
@@ -141,8 +143,8 @@ function seasonDropMenu($season, $useall = 0) {
     $maxarr = $result->fetch_assoc();
     $max = $maxarr['m'];
     $title = ($useall == 0) ? "- Season - " : "All";
-    numDropMenu("season", $title, max(10, $max + 1), $season);
     $result->close();
+    numDropMenu("season", $title, max(10, $max + 1), $season);
 }
 
 function formatDropMenu($format, $useAll = 0) {
@@ -192,7 +194,8 @@ function hourDropMenu($hour) {
 }
 
 function version_tagline() { 
-  print "Gatherling version 1.9.9 (\"You'd think they'd never seen a girl and a cat on a broom before\")";
+  print "Gatherling version 2.0.0 (\"I'm here to keep you safe, Sam.  I want to help you.\")";
+  # print "Gatherling version 1.9.9 (\"You'd think they'd never seen a girl and a cat on a broom before\")";
   # print "Gatherling version 1.9.8 (\"I'm tellin' you, man, every third blink is slower.\")";
   # print "Gatherling version 1.9.7 (\"Try blue, it's the new red!\")";
   # print "Gatherling version 1.9.6 (\"Just relax and let your mind go blank. That shouldn't be too hard for you.\")";

@@ -74,6 +74,8 @@ function content() {
         updateMatches(); 
       } elseif(strcmp($_POST['mode'], "Update Medals") == 0) {
         updateMedals(); 
+      } elseif(strcmp($_POST['mode'], "Update Adjustments") == 0) {
+        updateAdjustments();
       } elseif(strcmp($_POST['mode'], "Upload Trophy") == 0) {
         if (insertTrophy()) {
           $event->hastrophy = 1;
@@ -301,7 +303,9 @@ function eventForm($event = NULL, $forcenew = false) {
 			autoInputForm($event);
 		} elseif (strcmp($view, "fileinput") == 0) {
 			fileInputForm($event);
-		}
+    } elseif (strcmp($view, "points_adj") == 0) { 
+      pointsAdjustmentForm($event);
+    } 
 	}
 	echo "</table>";
 }
@@ -312,7 +316,6 @@ function playerList($event) {
 
   // Start a new form  
   echo "<form action=\"event.php\" method=\"post\" ";
-  echo "enctype=\"multipart/form-data\">";
   echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
   echo "<table style=\"border-width: 0px\" align=\"center\">";
   echo "<tr><td colspan=\"2\" align=\"center\">";
@@ -372,6 +375,33 @@ function playerList($event) {
   echo "</td></tr>";
   echo "</table>";
 }
+
+function pointsAdjustmentForm($event) { 
+  $entries = $event->getEntries();
+
+  // Start a new form  
+  echo "<form action=\"event.php\" method=\"post\" ";
+  echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
+  echo "<table style=\"border-width: 0px\" align=\"center\">";
+	echo "<input type=\"hidden\" name=\"view\" value=\"points_adj\">";
+  echo "<tr class=\"top\"> <th> Player </th> <th> Points <br /> Adjustment </th> <th> Reason </th> </tr>"; 
+  foreach ($entries as $entry) { 
+    $name = $entry->player->name;
+    $adjustments = $event->getSeasonPointAdjustment($name);
+    echo "<tr> <td> {$name} </td>"; 
+    if ($adjustments != NULL) { 
+      echo "<td style=\"text-align: center;\"> <input type=\"text\" style=\"width: 50px;\" name=\"adjustments[{$name}]\" value=\"{$adjustments['adjustment']}\" /> </td>";
+      echo "<td> <input type=\"text\" style=\"width: 400px;\" name=\"reasons[{$name}]\" value=\"{$adjustments['reason']}\" /> </td>";
+    } else { 
+      echo "<td style=\"text-align: center;\"> <input type=\"text\" style=\"width: 50px;\" name=\"adjustments[{$name}]\" value=\"\" /> </td>";
+      echo "<td> <input type=\"text\" style=\"width: 400px;\" name=\"reasons[{$name}]\" value=\"\" /> </td>";
+    } 
+    echo "</tr>";
+  }
+  echo "<tr> <td colspan=\"3\" class=\"buttons\"> "; 
+  echo "<input type=\"submit\" name=\"mode\" value=\"Update Adjustments\" />"; 
+  echo "</td> </tr> </table> </form>"; 
+} 
 
 function matchList($event) {
   $matches = $event->getMatches();
@@ -719,8 +749,9 @@ function controlPanel($event, $cur = "") {
 	echo " | <a href=\"event.php?name=$name&view=match\">Match Listing</a>";
 	echo " | <a href=\"event.php?name=$name&view=medal\">Medals</a>";
 	echo " | <a href=\"event.php?name=$name&view=autoinput\">Auto-Input</a>";
-	echo " | <a href=\"event.php?name=$name&view=fileinput\">DCI-R File Input";
-	echo "</a></td></tr>";
+	echo " | <a href=\"event.php?name=$name&view=fileinput\">DCI-R File Input</a>";
+	echo " | <a href=\"event.php?name=$name&view=points_adj\">Season Points Adj.</a>";
+	echo "</td></tr>";
 }
 
 function updateReg() {
@@ -768,6 +799,20 @@ function updateMedals() {
 
   $event->setFinalists($winner, $second, $t4, $t8); 
 }
+
+function updateAdjustments() { 
+  $name = $_POST['name']; 
+  $event = new Event($_POST['name']);
+
+  $adjustments = $_POST['adjustments'];
+  $reasons = $_POST['reasons']; 
+
+  foreach ($adjustments as $name => $points) { 
+    if ($points != "") { 
+      $event->setSeasonPointAdjustment($name, $points, $reasons[$name]);
+    } 
+  } 
+} 
 
 function autoInputForm($event) {
   // Start a new form  
