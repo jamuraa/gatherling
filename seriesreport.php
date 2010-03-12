@@ -49,9 +49,10 @@ function showReport($series, $season, $points) {
   echo "<table>";
   echo "<tr class=\"top\"> <th> Place </th> <th> Player </th> <th> Points </th> </tr>";
   $count = 0;
-  foreach ($points as $player => $seasonpts) { 
+  foreach ($points as $playername => $seasonpts) { 
+    $player = new Player($playername);
     $count++;
-    echo "<tr> <td> {$count} </td> <td> {$player} </td> <td> {$seasonpts} </td> </tr> "; 
+    echo "<tr> <td> {$count} </td> <td> {$player->linkTo()} </td> <td> {$seasonpts} </td> </tr> "; 
   }
   echo "</table>"; 
 }
