@@ -197,32 +197,43 @@ class Series {
     return $new_rules;
   } 
 
+  // SCORE HELPER FUNCTIONS: 
+  //
   // Each of these functions will return a array in the form 
-  //  array('playername' => event_count, ..). 
-  // For example, getParticipations(11) => array('jamuraa' => 4, ... ) would mean jamuraa participated in 4 events this season.
+  //  array('playername' => 
+  //             array( 'eventname' => count, 'eventname2' => count, ... ), 
+  //        'playername2' => 
+  //             array( 'eventname' => count, 'eventname2' => count, .. ), 
+  //        ..). 
   private function getPlacePlayers($season_number, $place) {
     $db = Database::getConnection(); 
-    $stmt = $db->prepare("SELECT entries.player, count(entries.medal) FROM events JOIN entries ON events.name = entries.event WHERE events.series = ? AND events.season = ? AND entries.medal = ? AND events.number != 128 GROUP BY entries.player"); 
+    $stmt = $db->prepare("SELECT entries.player, events.name FROM events JOIN entries ON events.name = entries.event WHERE events.series = ? AND events.season = ? AND entries.medal = ? AND events.number != 128"); 
     $stmt or die($db->error);
     $stmt->bind_param("sds", $this->name, $season_number, $place); 
     $stmt->execute(); 
-    $stmt->bind_result($playername, $medals); 
+    $stmt->bind_result($playername, $eventname); 
     $result = array(); 
     while ($stmt->fetch()) { 
-      $result[$playername] = $medals;
+      if (!isset($result[$playername])) { 
+        $result[$playername] = array();
+      } 
+      $result[$playername][$eventname] = 1;
     }
     return $result;  
   } 
   
   private function getParticipations($season_number) {
     $db = Database::getConnection(); 
-    $stmt = $db->prepare("SELECT entries.player, count(entries.player) FROM events JOIN entries ON events.name = entries.event WHERE events.series = ? AND events.season = ? AND events.number != 128 GROUP BY entries.player"); 
+    $stmt = $db->prepare("SELECT entries.player, events.name FROM events JOIN entries ON events.name = entries.event WHERE events.series = ? AND events.season = ? AND events.number != 128"); 
     $stmt->bind_param("sd", $this->name, $season_number); 
     $stmt->execute(); 
-    $stmt->bind_result($playername, $medals); 
+    $stmt->bind_result($playername, $eventname); 
     $result = array(); 
     while ($stmt->fetch()) { 
-      $result[$playername] = $medals;
+      if (!isset($result[$playername])) { 
+        $result[$playername] = array();
+      } 
+      $result[$playername][$eventname] = 1;
     }
     return $result;
   }
@@ -271,28 +282,23 @@ class Series {
     } 
     $stmt->close(); 
 
-    // Now we add up all the rounds that the player had in each event, and that is how many rounds they played in a season.
-    $result = array(); 
-    foreach ($player_event_array as $name => $event_array) {
-      $result[$name] = 0;
-      foreach ($event_array as $event_name => $maxround) { 
-        $result[$name] = $result[$name] + $maxround;
-      } 
-    } 
-    return $result; 
+    return $player_event_array;
   } 
 
 
   private function getDecklistPosteds($season_number) { 
     $db = Database::getConnection();
-    $stmt = $db->prepare("SELECT entries.player, count(entries.deck) c FROM events JOIN entries ON entries.event = events.name WHERE entries.deck IS NOT NULL AND events.number != 128 AND events.series = ? AND events.season = ? GROUP BY entries.player");
+    $stmt = $db->prepare("SELECT entries.player, events.name, count(entries.deck) c FROM events JOIN entries ON entries.event = events.name WHERE entries.deck IS NOT NULL AND events.number != 128 AND events.series = ? AND events.season = ? GROUP BY entries.player, events.name");
     $stmt->bind_param("sd", $this->name, $season_number); 
     $stmt->execute(); 
-    $stmt->bind_result($playername, $deckcount);
+    $stmt->bind_result($playername, $eventname, $deckcount);
     
     $result = array(); 
     while ($stmt->fetch()) { 
-      $result[$playername] = $deckcount;
+      if (!isset($result[$playername])) { 
+        $result[$playername] = array();
+      } 
+      $result[$playername][$eventname] = $deckcount;
     }
 
     return $result;
@@ -304,30 +310,28 @@ class Series {
     $result = array();
     // They could.. 
     // Win as playera
-    $stmt = $db->prepare("SELECT matches.playera, count(matches.round) FROM events JOIN subevents JOIN matches ON events.name = subevents.parent AND subevents.id = matches.subevent WHERE subevents.timing = 1 AND events.number != 128 AND matches.result = 'A' AND events.series = ? AND events.season = ? GROUP BY matches.playera");
+    $stmt = $db->prepare("SELECT matches.playera, events.name,  count(matches.round) FROM events JOIN subevents JOIN matches ON events.name = subevents.parent AND subevents.id = matches.subevent WHERE subevents.timing = 1 AND events.number != 128 AND matches.result = 'A' AND events.series = ? AND events.season = ? GROUP BY matches.playera, events.name");
     $stmt->bind_param("sd", $this->name, $season_number);
     $stmt->execute(); 
-    $stmt->bind_result($playername, $matcheswon); 
+    $stmt->bind_result($playername, $eventname, $matcheswon); 
     while ($stmt->fetch()) { 
       if (!isset($result[$playername])) { 
-        $result[$playername] = $matcheswon;
-      } else { 
-        $result[$playername] = $result[$playername] + $matcheswon;
-      } 
+        $result[$playername] = array();
+      }
+      $result[$playername][$eventname] = $matcheswon;
     } 
     $stmt->close(); 
 
     // Or win as playerb
-    $stmt = $db->prepare("SELECT matches.playerb, count(matches.round) FROM events JOIN subevents JOIN matches ON events.name = subevents.parent AND subevents.id = matches.subevent WHERE subevents.timing = 1 AND events.number != 128 AND matches.result = 'B' AND events.series = ? AND events.season = ? GROUP BY matches.playerb");
+    $stmt = $db->prepare("SELECT matches.playerb, events.name, count(matches.round) FROM events JOIN subevents JOIN matches ON events.name = subevents.parent AND subevents.id = matches.subevent WHERE subevents.timing = 1 AND events.number != 128 AND matches.result = 'B' AND events.series = ? AND events.season = ? GROUP BY matches.playerb, events.name");
     $stmt->bind_param("sd", $this->name, $season_number);
     $stmt->execute(); 
-    $stmt->bind_result($playername, $matcheswon); 
+    $stmt->bind_result($playername, $eventname, $matcheswon); 
     while ($stmt->fetch()) { 
       if (!isset($result[$playername])) { 
-        $result[$playername] = $matcheswon;
-      } else { 
-        $result[$playername] = $result[$playername] + $matcheswon;
-      } 
+        $result[$playername] = array();
+      }
+      $result[$playername][$eventname] = $matcheswon;
     } 
     $stmt->close(); 
 
@@ -340,30 +344,28 @@ class Series {
     $result = array();
     // They could.. 
     // Lose as playera
-    $stmt = $db->prepare("SELECT matches.playera, count(matches.round) FROM events JOIN subevents JOIN matches ON events.name = subevents.parent AND subevents.id = matches.subevent WHERE subevents.timing = 1 AND events.number != 128 AND matches.result = 'B' AND events.series = ? AND events.season = ? GROUP BY matches.playera");
+    $stmt = $db->prepare("SELECT matches.playera, events.name, count(matches.round) FROM events JOIN subevents JOIN matches ON events.name = subevents.parent AND subevents.id = matches.subevent WHERE subevents.timing = 1 AND events.number != 128 AND matches.result = 'B' AND events.series = ? AND events.season = ? GROUP BY matches.playera, events.name");
     $stmt->bind_param("sd", $this->name, $season_number);
     $stmt->execute(); 
-    $stmt->bind_result($playername, $matcheswon); 
+    $stmt->bind_result($playername, $eventname, $matches); 
     while ($stmt->fetch()) { 
       if (!isset($result[$playername])) { 
-        $result[$playername] = $matcheswon;
-      } else { 
-        $result[$playername] = $result[$playername] + $matcheswon;
-      } 
+        $result[$playername] = array();
+      }
+      $result[$playername][$eventname] = $matches;
     } 
     $stmt->close(); 
 
     // Or lose as playerb
-    $stmt = $db->prepare("SELECT matches.playerb, count(matches.round) FROM events JOIN subevents JOIN matches ON events.name = subevents.parent AND subevents.id = matches.subevent WHERE subevents.timing = 1 AND events.number != 128 AND matches.result = 'A' AND events.series = ? AND events.season = ? GROUP BY matches.playerb");
+    $stmt = $db->prepare("SELECT matches.playerb, events.name, count(matches.round) FROM events JOIN subevents JOIN matches ON events.name = subevents.parent AND subevents.id = matches.subevent WHERE subevents.timing = 1 AND events.number != 128 AND matches.result = 'A' AND events.series = ? AND events.season = ? GROUP BY matches.playerb, events.name");
     $stmt->bind_param("sd", $this->name, $season_number);
     $stmt->execute(); 
-    $stmt->bind_result($playername, $matcheswon); 
+    $stmt->bind_result($playername, $eventname, $matches); 
     while ($stmt->fetch()) { 
       if (!isset($result[$playername])) { 
-        $result[$playername] = $matcheswon;
-      } else { 
-        $result[$playername] = $result[$playername] + $matcheswon;
-      } 
+        $result[$playername] = array();
+      }
+      $result[$playername][$eventname] = $matches;
     } 
     $stmt->close(); 
 
@@ -374,22 +376,38 @@ class Series {
   // $rounds_bye = $rounds_played - $rounds_won - $rounds_lost
   private function getRoundsBye($rounds_played, $rounds_won, $rounds_lost) { 
     $result = $rounds_played;
-    foreach ($rounds_won as $playername => $rounds) { 
-      $result[$playername] = $result[$playername] - $rounds; 
+    foreach ($rounds_won as $playername => $arrayrounds) { 
+      foreach ($arrayrounds as $event => $rounds) { 
+        $result[$playername][$event] = $result[$playername][$event] - $rounds; 
+      }
     } 
-    foreach ($rounds_lost as $playername => $rounds) { 
-      $result[$playername] = $result[$playername] - $rounds; 
+    foreach ($rounds_lost as $playername => $arrayrounds) { 
+      foreach ($arrayrounds as $event => $rounds) { 
+        $result[$playername][$event] = $result[$playername][$event] - $rounds; 
+      }
     } 
     return $result;
   }
 
-  private function multiply_and_add_points(&$results, $thispoints, $multiplier) { 
-    foreach ($thispoints as $playername => $times) { 
-      if (!isset($results[$playername])) { 
-        $results[$playername] = $times * $multiplier;
-      } else { 
-        $results[$playername] = $results[$playername] + ($times * $multiplier);
-      } 
+  private function multiply_and_add_points(&$results, $thispoints, $multiplier, $decklists, $reqdeck) { 
+    if ($multiplier == 0) { 
+      return; 
+    } 
+    foreach ($thispoints as $playername => $arraycounts) { 
+      foreach ($arraycounts as $eventname => $amt) { 
+        if (!isset($results[$playername])) { 
+          $results[$playername] = array();
+        } 
+        if ($reqdeck and !isset($decklists[$playername][$eventname])) {
+          $results[$playername][$eventname] = array('why' => "No deck posted", 'points' => '**');
+          continue;
+        } 
+        if (!isset($results[$playername][$eventname])) { 
+          $results[$playername][$eventname] = $amt * $multiplier;
+        } else { 
+          $results[$playername][$eventname] = $results[$playername][$eventname] + ($amt * $multiplier);
+        }
+      }  
     } 
   } 
 
@@ -398,37 +416,77 @@ class Series {
 
     $total_pointarray = array();
     $firsts = $this->getPlacePlayers($season_number, '1st');
-    $this->multiply_and_add_points($total_pointarray, $firsts, $rules['first_pts']);
     $seconds = $this->getPlacePlayers($season_number, '2nd');
-    $this->multiply_and_add_points($total_pointarray, $seconds, $rules['second_pts']);
     $semis = $this->getPlacePlayers($season_number, 't4');
-    $this->multiply_and_add_points($total_pointarray, $semis, $rules['semi_pts']);
     $quarters = $this->getPlacePlayers($season_number, 't8');
-    $this->multiply_and_add_points($total_pointarray, $quarters, $rules['quarter_pts']);
     $decklists_posted = $this->getDecklistPosteds($season_number);
-    $this->multiply_and_add_points($total_pointarray, $decklists_posted, $rules['decklist_pts']);
     $rounds_played = $this->getRoundsPlayed($season_number);
-    $this->multiply_and_add_points($total_pointarray, $rounds_played, $rules['rounds_pts']);
     $rounds_won = $this->getRoundsWon($season_number);
-    $this->multiply_and_add_points($total_pointarray, $rounds_won, $rules['win_pts']);
     $rounds_lost = $this->getRoundsLost($season_number); 
-    $this->multiply_and_add_points($total_pointarray, $rounds_lost, $rules['loss_pts']);
     $rounds_bye = $this->getRoundsBye($rounds_played, $rounds_won, $rounds_lost);
-    $this->multiply_and_add_points($total_pointarray, $rounds_bye, $rules['bye_pts']);
     $participations = $this->getParticipations($season_number);
-    $this->multiply_and_add_points($total_pointarray, $participations, $rules['participation_pts']);
+
+    $reqdeck = $rules['must_decklist'] == 1;
+    
+    $this->multiply_and_add_points($total_pointarray, $firsts, $rules['first_pts'], $decklists_posted, $reqdeck);
+    $this->multiply_and_add_points($total_pointarray, $seconds, $rules['second_pts'], $decklists_posted, $reqdeck);
+    $this->multiply_and_add_points($total_pointarray, $semis, $rules['semi_pts'], $decklists_posted, $reqdeck);
+    $this->multiply_and_add_points($total_pointarray, $quarters, $rules['quarter_pts'], $decklists_posted, $reqdeck);
+    $this->multiply_and_add_points($total_pointarray, $decklists_posted, $rules['decklist_pts'], $decklists_posted, $reqdeck);
+    $this->multiply_and_add_points($total_pointarray, $rounds_played, $rules['rounds_pts'], $decklists_posted, $reqdeck);
+    $this->multiply_and_add_points($total_pointarray, $rounds_won, $rules['win_pts'], $decklists_posted, $reqdeck);
+    $this->multiply_and_add_points($total_pointarray, $rounds_lost, $rules['loss_pts'], $decklists_posted, $reqdeck);
+    $this->multiply_and_add_points($total_pointarray, $rounds_bye, $rules['bye_pts'], $decklists_posted, $reqdeck);
+    $this->multiply_and_add_points($total_pointarray, $participations, $rules['participation_pts'], $decklists_posted, $reqdeck);
 
     // Include adjustments.
     $db = Database::getConnection();
-    $stmt = $db->prepare("SELECT player, adjustment FROM season_points WHERE series = ? AND season = ?");
+    $stmt = $db->prepare("SELECT player, event, adjustment, reason FROM season_points WHERE series = ? AND season = ?");
     $stmt or die($db->error);
     $stmt->bind_param("sd", $this->name, $season_number); 
     $stmt->execute(); 
-    $stmt->bind_result($player, $adjustment); 
+    $stmt->bind_result($player, $event, $adjustment, $reason); 
     while ($stmt->fetch()) { 
-      $total_pointarray[$player] = $total_pointarray[$player] + $adjustment;
+      if (!isset($total_pointarray[$player])) { 
+        $total_pointarray[$player] = array(); 
+      } 
+      if (!isset($total_pointarray[$player][$event])) { 
+        $total_pointarray[$player][$event] = 0; 
+      } 
+      if (!is_array($total_pointarray[$player][$event])) { 
+        $total_pointarray[$player][$event] = array('why' => $reason, 'points' => $total_pointarray[$player][$event] + $adjustment);
+      } 
+    } 
+
+    // Make totals
+    foreach ($total_pointarray as $player => $eventarray) { 
+      $total_pointarray[$player]['.total'] = 0;
+      foreach ($eventarray as $event => $points) { 
+        if (is_array($points)) { 
+          if (is_int($points['points'])) { 
+            $total_pointarray[$player]['.total'] += $points['points'];
+          } 
+        } else { 
+          $total_pointarray[$player]['.total'] += $points; 
+        } 
+      } 
     } 
 
     return $total_pointarray; 
+  } 
+
+  public function getSeasonEventNames($season_number) { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT name FROM events WHERE series = ? AND season = ? AND events.number != 128");
+    $stmt or die($db->error);
+    $stmt->bind_param("sd", $this->name, $season_number);
+    $stmt->execute(); 
+    $stmt->bind_result($event);
+    $eventnames = array();
+    while ($stmt->fetch()) { 
+      $eventnames[] = $event; 
+    }
+    $stmt->close(); 
+    return $eventnames;
   } 
 }

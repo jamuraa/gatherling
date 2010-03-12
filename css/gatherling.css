@@ -1,0 +1,21 @@
+
+
+table.scoreboard span { 
+  border-bottom: 1px dotted gray;
+} 
+
+table.scoreboard tr.odd { 
+  background-color: #ddd;
+} 
+
+table.scoreboard tr.cutoff { 
+  border-bottom: 1px solid black;
+} 
+
+table.scoreboard td { 
+  text-align: center;
+} 
+
+table.scoreboard .playername { 
+  text-align: left;
+} 
