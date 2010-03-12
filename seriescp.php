@@ -139,9 +139,17 @@ function printStewardsForm($series) {
   echo "<input type=\"submit\" value=\"Update Organizers\" name=\"action\" /> ";
 }
 
-function printPointsRule($rule, $key, $rules) { 
+function printPointsRule($rule, $key, $rules, $formtype = 'text') { 
   echo "<tr> <th> {$rule} </th>";
-  echo "<td> <input type=\"text\" value=\"{$rules[$key]}\" name=\"new_rules[{$key}]\" /> </td> </tr> ";
+  if ($formtype == 'text') { 
+    echo "<td> <input type=\"text\" value=\"{$rules[$key]}\" name=\"new_rules[{$key}]\" /> </td> </tr> ";
+  } else if ($formtype == 'checkbox') { 
+    echo "<td> <input type=\"checkbox\" value=\"1\" name=\"new_rules[{$key}]\" ";
+    if ($rules[$key] == 1) { 
+      echo "checked "; 
+    }
+    echo " /> </td> </tr>";
+  } 
 } 
 
 function printPointsForm($series) { 
@@ -173,6 +181,7 @@ function printPointsForm($series) {
   printPointsRule("Match loss", "loss_pts", $seasonrules);    
   printPointsRule("Round bye", "bye_pts", $seasonrules);    
   printPointsRule("Posting a decklist", "decklist_pts", $seasonrules); 
+  printPointsRule("Require decklist for points", "must_decklist", $seasonrules, 'checkbox');
   echo "<tr> <td colspan=\"2\" class=\"buttons\">";
   echo "<input type=\"submit\" name=\"action\" value=\"Update Points Rules\" />";
   echo "</td> </table> </form>";

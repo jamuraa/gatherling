@@ -14,8 +14,7 @@ print_header("PDCMagic.com | Gatherling | Season Report");
 selectSeason();
 if (isset($_GET['series']) && isset($_GET['season'])) { 
   $series = new Series($_GET['series']); 
-  $seasonreport = $series->seasonPointsTable($_GET['season']); 
-  showReport($series, $_GET['season'], $seasonreport);
+  showReport($series, $_GET['season']);
 }  
 
 ?>
@@ -42,17 +41,48 @@ function selectSeason() {
 	echo "</td></tr></table></form>";
 } 
 
-function showReport($series, $season, $points) { 
-  arsort($points);
+
+function reverse_total_sort($a, $b) { 
+  if ($a['.total'] == $b['.total']) { 
+    return 0;
+  } 
+  return ($a['.total'] < $b['.total']) ? 1 : -1; 
+} 
+
+function showReport($series, $season) { 
+  $seasonevents = $series->getSeasonEventNames($season);
+  $points = $series->seasonPointsTable($season);
+  uasort($points, 'reverse_total_sort');
 
   echo "<h3><center>Point Scoreboard for {$series->name} season {$season}</center></h3>";
-  echo "<table>";
-  echo "<tr class=\"top\"> <th> Place </th> <th> Player </th> <th> Points </th> </tr>";
+  echo "<table class=\"scoreboard\">";
+  echo "<tr class=\"top\"> <th> Place </th> <th> Player </th> <th> Total Points </th>";
+  foreach ($seasonevents as $evname) { 
+    echo "<th> {$evname} </th>";
+  } 
+  echo "</tr>";    
   $count = 0;
-  foreach ($points as $playername => $seasonpts) { 
+  foreach ($points as $player => $pointar) { 
     $player = new Player($playername);
     $count++;
-    echo "<tr> <td> {$count} </td> <td> {$player->linkTo()} </td> <td> {$seasonpts} </td> </tr> "; 
+    if ($count % 2 != 0) { 
+      echo "<tr class=\"odd\"> ";
+    } else { 
+      echo "<tr > ";
+    } 
+    echo "<td> {$count} </td> <td class=\"playername\"> {$player->linkTo()} </td> <td> {$pointar['.total']} </td> "; 
+    foreach ($seasonevents as $evname) { 
+      if (isset($pointar[$evname])) { 
+        if (is_array($pointar[$evname])) { 
+          echo "<td> <span title=\"{$pointar[$evname]['why']}\"> {$pointar[$evname]['points']} </span> </td>";
+        } else { 
+          echo "<td> {$pointar[$evname]} </td>"; 
+        } 
+      } else { 
+        echo "<td> </td> "; 
+      } 
+    }  
+    echo "</tr> "; 
   }
   echo "</table>"; 
 }
