@@ -52,9 +52,10 @@ function reverse_total_sort($a, $b) {
 function showReport($series, $season) { 
   $seasonevents = $series->getSeasonEventNames($season);
   $points = $series->seasonPointsTable($season);
+  $cutoff = $series->getSeasonCutoff($season);
   uasort($points, 'reverse_total_sort');
 
-  echo "<h3><center>Point Scoreboard for {$series->name} season {$season}</center></h3>";
+  echo "<h3><center>Scoreboard for {$series->name} season {$season}</center></h3>";
   echo "<table class=\"scoreboard\">";
   echo "<tr class=\"top\"> <th> Place </th> <th> Player </th> <th> Total Points </th>";
   foreach ($seasonevents as $evname) { 
@@ -65,11 +66,14 @@ function showReport($series, $season) {
   foreach ($points as $playername => $pointar) { 
     $player = new Player($playername);
     $count++;
+    $classes = "";  
     if ($count % 2 != 0) { 
-      echo "<tr class=\"odd\"> ";
-    } else { 
-      echo "<tr > ";
+      $classes .= "odd";
     } 
+    if ($count == $cutoff) { 
+      $classes .= " cutoff";
+    } 
+    echo "<tr class=\"{$classes}\"> ";
     echo "<td> {$count} </td> <td class=\"playername\"> {$player->linkTo()} </td> <td> {$pointar['.total']} </td> "; 
     foreach ($seasonevents as $evname) { 
       if (isset($pointar[$evname])) { 

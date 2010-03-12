@@ -9,7 +9,7 @@ table.scoreboard tr.odd {
 } 
 
 table.scoreboard tr.cutoff { 
-  border-bottom: 1px solid black;
+  border-bottom: 3px double black;
 } 
 
 table.scoreboard td { 

@@ -173,13 +173,13 @@ class Series {
 
   // TODO: THESE functions are UGLY. 
   public function getSeasonRules($season_number) { 
-    $season_rules = array('first_pts' => 0, 'second_pts' => 0, 'semi_pts' => 0, 'quarter_pts' => 0, 'participation_pts' => 0, 'rounds_pts' => 0, 'decklist_pts' => 0, 'win_pts' => 0, 'loss_pts' => 0, 'bye_pts' => 0, 'must_decklist' => 0);
+    $season_rules = array('first_pts' => 0, 'second_pts' => 0, 'semi_pts' => 0, 'quarter_pts' => 0, 'participation_pts' => 0, 'rounds_pts' => 0, 'decklist_pts' => 0, 'win_pts' => 0, 'loss_pts' => 0, 'bye_pts' => 0, 'must_decklist' => 0, 'cutoff_ord' => 0);
     
     $db = Database::getConnection(); 
-    $stmt = $db->prepare("SELECT series, season, first_pts, second_pts, semi_pts, quarter_pts, participation_pts, rounds_pts, decklist_pts, win_pts, loss_pts, bye_pts, must_decklist FROM series_seasons WHERE series = ? AND season = ?"); 
+    $stmt = $db->prepare("SELECT series, season, first_pts, second_pts, semi_pts, quarter_pts, participation_pts, rounds_pts, decklist_pts, win_pts, loss_pts, bye_pts, must_decklist, cutoff_ord FROM series_seasons WHERE series = ? AND season = ?"); 
     $stmt->bind_param("ss", $this->name, $season_number);
     $stmt->execute(); 
-    $stmt->bind_result($seriesname, $season_number, $season_rules['first_pts'], $season_rules['second_pts'], $season_rules['semi_pts'], $season_rules['quarter_pts'], $season_rules['participation_pts'], $season_rules['rounds_pts'], $season_rules['decklist_pts'], $season_rules['win_pts'], $season_rules['loss_pts'], $season_rules['bye_pts'], $season_rules['must_decklist']);
+    $stmt->bind_result($seriesname, $season_number, $season_rules['first_pts'], $season_rules['second_pts'], $season_rules['semi_pts'], $season_rules['quarter_pts'], $season_rules['participation_pts'], $season_rules['rounds_pts'], $season_rules['decklist_pts'], $season_rules['win_pts'], $season_rules['loss_pts'], $season_rules['bye_pts'], $season_rules['must_decklist'], $season_rules['cutoff_ord']);
     $stmt->fetch(); 
     $stmt->close(); 
     return $season_rules;
@@ -187,11 +187,11 @@ class Series {
 
   public function setSeasonRules($season_number, $new_rules) { 
     $db = Database::getConnection(); 
-    $stmt = $db->prepare("INSERT INTO series_seasons(series, season, first_pts, second_pts, semi_pts, quarter_pts, participation_pts, rounds_pts, decklist_pts, win_pts, loss_pts, bye_pts, must_decklist) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE first_pts=?, second_pts=?, semi_pts=?, quarter_pts=?, participation_pts=?, rounds_pts=?, decklist_pts=?, win_pts=?, loss_pts=?, bye_pts=?, must_decklist=?");
+    $stmt = $db->prepare("INSERT INTO series_seasons(series, season, first_pts, second_pts, semi_pts, quarter_pts, participation_pts, rounds_pts, decklist_pts, win_pts, loss_pts, bye_pts, must_decklist, cutoff_ord) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE first_pts=?, second_pts=?, semi_pts=?, quarter_pts=?, participation_pts=?, rounds_pts=?, decklist_pts=?, win_pts=?, loss_pts=?, bye_pts=?, must_decklist=?, cutoff_ord=?");
     if (!$stmt) { 
       echo $db->error;
     } 
-    $stmt->bind_param("sddddddddddddddddddddddd", $this->name, $season_number, $new_rules['first_pts'], $new_rules['second_pts'], $new_rules['semi_pts'], $new_rules['quarter_pts'], $new_rules['participation_pts'], $new_rules['rounds_pts'], $new_rules['decklist_pts'], $new_rules['win_pts'], $new_rules['loss_pts'], $new_rules['bye_pts'], $new_rules['must_decklist'], $new_rules['first_pts'], $new_rules['second_pts'], $new_rules['semi_pts'], $new_rules['quarter_pts'], $new_rules['participation_pts'], $new_rules['rounds_pts'], $new_rules['decklist_pts'], $new_rules['win_pts'], $new_rules['loss_pts'], $new_rules['bye_pts'], $new_rules['must_decklist']);
+    $stmt->bind_param("sddddddddddddddddddddddddd", $this->name, $season_number, $new_rules['first_pts'], $new_rules['second_pts'], $new_rules['semi_pts'], $new_rules['quarter_pts'], $new_rules['participation_pts'], $new_rules['rounds_pts'], $new_rules['decklist_pts'], $new_rules['win_pts'], $new_rules['loss_pts'], $new_rules['bye_pts'], $new_rules['must_decklist'], $new_rules['cutoff_ord'], $new_rules['first_pts'], $new_rules['second_pts'], $new_rules['semi_pts'], $new_rules['quarter_pts'], $new_rules['participation_pts'], $new_rules['rounds_pts'], $new_rules['decklist_pts'], $new_rules['win_pts'], $new_rules['loss_pts'], $new_rules['bye_pts'], $new_rules['must_decklist'], $new_rules['cutoff_ord']);
     $stmt->execute(); 
     $stmt->close();
     return $new_rules;
@@ -488,5 +488,18 @@ class Series {
     }
     $stmt->close(); 
     return $eventnames;
+  } 
+
+  public function getSeasonCutoff($season_number) { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT cutoff_ord FROM series_seasons WHERE series = ? AND season = ?"); 
+    $stmt or die($db->error); 
+    $stmt->bind_param("sd", $this->name, $season_number);
+    $stmt->execute(); 
+    $cutoff = 0;
+    $stmt->bind_result($cutoff); 
+    $stmt->fetch(); 
+    $stmt->close(); 
+    return $cutoff;
   } 
 }

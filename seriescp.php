@@ -182,6 +182,7 @@ function printPointsForm($series) {
   printPointsRule("Round bye", "bye_pts", $seasonrules);    
   printPointsRule("Posting a decklist", "decklist_pts", $seasonrules); 
   printPointsRule("Require decklist for points", "must_decklist", $seasonrules, 'checkbox');
+  printPointsRule("WORLDS Cutoff (players)", "cutoff_ord", $seasonrules); 
   echo "<tr> <td colspan=\"2\" class=\"buttons\">";
   echo "<input type=\"submit\" name=\"action\" value=\"Update Points Rules\" />";
   echo "</td> </table> </form>";
