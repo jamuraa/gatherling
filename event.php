@@ -23,7 +23,7 @@ function content() {
   if(isset($_GET['name'])) {
     $event = new Event($_GET['name']);
 		eventForm($event);
-	} elseif (strcmp($_POST['mode'], "Create New Event") == 0) {
+	} elseif (strcmp($_GET['mode'], "Create New Event") == 0) {
 		if(Player::getSessionPlayer()->isHost()) {
 			if(isset($_POST['insert'])) {
 				insertEvent();
@@ -98,31 +98,31 @@ function eventList($series = "", $season = "") {
 		FROM events e
 		LEFT OUTER JOIN entries AS n ON n.event = e.name 
 		WHERE 1=1";
-	if(isset($_POST['format']) && strcmp($_POST['format'], "") != 0) {
-		$query = $query . " AND e.format=\"{$db->escape_string($_POST['format'])}\" ";
+	if(isset($_GET['format']) && strcmp($_GET['format'], "") != 0) {
+		$query = $query . " AND e.format=\"{$db->escape_string($_GET['format'])}\" ";
 	}
-	if(isset($_POST['series']) && strcmp($_POST['series'], "") != 0) {
-		$query = $query . " AND e.series=\"{$db->escape_string($_POST['series'])}\" ";
+	if(isset($_GET['series']) && strcmp($_GET['series'], "") != 0) {
+		$query = $query . " AND e.series=\"{$db->escape_string($_GET['series'])}\" ";
 	}
-	if(isset($_POST['season']) && strcmp($_POST['season'], "") != 0) {
-		$query = $query . " AND e.season=\"{$db->escape_string($_POST['season'])}\" ";
+	if(isset($_GET['season']) && strcmp($_GET['season'], "") != 0) {
+		$query = $query . " AND e.season=\"{$db->escape_string($_GET['season'])}\" ";
 	}
 	$query = $query . " GROUP BY e.name ORDER BY e.start DESC LIMIT 100";
 	$result = $db->query($query);
 
-	echo "<form action=\"event.php\" method=\"post\">";
+	echo "<form action=\"event.php\" method=\"get\">";
 	echo "<table class=\"form\" style=\"border-width: 0px\" align=\"center\">";
 	echo "<tr><td colspan=\"2\" align=\"center\"><b>Filters</td></tr>";
 	echo "<tr><td>&nbsp;</td></tr>";
   echo "<tr><th>Format</th><td>";
-  if (!isset($_POST['format'])) { $_POST['format'] = ''; }
-	formatDropMenu($_POST['format'], 1);
+  if (!isset($_GET['format'])) { $_GET['format'] = ''; }
+	formatDropMenu($_GET['format'], 1);
 	echo "</td></tr>";
 	echo "<tr><th>Series</th><td>";
-	seriesDropMenu($_POST['series'], 1);
+	seriesDropMenu($_GET['series'], 1);
 	echo "</td></tr>";
 	echo "<tr><th>Season</th><td>";
-	seasonDropMenu($_POST['season'], 1);
+	seasonDropMenu($_GET['season'], 1);
 	echo "</td></tr>";
 	echo "<tr><td>&nbsp;</td></tr>";
 	echo "<tr><td colspan=\"2\" class=\"buttons\">";

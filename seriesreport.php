@@ -62,7 +62,7 @@ function showReport($series, $season) {
   } 
   echo "</tr>";    
   $count = 0;
-  foreach ($points as $player => $pointar) { 
+  foreach ($points as $playername => $pointar) { 
     $player = new Player($playername);
     $count++;
     if ($count % 2 != 0) { 
