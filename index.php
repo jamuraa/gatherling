@@ -21,7 +21,7 @@ tournaments here, and your ratings for Pauper Magic will also be calculated.</p>
 <ul> 
 <li> There are <?php echo Deck::uniqueCount() ?> unique decks. </li>
 <li> We have recorded <?php echo Match::count() ?> matches from <?php echo Event::count() ?> events.</li> 
-<li> There are <?php echo Player::activeCount() ?> active players in gatherling. </li>
+<li> There are <?php echo Player::activeCount() ?> active players in gatherling. (<?php echo Player::verifiedCount() ?> verified) </li>
 </ul>
 </div>
 <div class="grid_5 omega">
@@ -69,6 +69,15 @@ if (!is_null($event)) { ?>
 <div class="uppertitle alpha omega grid_10"> Latest Gatherling News </div>
 <div class="clear"></div>
  <p> 
+  <b> 2010-03-12 </b> - 
+  Took three weeks off of development, mostly for SPDC worlds (hectic, no updates) and because we were on break.  Fixed some bugs today and added some more goodness for the season scoreboards. 
+  <ul> 
+    <li> Fixed bug with <a href="ratings.php">ratings page</a> so they will actually show now.  </li> 
+    <li> Added season points breakdown into events, for season scoreboards. </li> 
+    <li> Another little statistic. </li>
+  </ul> 
+ </p> 
+ <p>
   <b> 2010-02-19 </b> - 
   This week we have some bugfixes for validation, which means that more of you will be able to validate with MTGO!  Also, I've added the tracking of season points to the system, so event organizers can track the season points within gatherling!  It was actually quite a big change.  It's the big 2.0.0, but there's not too much for the player (non-organizer).
   <ul> 
@@ -76,14 +85,6 @@ if (!is_null($event)) { ?>
     <li> Added Series Reports, where you can see the running points of any of the series.  Don't be surprised if the points are all 0 for the first few days/weeks, orgnaizers still need to put in what people get points for. </li> 
     <li> The <a href="ratings.php">ratings page</a> now has checkmarks for validated users just like everywhere else. </li>
     <li> Added some little statistics about how many players and decks we have (just above this news!) </li>
-  </ul>
- </p>
- <p> 
-  <b> 2010-02-12 </b> - 
-  Mostly bugfixes this week, and improvements to management interfaces.  We're getting close to v2.0.0, just because we're running out of numbers.  Thinking of adding some nifty-ness to the system next week just because it seems like I should.   I can't imagine it will be anything life-changing though.  Version numbers are meaningless in the end.
-  <ul> 
-    <li> Fixed bug with metagame report where it would not generate if a winner hadn't been declared. </li> 
-    <li> Fixed bug where deck identities weren't being calculated (making duplicate lists not show up) </li> 
   </ul>
  </p>
 <br /> 

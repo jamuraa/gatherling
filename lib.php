@@ -196,7 +196,8 @@ function hourDropMenu($hour) {
 }
 
 function version_tagline() { 
-  print "Gatherling version 2.0.0 (\"I'm here to keep you safe, Sam.  I want to help you.\")";
+  print "Gatherling version 2.0.1 (\"Use this to defend yourself. It's a powerful weapon.\")";
+  # print "Gatherling version 2.0.0 (\"I'm here to keep you safe, Sam.  I want to help you.\")";
   # print "Gatherling version 1.9.9 (\"You'd think they'd never seen a girl and a cat on a broom before\")";
   # print "Gatherling version 1.9.8 (\"I'm tellin' you, man, every third blink is slower.\")";
   # print "Gatherling version 1.9.7 (\"Try blue, it's the new red!\")";

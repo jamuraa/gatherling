@@ -910,6 +910,15 @@ class Player {
     $stmt->close(); 
     return $result;
   } 
-
+  
+  public static function verifiedCount() { 
+    $db = Database::getConnection(); 
+    $stmt = $db->prepare("SELECT count(name) FROM players where mtgo_confirmed = 1");
+    $stmt->execute(); 
+    $stmt->bind_result($result);
+    $stmt->fetch(); 
+    $stmt->close(); 
+    return $result;
+  } 
 }
 
