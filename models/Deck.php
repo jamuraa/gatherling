@@ -121,7 +121,7 @@ class Deck {
     
     $stmt->close();
     return $count;
-  } 
+  }
 
   function getCastingCosts() { 
     $db = Database::getConnection(); 

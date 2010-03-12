@@ -34,16 +34,26 @@ function eventList($series = "", $season = "") {
         LEFT OUTER JOIN entries AS n ON n.event = e.name 
         WHERE 1=1 AND e.start < NOW() GROUP BY e.name ORDER BY e.start DESC");
 
+  if (!isset($_POST['format'])) {
+    $_POST['format'] = "";
+  }
+  if (!isset($_POST['series'])) {
+    $_POST['series'] = "";
+  }
+  if (!isset($_POST['season'])) {
+    $_POST['season'] = "";
+  }
+
   $onlyformat = false;  
-  if(isset($_POST['format']) && strcmp($_POST['format'], "") != 0) {
+  if(strcmp($_POST['format'], "") != 0) {
     $onlyformat = $_POST['format'];
   }
   $onlyseries = false;
-  if(isset($_POST['series']) && strcmp($_POST['series'], "") != 0) {
+  if(strcmp($_POST['series'], "") != 0) {
     $onlyseries = $_POST['series'];
   }
   $onlyseason = false;
-  if(isset($_POST['season']) && strcmp($_POST['season'], "") != 0) {
+  if(strcmp($_POST['season'], "") != 0) {
     $onlyseason = $_POST['season'];
   }
   

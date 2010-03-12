@@ -69,6 +69,13 @@ function ratingsTable($format, $min=20) {
   $stmt->bind_result($playername, $rating, $wins, $losses);
 	$rank = 0;
 
+  $ratings_data = array();
+  while ($stmt->fetch()) { 
+    $rank++;
+    $ratings_data[] = array('rank' => $rank, 'playername' => $playername, 'rating' => $rating, 'wins' => $wins, 'losses' => $losses);
+  }
+  $stmt->close();
+
 	echo "<table align=\"center\" style=\"border-width: 0px;\" ";
 	echo "width=\"500px\">\n";
 	echo "<tr><td colspan=6 align=\"center\">";
@@ -79,18 +86,16 @@ function ratingsTable($format, $min=20) {
 	echo "<td><b>Player</td><td align=\"center\">";
 	echo "<b>Rating</td>";
   echo "<td align=\"center\" colspan=\"3\"><b>Record</td></tr>\n";
-  while($stmt->fetch()) { 
-		$rank++;
-    echo "<tr><td align=\"center\">$rank</td><td>";
-    $player = new Player($playername); 
+  foreach ($ratings_data as $vals) { 
+    echo "<tr><td align=\"center\">{$vals['rank']}</td><td>";
+    $player = new Player($vals['playername']); 
     echo $player->linkTo();
 		echo "</td>\n";
-		echo "<td align=\"center\">{$rating}</td>\n";
-		echo "<td align=\"right\" width=35>{$wins}&nbsp;</td>\n";
-		echo "<td align=\"center\">-</td><td width=35 align=\"left\">&nbsp;{$losses}</td></tr>";
+		echo "<td align=\"center\">{$vals['rating']}</td>\n";
+		echo "<td align=\"right\" width=35>{$vals['wins']}&nbsp;</td>\n";
+		echo "<td align=\"center\">-</td><td width=35 align=\"left\">&nbsp;{$vals['losses']}</td></tr>";
 	}	
   echo "</table>";
-  $stmt->close();
 }
 
 function bestEver($format) {

@@ -23,8 +23,8 @@ function print_header($title) {
       </div>
       <div id="mainmenu_submenu" class="grid_12">
         <ul>
-          <li><a href="http://pdcmagic.com/index.html">Home</a></li>
-          <li><a href="http://forums.pdcmagic.com">Forums</a></li>
+          <li><a href="http://pdcmagic.com/">Home</a></li>
+          <li><a href="http://forums.pdcmagic.com/">Forums</a></li>
           <li><a href="/wordpress/">Articles</a></li>
           <li><a href="/events/index.php">Events</a></li>
           <li class="current">
@@ -92,7 +92,7 @@ function print_footer() {
 } 
 
 function headerColor() {
-	global $HC, $CC, $R1;
+	global $HC, $CC, $R1, $R2;
 	$CC = $R2;
 	return $HC;
 }

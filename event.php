@@ -34,8 +34,6 @@ function content() {
     } else {
       authFailed();
     }
-	} elseif (strcmp($_GET['mode'], "create") == 0) {
-    eventForm();
   } elseif (strcmp($_POST['mode'], "Create Next Event") == 0) { 
     $oldevent = new Event($_POST['name']); 
     $newevent = new Event("");
@@ -58,12 +56,12 @@ function content() {
 
 		$newevent->name = sprintf("%s %d.%02d",$newevent->series, $newevent->season, $newevent->number);
 
-    eventForm($newevent, true); 
-  } elseif (isset($_POST['name'])) { 
-    $event = new Event($_POST['name']); 
-    if (!$event->authCheck($_SESSION['username'])) { 
-      authFailed(); 
-    } else { 
+    eventForm($newevent, true);
+  } elseif (isset($_POST['name'])) {
+    $event = new Event($_POST['name']);
+    if (!$event->authCheck($_SESSION['username'])) {
+      authFailed();
+    } else {
       if (strcmp($_POST['mode'], "Parse DCI Files") == 0) {
         dciInput();
       } elseif (strcmp($_POST['mode'], "Auto-Input Event Data") == 0) {
@@ -85,7 +83,9 @@ function content() {
       } 
       eventForm($event);
     }
-	} else {
+  } else {
+    if (!isset($_POST['series'])) { $_POST['series'] = ''; } 
+    if (!isset($_POST['season'])) { $_POST['season'] = ''; } 
 		eventList($_POST['series'], $_POST['season']);
 	}
 }
@@ -114,7 +114,8 @@ function eventList($series = "", $season = "") {
 	echo "<table class=\"form\" style=\"border-width: 0px\" align=\"center\">";
 	echo "<tr><td colspan=\"2\" align=\"center\"><b>Filters</td></tr>";
 	echo "<tr><td>&nbsp;</td></tr>";
-	echo "<tr><th>Format</th><td>";
+  echo "<tr><th>Format</th><td>";
+  if (!isset($_POST['format'])) { $_POST['format'] = ''; }
 	formatDropMenu($_POST['format'], 1);
 	echo "</td></tr>";
 	echo "<tr><th>Series</th><td>";
@@ -315,7 +316,7 @@ function playerList($event) {
   $numentries = count($entries);
 
   // Start a new form  
-  echo "<form action=\"event.php\" method=\"post\" ";
+  echo "<form action=\"event.php\" method=\"post\">";
   echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
   echo "<table style=\"border-width: 0px\" align=\"center\">";
   echo "<tr><td colspan=\"2\" align=\"center\">";
@@ -352,9 +353,11 @@ function playerList($event) {
 			if ($deckname == "") {$deckname = "* NO NAME *";}
 			$decklink = "<a href=\"deck.php?id={$entry->deck->id}&mode=view\">{$deckname}</a>";
 		}
-		$rstar = "<font color=\"#FF0000\">*</font>";
-		if($entry->deck->cardcount < 60) {$decklink .= $rstar;}
-		if($entry->deck->cardcount < 6) {$decklink .= $rstar;}
+    $rstar = "<font color=\"#FF0000\">*</font>";
+    if ($entry->deck != NULL) {
+      if($entry->deck->cardcount < 60) {$decklink .= $rstar;}
+      if($entry->deck->cardcount < 6) {$decklink .= $rstar;}
+    }
 		echo "<td>$decklink</td>";
 		echo "<td align=\"center\">";
 		echo "<input type=\"checkbox\" name=\"delentries[]\" ";
