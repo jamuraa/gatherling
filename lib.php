@@ -42,6 +42,7 @@ EOT;
 
   $super = false;
   $host = false;
+  $steward = false;
 
   if ($player != NULL) { 
     $host = $player->isHost();

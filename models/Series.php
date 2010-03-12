@@ -315,7 +315,7 @@ class Series {
     $stmt->close(); 
 
     // Or win as playerb
-    $stmt = $db->prepare("SELECT matches.playerb, count(matches.round) FROM events JOIN subevents JOIN matches ON events.name = subevents.parent AND subevents.id = matches.subevent WHERE subevents.timing = 1 AND events.number != 128 AND matches.result = 'B' AND events.series = ? AND events.season = ? GROUP BY matches.playera");
+    $stmt = $db->prepare("SELECT matches.playerb, count(matches.round) FROM events JOIN subevents JOIN matches ON events.name = subevents.parent AND subevents.id = matches.subevent WHERE subevents.timing = 1 AND events.number != 128 AND matches.result = 'B' AND events.series = ? AND events.season = ? GROUP BY matches.playerb");
     $stmt->bind_param("sd", $this->name, $season_number);
     $stmt->execute(); 
     $stmt->bind_result($playername, $matcheswon); 
@@ -351,7 +351,7 @@ class Series {
     $stmt->close(); 
 
     // Or lose as playerb
-    $stmt = $db->prepare("SELECT matches.playerb, count(matches.round) FROM events JOIN subevents JOIN matches ON events.name = subevents.parent AND subevents.id = matches.subevent WHERE subevents.timing = 1 AND events.number != 128 AND matches.result = 'A' AND events.series = ? AND events.season = ? GROUP BY matches.playera");
+    $stmt = $db->prepare("SELECT matches.playerb, count(matches.round) FROM events JOIN subevents JOIN matches ON events.name = subevents.parent AND subevents.id = matches.subevent WHERE subevents.timing = 1 AND events.number != 128 AND matches.result = 'A' AND events.series = ? AND events.season = ? GROUP BY matches.playerb");
     $stmt->bind_param("sd", $this->name, $season_number);
     $stmt->execute(); 
     $stmt->bind_result($playername, $matcheswon); 
