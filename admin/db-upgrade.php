@@ -50,11 +50,12 @@ $result = do_query("SELECT version FROM db_version LIMIT 1");
 $obj = $result->fetch_object();
 $version = $obj->version;
 
+$db->autocommit(FALSE); 
+
 if ($version < 2) { 
   echo "Updating to version 2... <br />";
   # Version 2 Changes: 
   #  - Add 'mtgo_confirmed', 'mtgo_challenge' field to players, and initialize them
-  $db->autocommit(FALSE);
   do_query("ALTER TABLE players ADD COLUMN (mtgo_confirmed tinyint(1), mtgo_challenge varchar(5))"); 
   do_query("UPDATE players SET mtgo_confirmed = 0");
   do_query("UPDATE players SET mtgo_challenge = NULL");
@@ -75,7 +76,6 @@ if ($version < 2) {
   #  - and of course, set the version number to 2. 
   do_query("UPDATE db_version SET version = 2");
   $db->commit();
-  $db->autocommit(TRUE);
   echo ".. DB now at version 2! <br />";
 }
 
@@ -84,12 +84,10 @@ if ($version < 3) {
   # Version 3 Changes: 
   #  - Add "series_stewards" table with playername, series name.
   #  - Add "day" and "time" to "series" table to track when they start (eastern times)
-  $db->autocommit(FALSE);
   do_query("CREATE TABLE series_stewards (player varchar(40), series varchar(40), FOREIGN KEY (player) REFERENCES players(name), FOREIGN KEY (series) REFERENCES series(name))");
   do_query("ALTER TABLE series ADD COLUMN (day ENUM('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), normalstart TIME)");
   do_query("UPDATE db_version SET version = 3");
   $db->commit(); 
-  $db->autocommit(TRUE);
   echo "... DB now at version 3! <br />";
 }
 
@@ -98,14 +96,25 @@ if ($version < 4) {
   # Version 4 changes: 
   #  - Add "series_seasons" table for tracking seasons in a series, and "standard" rewards for each season.
   #  - Add "player_points" table for tracking "extra" player points. 
-  $db->autocommit(FALSE); 
   do_query("CREATE TABLE series_seasons (series varchar(40), season integer, first_pts integer, second_pts integer, semi_pts integer, quarter_pts integer, participation_pts integer, rounds_pts integer, decklist_pts integer, win_pts integer, loss_pts integer, bye_pts integer, FOREIGN KEY (series) REFERENCES series(name), PRIMARY KEY(series, season))");
   do_query("CREATE TABLE season_points (series varchar(40), season integer, event varchar(40), player varchar(40), adjustment integer, reason varchar(140), FOREIGN KEY (series) REFERENCES series(name), FOREIGN KEY (event) REFERENCES event(name), FOREIGN KEY (player) REFERENCES player(name))"); 
 
   do_query("UPDATE db_version SET version = 4");
   $db->commit(); 
-  $db->autocommit(TRUE);
-
-  echo "... EB now at version 4! <br />";
+  echo "... DB now at version 4! <br />";
 } 
 
+if ($version < 5) { 
+  echo "Updating to version 5... <br />"; 
+
+  # Version 5 changes: 
+  #  - Add "must_decklist" column for series_seasons.
+  $db->autocommit(FALSE); 
+  do_query("ALTER TABLE series_seasons ADD COLUMN must_decklist integer");
+
+  do_query("UPDATE db_version SET version = 5");
+  $db->commit(); 
+  echo "... DB now at version 5! <br />";
+} 
+
+$db->autocommit(TRUE);
