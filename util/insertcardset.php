@@ -13,7 +13,7 @@ while(!feof($file)) {
   if(preg_match("/^(.*):\s+(.*)$/", $line, $matches)) {
     $card[$matches[1]] = $matches[2];
     if($matches[1] == "Set/Rarity") {
-      preg_match("/$set (Common|Uncommon|Rare)/", 
+      preg_match("/$set (Common|Uncommon|Rare|Mythic Rare)/", 
              $card[$matches[1]], $submatches);
       $card[$matches[1]] = $submatches[1];
       if($card['Set/Rarity'] == 'Common') {
@@ -40,8 +40,6 @@ function insertCard($card, $set, $stmt) {
   if (!$stmt->execute()) { 
     die($stmt->error);
   } 
-  #mysql_query($query, $db) or die(mysql_error());
-  #mysql_close($db);
 }
 
 function getConvertedCost($cost) {

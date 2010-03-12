@@ -8,6 +8,7 @@ print_header("PDCMagic.com | Gatherling | Deck Database");
 <div id="gatherling_main" class="box">
 <div class="uppertitle">Deck Database</div>
 <?php
+if (!isset($_GET['mode'])) { $_GET['mode'] = ''; }
 if (strcmp($_GET['mode'], "view") == 0) {
   $deck = NULL;
   if(isset($_GET['event'])) {
