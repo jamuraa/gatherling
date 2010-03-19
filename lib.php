@@ -211,26 +211,35 @@ function db_query_single() {
   $db = Database::getConnection(); 
   $stmt = $db->prepare($query);
   $stmt or die($db->error);
-  list($one, $two, $three, $four, $five, $six, $seven, $eight, $nine, $ten) = $params;
   if (count($params) == 1) { 
+    list($one) = $params;
     $stmt->bind_param($paramspec, $one); 
   } else if (count($params) == 2) { 
+    list($one, $two) = $params;
     $stmt->bind_param($paramspec, $one, $two); 
   } else if (count($params) == 3) { 
+    list($one, $two, $three) = $params;
     $stmt->bind_param($paramspec, $one, $two, $three); 
   } else if (count($params) == 4) { 
+    list($one, $two, $three, $four) = $params;
     $stmt->bind_param($paramspec, $one, $two, $three, $four); 
   } else if (count($params) == 5) { 
+    list($one, $two, $three, $four, $five) = $params;
     $stmt->bind_param($paramspec, $one, $two, $three, $four, $five); 
   } else if (count($params) == 6) { 
+    list($one, $two, $three, $four, $five, $six) = $params;
     $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six); 
   } else if (count($params) == 7) { 
+    list($one, $two, $three, $four, $five, $six, $seven) = $params;
     $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven); 
   } else if (count($params) == 8) { 
+    list($one, $two, $three, $four, $five, $six, $seven, $eight) = $params;
     $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven, $eight); 
   } else if (count($params) == 9) { 
+    list($one, $two, $three, $four, $five, $six, $seven, $eight, $nine) = $params;
     $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven, $eight, $nine); 
   } else if (count($params) == 10) { 
+    list($one, $two, $three, $four, $five, $six, $seven, $eight, $nine, $ten) = $params;
     $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven, $eight, $nine, $ten); 
   } 
 
@@ -243,7 +252,8 @@ function db_query_single() {
 } 
 
 function version_tagline() { 
-  print "Gatherling version 2.0.1 (\"Use this to defend yourself. It's a powerful weapon.\")";
+  print "Gatherling version 2.0.2 (\"Woah lady, I only speak two languages, English and bad English.\")"; 
+  # print "Gatherling version 2.0.1 (\"Use this to defend yourself. It's a powerful weapon.\")";
   # print "Gatherling version 2.0.0 (\"I'm here to keep you safe, Sam.  I want to help you.\")";
   # print "Gatherling version 1.9.9 (\"You'd think they'd never seen a girl and a cat on a broom before\")";
   # print "Gatherling version 1.9.8 (\"I'm tellin' you, man, every third blink is slower.\")";

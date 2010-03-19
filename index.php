@@ -69,6 +69,14 @@ if (!is_null($event)) { ?>
 <div class="uppertitle alpha omega grid_10"> Latest Gatherling News </div>
 <div class="clear"></div>
  <p> 
+  <b> 2010-03-19 </b> - 
+   More development of the Series support this week, including a page which will eventually replace the current events page.  Well, maybe sooner rather than later.   We still have less than 50 validated players.  In the future they will actually be useful I swear, so it's a good idea to verify your MTGO account with infobot!
+  <ul> 
+    <li> Events can now start on the half-hour.  All registrations still are assumed to happen 30 minutes before start time. </li> 
+    <li> Added the <a href="series.php">series page</a>, where you can get an overview of the current active series. </li>
+  </ul>
+ </p>
+ <p> 
   <b> 2010-03-12 </b> - 
   Took three weeks off of development, mostly for SPDC worlds (hectic, no updates) and because we were on break.  Fixed some bugs today and added some more goodness for the season scoreboards. 
   <ul> 
@@ -77,16 +85,6 @@ if (!is_null($event)) { ?>
     <li> Another little statistic. </li>
   </ul> 
  </p> 
- <p>
-  <b> 2010-02-19 </b> - 
-  This week we have some bugfixes for validation, which means that more of you will be able to validate with MTGO!  Also, I've added the tracking of season points to the system, so event organizers can track the season points within gatherling!  It was actually quite a big change.  It's the big 2.0.0, but there's not too much for the player (non-organizer).
-  <ul> 
-    <li> Fixed bug with validation not working if the capitalization was different (it doesn't matter on MTGO and doesn't matter here). </li> 
-    <li> Added Series Reports, where you can see the running points of any of the series.  Don't be surprised if the points are all 0 for the first few days/weeks, orgnaizers still need to put in what people get points for. </li> 
-    <li> The <a href="ratings.php">ratings page</a> now has checkmarks for validated users just like everywhere else. </li>
-    <li> Added some little statistics about how many players and decks we have (just above this news!) </li>
-  </ul>
- </p>
 <br /> 
 <div class="clear"></div>
 </div> <!-- box gatherlingnews -->
