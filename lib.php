@@ -133,11 +133,11 @@ function seasonDropMenu($season, $useall = 0) {
     numDropMenu("season", $title, max(10, $max + 1), $season);
 }
 
-function formatDropMenu($format, $useAll = 0) {
+function formatDropMenu($format, $useAll = 0, $form_name = 'format') {
     $db = Database::getConnection();
     $query = "SELECT name FROM formats ORDER BY priority desc, name";
     $result = $db->query($query) or die($db->error);
-    echo "<select name=\"format\">";
+    echo "<select name=\"{$form_name}\">";
     $title = ($useAll == 0) ? "- Format -" : "All";
     echo "<option value=\"\">$title</option>";
     while($thisFormat = $result->fetch_assoc()) {
@@ -199,6 +199,48 @@ function timeDropMenu($hour, $minutes = 0) {
 	}
 	echo "</select>";
 }
+
+function minutes($mins) { 
+  return $mins * 60; 
+} 
+
+function db_query_single() { 
+  $params = func_get_args();
+  $query = array_shift($params);
+  $paramspec = array_shift($params); 
+  $db = Database::getConnection(); 
+  $stmt = $db->prepare($query);
+  $stmt or die($db->error);
+  list($one, $two, $three, $four, $five, $six, $seven, $eight, $nine, $ten) = $params;
+  if (count($params) == 1) { 
+    $stmt->bind_param($paramspec, $one); 
+  } else if (count($params) == 2) { 
+    $stmt->bind_param($paramspec, $one, $two); 
+  } else if (count($params) == 3) { 
+    $stmt->bind_param($paramspec, $one, $two, $three); 
+  } else if (count($params) == 4) { 
+    $stmt->bind_param($paramspec, $one, $two, $three, $four); 
+  } else if (count($params) == 5) { 
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five); 
+  } else if (count($params) == 6) { 
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six); 
+  } else if (count($params) == 7) { 
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven); 
+  } else if (count($params) == 8) { 
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven, $eight); 
+  } else if (count($params) == 9) { 
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven, $eight, $nine); 
+  } else if (count($params) == 10) { 
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven, $eight, $nine, $ten); 
+  } 
+
+  $stmt->execute() or die($stmt->error);
+  $stmt->bind_result($result);
+
+  $stmt->fetch(); 
+  $stmt->close(); 
+  return $result;
+} 
 
 function version_tagline() { 
   print "Gatherling version 2.0.1 (\"Use this to defend yourself. It's a powerful weapon.\")";

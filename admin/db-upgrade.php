@@ -110,13 +110,25 @@ if ($version < 5) {
   # Version 5 changes: 
   #  - Add "must_decklist" column for series_seasons.
   #  - Add "cutoff_ord" column for series_seasons.
-  $db->autocommit(FALSE); 
   do_query("ALTER TABLE series_seasons ADD COLUMN must_decklist integer");
   do_query("ALTER TABLE series_seasons ADD COLUMN cutoff_ord integer");
 
   do_query("UPDATE db_version SET version = 5");
-  $db->commit 
+  $db->commit();
   echo "... DB now at version 5! <br />";
+} 
+
+if ($version < 6) { 
+  echo "Updting to version 6... <br />";
+
+  # Version 6 changes: 
+  #  - Add "format" column for series_seasons. 
+  #  - Add "master_link" column for series_seasons. 
+  do_query("ALTER TABLE series_seasons ADD COLUMN format varchar(40)");
+  do_query("ALTER TABLE series_seasons ADD COLUMN master_link varchar(140)"); 
+  do_query("UPDATE db_version SET version = 6"); 
+  $db->commit();
+  echo "... DB now at version 6! <br />";
 } 
 
 $db->autocommit(TRUE);
