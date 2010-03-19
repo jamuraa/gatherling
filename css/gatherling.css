@@ -18,4 +18,81 @@ table.scoreboard td {
 
 table.scoreboard .playername { 
   text-align: left;
+}
+
+.series { 
+  position: relative;
+  background: #ccc;
+  width: 700px; 
+  margin-left: auto; 
+  margin-right: auto; 
+  border-radius: 10px; 
+  min-height: 200px; 
+  margin-bottom: 20px; 
 } 
+
+.series .series-name { 
+  position: absolute; 
+  width: 400px; 
+  font-size: 36px; 
+  font-weight: bold; 
+  right: 0px; 
+} 
+
+.series .series-logo { 
+  position: absolute; 
+  width: 280px; 
+  height: 200px; 
+  left: 20px;
+  line-height: 200px; 
+  text-align: center;
+  vertical-align: center;
+} 
+
+.series .series-stewards { 
+  position: absolute;
+  width: 400px; 
+  right: 0px; 
+  top: 50px; 
+} 
+
+.series-stewards ul { 
+  display: inline-block; 
+  list-style-type: none; 
+  margin: 0; 
+  padding: 0;
+} 
+
+.series-stewards ul li { 
+  display: inline-block;
+  text-align: center;
+  font-weight: bold;
+  width: 100px; 
+  height: 20px; 
+  margin-left: 0; 
+} 
+
+.series .series-info { 
+  position: absolute; 
+  bottom: 0; 
+  right: 0; 
+  width: 400px; 
+  text-align: center; 
+}
+
+.series .series-info table { 
+  margin: 0; 
+  padding: 0; 
+  border-collapse: collapse;
+} 
+
+.series .series-info table th { 
+  text-align: right; 
+  vertical-align: baseline;
+  padding-right: 5px; 
+}
+
+#gatherling_main .series .series-info table td { 
+  vertical-align: baseline;
+}
+

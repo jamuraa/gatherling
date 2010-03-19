@@ -110,7 +110,8 @@ function printSeriesForm($series) {
   echo "</td></tr>";
   # Start time
   echo "<tr><th> Normal start time </th> <td> "; 
-  hourDropMenu($series->start_time);
+  $time_parts = explode(":", $series->start_time);
+  timeDropMenu($time_parts[0], $time_parts[1]);
   echo "</td> </tr>";  
   
   # Submit button 
@@ -139,16 +140,20 @@ function printStewardsForm($series) {
   echo "<input type=\"submit\" value=\"Update Organizers\" name=\"action\" /> ";
 }
 
-function printPointsRule($rule, $key, $rules, $formtype = 'text') { 
+function printPointsRule($rule, $key, $rules, $formtype = 'text', $size = 4) { 
   echo "<tr> <th> {$rule} </th>";
   if ($formtype == 'text') { 
-    echo "<td> <input type=\"text\" value=\"{$rules[$key]}\" name=\"new_rules[{$key}]\" /> </td> </tr> ";
+    echo "<td> <input type=\"text\" value=\"{$rules[$key]}\" name=\"new_rules[{$key}]\" size=\"{$size}\" /> </td> </tr> ";
   } else if ($formtype == 'checkbox') { 
     echo "<td> <input type=\"checkbox\" value=\"1\" name=\"new_rules[{$key}]\" ";
     if ($rules[$key] == 1) { 
       echo "checked "; 
     }
     echo " /> </td> </tr>";
+  } else if ($formtype == 'format') { 
+    echo "<td> ";
+    formatDropMenu($rules[$key], 0, "new_rules[{$key}]");
+    echo "</td> </tr>";
   } 
 } 
 
@@ -162,7 +167,7 @@ function printPointsForm($series) {
   echo "<form action=\"seriescp.php\">";
   echo "<input type=\"hidden\" name=\"series\" value=\"{$series->name}\" />";
   seasonDropMenu($chosen_season); 
-  echo "<input type=\"submit\" value=\"Choose\" />";
+  echo "<input type=\"submit\" value=\"Choose Season\" />";
   echo "</form>";
   echo "</center>";
   $seasonrules = $series->getSeasonRules($chosen_season);
@@ -170,7 +175,7 @@ function printPointsForm($series) {
   echo "<input type=\"hidden\" name=\"series\" value=\"{$series->name}\" />";
   echo "<input type=\"hidden\" name=\"season\" value=\"{$chosen_season}\" />";
   echo "<table class=\"form\" style=\"border-width: 0px;\" align=\"center\">";
-  echo "<tr> <th class=\"top\"> Event </th> <th class=\"top\"> Points </th></tr>";
+  echo "<tr> <th class=\"top\" colspan=\"2\"> Season {$chosen_season} Settings </th></tr>";
   printPointsRule("First Place", "first_pts", $seasonrules);    
   printPointsRule("Second Place", "second_pts", $seasonrules);    
   printPointsRule("Top 4", "semi_pts", $seasonrules);    
@@ -183,6 +188,8 @@ function printPointsForm($series) {
   printPointsRule("Posting a decklist", "decklist_pts", $seasonrules); 
   printPointsRule("Require decklist for points", "must_decklist", $seasonrules, 'checkbox');
   printPointsRule("WORLDS Cutoff (players)", "cutoff_ord", $seasonrules); 
+  printPointsRule("Master Document Location", "master_link", $seasonrules, 'text', 50); 
+  printPointsRule("Season Format", "format", $seasonrules, 'format');
   echo "<tr> <td colspan=\"2\" class=\"buttons\">";
   echo "<input type=\"submit\" name=\"action\" value=\"Update Points Rules\" />";
   echo "</td> </table> </form>";

@@ -526,6 +526,10 @@ class Event {
     return $this->makeLink($this->name);
   } 
 
+  public function linkReport() { 
+    return "<a href=\"eventreport.php?event=" . urlencode($this->name) . "\">{$this->name}</a>";
+  } 
+
   public static function count() { 
     $db = Database::getConnection(); 
     $stmt = $db->prepare("SELECT count(name) FROM events");

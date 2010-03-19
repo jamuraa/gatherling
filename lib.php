@@ -122,22 +122,6 @@ function medalImgStr($medal) {
 	return $ret;
 }
 
-function seriesDropMenu($series, $useall = 0) {
-    $db = Database::getConnection();
-    $query = "SELECT name FROM series ORDER BY isactive DESC, name";
-    $result = $db->query($query) or die($db->error);
-    echo "<select name=\"series\">";
-    $title = ($useall == 0) ? "- Series -" : "All";
-    echo "<option value=\"\">$title</option>";
-    while($thisSeries = $result->fetch_assoc()) {
-        $name = $thisSeries['name'];
-        $selStr = (strcmp($series, $name) == 0) ? "selected" : "";
-        echo "<option value=\"$name\" $selStr>$name</option>";
-    }
-    echo "</select>";
-    $result->close(); 
-}
-
 function seasonDropMenu($season, $useall = 0) {
     $db = Database::getConnection();
     $query = "SELECT MAX(season) AS m FROM events";
@@ -149,11 +133,11 @@ function seasonDropMenu($season, $useall = 0) {
     numDropMenu("season", $title, max(10, $max + 1), $season);
 }
 
-function formatDropMenu($format, $useAll = 0) {
+function formatDropMenu($format, $useAll = 0, $form_name = 'format') {
     $db = Database::getConnection();
     $query = "SELECT name FROM formats ORDER BY priority desc, name";
     $result = $db->query($query) or die($db->error);
-    echo "<select name=\"format\">";
+    echo "<select name=\"{$form_name}\">";
     $title = ($useAll == 0) ? "- Format -" : "All";
     echo "<option value=\"\">$title</option>";
     while($thisFormat = $result->fetch_assoc()) {
@@ -180,23 +164,96 @@ function numDropMenu($field, $title, $max, $def, $min = 0, $special="") {
     echo "</select>";
 }
 
-function hourDropMenu($hour) {
+function timeDropMenu($hour, $minutes = 0) {
 	if(strcmp($hour, "") == 0) {$hour = -1;}
 	echo "<select name=\"hour\">";
 	echo "<option value=\"\">- Hour -</option>";
 	for($h = 0; $h < 24; $h++) {
-		$selStr = ($hour == $h) ? "selected" : "";
-		$hstring = $h . " AM";
-		if($h == 0) {$hstring = "Midnight";}
-		elseif($h == 12) {$hstring = "Noon";}
-		elseif($h > 12) {$hstring = ($h - 12) . " PM";}
-		echo "<option value=\"$h\" $selStr>$hstring</option>";
+    for ($m = 0; $m < 60; $m += 30) {
+      $hstring = $h; 
+      if ($m == 0) {
+        $mstring = ":00"; 
+      } else { 
+        $mstring = ":$m";
+      } 
+      if ($h == 0) { 
+        $hstring = "12";
+      } 
+      $apstring = " AM";
+      if ($h >= 12) { 
+        $hstring = $h != 12 ? $h - 12 : $h;
+        $apstring = " PM";
+      }
+      if($h == 0 && $m == 0) {
+        $hstring = "Midnight";
+        $mstring = "";
+        $apstring = "";
+      } elseif ($h == 12 && $m == 0) {
+        $hstring = "Noon";
+        $mstring = "";
+        $apstring = "";
+      }
+      $selStr = ($hour == $h) && ($minutes == $m) ? "selected" : "";
+      echo "<option value=\"$h:$m\" $selStr>$hstring$mstring$apstring</option>";
+    } 
 	}
 	echo "</select>";
 }
 
+function minutes($mins) { 
+  return $mins * 60; 
+} 
+
+function db_query_single() { 
+  $params = func_get_args();
+  $query = array_shift($params);
+  $paramspec = array_shift($params); 
+  $db = Database::getConnection(); 
+  $stmt = $db->prepare($query);
+  $stmt or die($db->error);
+  if (count($params) == 1) { 
+    list($one) = $params;
+    $stmt->bind_param($paramspec, $one); 
+  } else if (count($params) == 2) { 
+    list($one, $two) = $params;
+    $stmt->bind_param($paramspec, $one, $two); 
+  } else if (count($params) == 3) { 
+    list($one, $two, $three) = $params;
+    $stmt->bind_param($paramspec, $one, $two, $three); 
+  } else if (count($params) == 4) { 
+    list($one, $two, $three, $four) = $params;
+    $stmt->bind_param($paramspec, $one, $two, $three, $four); 
+  } else if (count($params) == 5) { 
+    list($one, $two, $three, $four, $five) = $params;
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five); 
+  } else if (count($params) == 6) { 
+    list($one, $two, $three, $four, $five, $six) = $params;
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six); 
+  } else if (count($params) == 7) { 
+    list($one, $two, $three, $four, $five, $six, $seven) = $params;
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven); 
+  } else if (count($params) == 8) { 
+    list($one, $two, $three, $four, $five, $six, $seven, $eight) = $params;
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven, $eight); 
+  } else if (count($params) == 9) { 
+    list($one, $two, $three, $four, $five, $six, $seven, $eight, $nine) = $params;
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven, $eight, $nine); 
+  } else if (count($params) == 10) { 
+    list($one, $two, $three, $four, $five, $six, $seven, $eight, $nine, $ten) = $params;
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven, $eight, $nine, $ten); 
+  } 
+
+  $stmt->execute() or die($stmt->error);
+  $stmt->bind_result($result);
+
+  $stmt->fetch(); 
+  $stmt->close(); 
+  return $result;
+} 
+
 function version_tagline() { 
-  print "Gatherling version 2.0.1 (\"Use this to defend yourself. It's a powerful weapon.\")";
+  print "Gatherling version 2.0.2 (\"Woah lady, I only speak two languages, English and bad English.\")"; 
+  # print "Gatherling version 2.0.1 (\"Use this to defend yourself. It's a powerful weapon.\")";
   # print "Gatherling version 2.0.0 (\"I'm here to keep you safe, Sam.  I want to help you.\")";
   # print "Gatherling version 1.9.9 (\"You'd think they'd never seen a girl and a cat on a broom before\")";
   # print "Gatherling version 1.9.8 (\"I'm tellin' you, man, every third blink is slower.\")";

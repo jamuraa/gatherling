@@ -30,7 +30,7 @@ function selectSeason() {
 	echo "<form action=\"seriesreport.php\" method=\"get\">";
 	echo "<table class=\"form\" style=\"border-width: 0px\" align=\"center\">";
 	echo "<tr><th>Series</th><td>";
-	seriesDropMenu($_GET['series'], 1);
+  Series::dropMenu($_GET['series'], 1);
 	echo "</td></tr>";
 	echo "<tr><th>Season</th><td>";
 	seasonDropMenu($_GET['season'], 1);
