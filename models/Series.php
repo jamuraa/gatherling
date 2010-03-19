@@ -502,4 +502,20 @@ class Series {
     $stmt->close(); 
     return $cutoff;
   } 
+
+  public static function dropMenu($series, $useall = 0) { 
+    $db = Database::getConnection();
+    $query = "SELECT name FROM series ORDER BY isactive DESC, name";
+    $result = $db->query($query) or die($db->error);
+    echo "<select name=\"series\">";
+    $title = ($useall == 0) ? "- Series -" : "All";
+    echo "<option value=\"\">$title</option>";
+    while($thisSeries = $result->fetch_assoc()) {
+        $name = $thisSeries['name'];
+        $selStr = (strcmp($series, $name) == 0) ? "selected" : "";
+        echo "<option value=\"$name\" $selStr>$name</option>";
+    }
+    echo "</select>";
+    $result->close(); 
+  } 
 }

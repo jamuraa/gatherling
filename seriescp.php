@@ -110,7 +110,8 @@ function printSeriesForm($series) {
   echo "</td></tr>";
   # Start time
   echo "<tr><th> Normal start time </th> <td> "; 
-  hourDropMenu($series->start_time);
+  $time_parts = explode(":", $series->start_time);
+  timeDropMenu($time_parts[0], $time_parts[1]);
   echo "</td> </tr>";  
   
   # Submit button 

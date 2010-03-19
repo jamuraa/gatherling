@@ -65,7 +65,7 @@ function eventList($series = "", $season = "") {
   formatDropMenu($_POST['format'], 1);
   echo "</td></tr>";
   echo "<tr><td>Series</td><td>";
-  seriesDropMenu($_POST['series'], 1);
+  Series::dropMenu($_POST['series'], 1);
   echo "</td></tr>";
   echo "<tr><td>Season</td><td>";
   seasonDropMenu($_POST['season'], 1);

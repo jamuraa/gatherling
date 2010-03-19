@@ -22,15 +22,17 @@ function content() {
   $event = NULL;
   if(isset($_GET['name'])) {
     $event = new Event($_GET['name']);
-		eventForm($event);
-	} elseif (strcmp($_GET['mode'], "Create New Event") == 0) {
+    eventForm($event);
+  } elseif (strcmp($_POST['mode'], "Create New Event") == 0) { 
+    if (Player::getSessionPlayer()->isHost() && isset($_POST['insert'])) { 
+      insertEvent(); 
+      eventList(); 
+    } else { 
+      authFailed(); 
+    } 
+  } elseif (strcmp($_GET['mode'], "Create New Event") == 0) {
 		if(Player::getSessionPlayer()->isHost()) {
-			if(isset($_POST['insert'])) {
-				insertEvent();
-				eventList();
-      } else {
-        eventForm();
-      }	
+      eventForm();
     } else {
       authFailed();
     }
@@ -119,7 +121,7 @@ function eventList($series = "", $season = "") {
 	formatDropMenu($_GET['format'], 1);
 	echo "</td></tr>";
 	echo "<tr><th>Series</th><td>";
-	seriesDropMenu($_GET['series'], 1);
+  Series::dropMenu($_GET['series'], 1);
 	echo "</td></tr>";
 	echo "<tr><th>Season</th><td>";
 	seasonDropMenu($_GET['season'], 1);
@@ -184,11 +186,12 @@ function eventForm($event = NULL, $forcenew = false) {
 	echo "<table class=\"form\" style=\"border-width: 0px\" align=\"center\">";
 	if ($event->start != NULL) {
 		$date = $event->start;
-		preg_match('/([0-9]+)-([0-9]+)-([0-9]+) ([0-9]+):.*/', $date, $datearr);
+		preg_match('/([0-9]+)-([0-9]+)-([0-9]+) ([0-9]+):([0-9]+):.*/', $date, $datearr);
 		$year = $datearr[1];
 		$month = $datearr[2];
 		$day = $datearr[3];
-		$hour = $datearr[4];
+    $hour = $datearr[4];
+    $minutes = $datearr[5];
 		echo "<tr><th>Currently Editing</th>";
     echo "<td><i>{$event->name}</i>";
 		echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
@@ -221,11 +224,11 @@ function eventForm($event = NULL, $forcenew = false) {
 	echo "<tr><th>Date & Time</th><td>";
 	numDropMenu("year", "- Year -", 2010, $year, 2005);
 	monthDropMenu($month);
-	numDropMenu("day", "- Day- ", 31, $day, 1);
-	hourDropMenu($hour);
+  numDropMenu("day", "- Day- ", 31, $day, 1);
+	timeDropMenu($hour, $minutes);
 	echo "</td></tr>";
 	echo "<tr><th>Series</th><td>";
-	seriesDropMenu($event->series);
+  Series::dropMenu($event->series);
 	echo "</td></tr>";
 	echo "<tr><th>Season</th><td>";
 	seasonDropMenu($event->season);
@@ -587,7 +590,7 @@ function noEvent($event) {
 
 function insertEvent() {
   $event = new Event("");
-  $event->start = "{$_POST['year']}-{$_POST['month']}-{$_POST['day']} {$_POST['hour']}:00:00";
+  $event->start = "{$_POST['year']}-{$_POST['month']}-{$_POST['day']} {$_POST['hour']}:00";
 	if (strcmp($_POST['naming'], "auto") == 0) {
 		$event->name = sprintf("%s %d.%02d",$_POST['series'], $_POST['season'], 
 			$_POST['number']);

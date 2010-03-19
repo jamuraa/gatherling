@@ -122,22 +122,6 @@ function medalImgStr($medal) {
 	return $ret;
 }
 
-function seriesDropMenu($series, $useall = 0) {
-    $db = Database::getConnection();
-    $query = "SELECT name FROM series ORDER BY isactive DESC, name";
-    $result = $db->query($query) or die($db->error);
-    echo "<select name=\"series\">";
-    $title = ($useall == 0) ? "- Series -" : "All";
-    echo "<option value=\"\">$title</option>";
-    while($thisSeries = $result->fetch_assoc()) {
-        $name = $thisSeries['name'];
-        $selStr = (strcmp($series, $name) == 0) ? "selected" : "";
-        echo "<option value=\"$name\" $selStr>$name</option>";
-    }
-    echo "</select>";
-    $result->close(); 
-}
-
 function seasonDropMenu($season, $useall = 0) {
     $db = Database::getConnection();
     $query = "SELECT MAX(season) AS m FROM events";
@@ -180,17 +164,38 @@ function numDropMenu($field, $title, $max, $def, $min = 0, $special="") {
     echo "</select>";
 }
 
-function hourDropMenu($hour) {
+function timeDropMenu($hour, $minutes = 0) {
 	if(strcmp($hour, "") == 0) {$hour = -1;}
 	echo "<select name=\"hour\">";
 	echo "<option value=\"\">- Hour -</option>";
 	for($h = 0; $h < 24; $h++) {
-		$selStr = ($hour == $h) ? "selected" : "";
-		$hstring = $h . " AM";
-		if($h == 0) {$hstring = "Midnight";}
-		elseif($h == 12) {$hstring = "Noon";}
-		elseif($h > 12) {$hstring = ($h - 12) . " PM";}
-		echo "<option value=\"$h\" $selStr>$hstring</option>";
+    for ($m = 0; $m < 60; $m += 30) {
+      $hstring = $h; 
+      if ($m == 0) {
+        $mstring = ":00"; 
+      } else { 
+        $mstring = ":$m";
+      } 
+      if ($h == 0) { 
+        $hstring = "12";
+      } 
+      $apstring = " AM";
+      if ($h >= 12) { 
+        $hstring = $h != 12 ? $h - 12 : $h;
+        $apstring = " PM";
+      }
+      if($h == 0 && $m == 0) {
+        $hstring = "Midnight";
+        $mstring = "";
+        $apstring = "";
+      } elseif ($h == 12 && $m == 0) {
+        $hstring = "Noon";
+        $mstring = "";
+        $apstring = "";
+      }
+      $selStr = ($hour == $h) && ($minutes == $m) ? "selected" : "";
+      echo "<option value=\"$h:$m\" $selStr>$hstring$mstring$apstring</option>";
+    } 
 	}
 	echo "</select>";
 }
