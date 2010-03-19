@@ -139,7 +139,7 @@ class Series {
 
   public static function allNames() { 
     $db = Database::getConnection(); 
-    $stmt = $db->prepare("SELECT name FROM series"); 
+    $stmt = $db->prepare("SELECT series.name FROM series LEFT JOIN events ON events.series = series.name GROUP BY series.name ORDER BY isactive DESC, count(events.name) DESC, name"); 
     $stmt->execute(); 
     $stmt->bind_result($onename);
     $names = array(); 
@@ -504,18 +504,14 @@ class Series {
   } 
 
   public static function dropMenu($series, $useall = 0) { 
-    $db = Database::getConnection();
-    $query = "SELECT name FROM series ORDER BY isactive DESC, name";
-    $result = $db->query($query) or die($db->error);
+    $allseries = Series::allNames();
     echo "<select name=\"series\">";
     $title = ($useall == 0) ? "- Series -" : "All";
     echo "<option value=\"\">$title</option>";
-    while($thisSeries = $result->fetch_assoc()) {
-        $name = $thisSeries['name'];
-        $selStr = (strcmp($series, $name) == 0) ? "selected" : "";
-        echo "<option value=\"$name\" $selStr>$name</option>";
+    foreach ($allseries as $thisSeries) {
+      $selStr = (strcmp($series, $thisSeries) == 0) ? "selected" : "";
+      echo "<option value=\"$name\" $selStr>$thisSeries</option>";
     }
     echo "</select>";
-    $result->close(); 
   } 
 }
