@@ -24,16 +24,20 @@ function content() {
     $event = new Event($_GET['name']);
 		eventForm($event);
 	} elseif (strcmp($_GET['mode'], "Create New Event") == 0) {
-		if(Player::getSessionPlayer()->isHost()) {
-			if(isset($_POST['insert'])) {
-				insertEvent();
-				eventList();
-      } else {
-        eventForm();
-      }	
+		if (Player::getSessionPlayer()->isHost()) {
+      eventForm();
     } else {
       authFailed();
     }
+  } elseif (strcmp($_POST['mode'], "Create New Event") == 0) { 
+		if (Player::getSessionPlayer()->isHost()) {
+			if(isset($_POST['insert'])) {
+				insertEvent();
+				eventList($_POST['series'], $_POST['season']);
+      } 
+    } else {
+      authFailed();
+    } 
   } elseif (strcmp($_POST['mode'], "Create Next Event") == 0) { 
     $oldevent = new Event($_POST['name']); 
     $newevent = new Event("");

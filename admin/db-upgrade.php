@@ -110,12 +110,11 @@ if ($version < 5) {
   # Version 5 changes: 
   #  - Add "must_decklist" column for series_seasons.
   #  - Add "cutoff_ord" column for series_seasons.
-  $db->autocommit(FALSE); 
   do_query("ALTER TABLE series_seasons ADD COLUMN must_decklist integer");
   do_query("ALTER TABLE series_seasons ADD COLUMN cutoff_ord integer");
 
   do_query("UPDATE db_version SET version = 5");
-  $db->commit 
+  $db->commit();
   echo "... DB now at version 5! <br />";
 } 
 
