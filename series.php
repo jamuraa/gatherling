@@ -18,6 +18,9 @@ print_header("PDCMagic.com | Gatherling | Event Information");
 $active_series = Series::activeNames();
 
 foreach ($active_series as $series_name) {
+  if ($series_name == "Other") { 
+    continue;
+  } 
   $series = new Series($series_name);
 ?>
 <div class="series">
@@ -37,9 +40,9 @@ foreach ($active_series as $series_name) {
   </div> 
   <div class="series-info">
     <table> 
-    <tr> <th> Format </th> <td> <a href="<?php echo $formatforums[$series->this_season->format]; ?>">Pauper <?php echo $series->this_season->format ?></a> </td> </tr> 
+    <tr> <th> Format </th> <td> <a href="<?php echo $formatforums[$series->this_season_format]; ?>">Pauper <?php echo $series->this_season_format ?></a> </td> </tr> 
     <tr> <th> Regular Time </th> <td> <?php echo $series->start_day ?>, <?php echo strftime("%I:%M %P", strtotime($series->start_time)) ?> Eastern Time </td> </tr> 
-    <tr> <th> Rules </th> <td> <a href="<?php $series->this_season->master_link ?>">Season <?php $series->this_season->season ?> Master Document</a> </td> </tr> 
+    <tr> <th> Rules </th> <td> <a href="<?php echo $series->this_season_master_link ?>">Season <?php echo $series->this_season_season ?> Master Document</a> </td> </tr> 
     <tr> <th> Most Recent Event </th> <td> <?php echo $series->mostRecentEvent()->linkReport() ?> </td> </tr> 
     <?php 
     $nextevent = $series->nextEvent(); 

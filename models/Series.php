@@ -6,7 +6,11 @@ class Series {
   public $start_day;
   public $start_time;
   public $stewards; # has many :stewards, :through => series_stewards, :class_name => Player
-
+  
+  public $this_season_format;
+  public $this_season_master_link;
+  public $this_season_season;
+  
   function __construct($name) { 
     if ($name == "") { 
       $this->name = ""; 
@@ -41,6 +45,16 @@ class Series {
       $this->stewards[] = $one_player;
     } 
     $stmt->close();
+
+    // Most recent season
+    $this_season = $this->mostRecentEvent()->season;
+    $stmt = $db->prepare("SELECT format, master_link FROM series_seasons WHERE series = ? AND season = ?"); 
+    $stmt->bind_param("sd", $this->name, $this_season); 
+    $stmt->execute(); 
+    $stmt->bind_result($this->this_season_format, $this->this_season_master_link); 
+    $stmt->fetch();
+    $stmt->close();
+    $this->this_season_season = $this_season;
     
     $this->new = false;
   } 
@@ -164,7 +178,7 @@ class Series {
   }
 
   public function mostRecentEvent() { 
-    $result = db_query_single("SELECT events.name FROM events JOIN series ON series.name = events.series WHERE series.name = ? ORDER BY events.start DESC LIMIT 1", "s", $this->name);
+    $result = db_query_single("SELECT events.name FROM events JOIN series ON series.name = events.series WHERE series.name = ? AND events.start < NOW() ORDER BY events.start DESC LIMIT 1", "s", $this->name);
     return new Event($result);
   } 
 
@@ -550,7 +564,7 @@ class Series {
     echo "<option value=\"\">$title</option>";
     foreach ($allseries as $thisSeries) {
       $selStr = (strcmp($series, $thisSeries) == 0) ? "selected" : "";
-      echo "<option value=\"$name\" $selStr>$thisSeries</option>";
+      echo "<option value=\"$thisSeries\" $selStr>$thisSeries</option>";
     }
     echo "</select>";
   } 
