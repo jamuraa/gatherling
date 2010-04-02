@@ -365,13 +365,15 @@ function trophyCell($event) {
   if ($event->hastrophy) { 
     echo "<img src=\"displayTrophy.php?event={$event->name}\"><br />\n";
   } else { 
-    echo "No trophy available yet! <br />\n";
+    echo "<img src=\"/images/gatherling/notrophy.png\"><br />\n";
   } 
   $deck = $event->getPlaceDeck('1st');
-  if (!$deck) { 
+  $player = $event->getPlacePlayer('1st');
+  if (!$player) { 
     echo "No winner yet!";
   } else { 
-    echo $deck->getPlayer()->linkTo();
+    $playerwin = new Player($player);
+    echo $playerwin->linkTo();
     $info = deckInfo($deck);
     echo "<img src=\"/images/rename/{$info[1]}.gif\"> ";
     echo "<a href=\"deck.php?mode=view&id={$deck->id}\">";

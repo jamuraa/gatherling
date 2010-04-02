@@ -154,6 +154,12 @@ class Event {
     return $deck;
   } 
 
+  function getPlacePlayer($placing = "1st") { 
+    $playername = db_query_single("SELECT n.player from entries n, events e
+      WHERE e.name = n.event AND n.medal = ? AND e.name = ?", "ss", $placing, $this->name);
+    return $playername;
+  } 
+
   function getDecks() { 
     $db = Database::getConnection(); 
     $stmt = $db->prepare("SELECT deck FROM entries WHERE event = ? AND deck IS NOT NULL"); 
