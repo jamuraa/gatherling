@@ -15,7 +15,7 @@ function print_header($title) {
     <link rel="stylesheet" type="text/css" media="all" href="/css/text.css" />
     <link rel="stylesheet" type="text/css" media="all" href="/css/960.css" />
     <link rel="stylesheet" type="text/css" media="all" href="/css/pdcmagic.css" />
-    <link rel="stylesheet" type="test/css" media="all" href="/gatherling/css/gatherling.css" /> 
+    <link rel="stylesheet" type="text/css" media="all" href="/gatherling/css/gatherling.css" /> 
   </head>
   <body>
     <div id="maincontainer" class="container_12">
