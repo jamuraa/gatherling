@@ -66,6 +66,8 @@ function content() {
     } else {
       if (strcmp($_POST['mode'], "Parse DCI Files") == 0) {
         dciInput();
+      } elseif (strcmp($_POST['mode'], "Parse DCIv3 Files") == 0) {
+        dci3Input();
       } elseif (strcmp($_POST['mode'], "Auto-Input Event Data") == 0) {
         autoInput();
       } elseif(strcmp($_POST['mode'], "Update Registration") == 0) { 
@@ -306,7 +308,8 @@ function eventForm($event = NULL, $forcenew = false) {
 		} elseif (strcmp($view, "autoinput") == 0) {
 			autoInputForm($event);
 		} elseif (strcmp($view, "fileinput") == 0) {
-			fileInputForm($event);
+      fileInputForm($event);
+      file3InputForm($event);
     } elseif (strcmp($view, "points_adj") == 0) { 
       pointsAdjustmentForm($event);
     } 
@@ -1081,7 +1084,7 @@ function fileInputForm($event) {
   echo "<form action=\"event.php\" method=\"post\" ";
   echo "enctype=\"multipart/form-data\">";
   echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
-
+  echo "<h3><center>DCI version 2</center></h3>";
 	echo "<table style=\"border-width: 0px;\" align=\"center\">\n";
 	echo "<tr><td><b>*delt.dat</td><td>\n";
 	echo "<input type=\"file\" name=\"delt\" id=\"delt\" size=40></td></tr>\n";
@@ -1096,6 +1099,23 @@ function fileInputForm($event) {
   echo "</td></tr></table>\n";
 
 }
+
+function file3InputForm($event) { 
+  // Start a new form  
+  echo "<form action=\"event.php\" method=\"post\" ";
+  echo "enctype=\"multipart/form-data\">";
+  echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
+  echo "<h3><center>DCI version 3</center></h3>";
+	echo "<table style=\"border-width: 0px;\" align=\"center\">\n";
+	echo "<tr><td><b>*302.dat</td><td>\n";
+	echo "<input type=\"file\" name=\"302\" id=\"302\" size=40></td></tr>\n";
+	echo "<tr><td><b>*305.dat&nbsp;</td><td>\n";
+	echo "<input type=\"file\" name=\"305\" id=\"305\" size=40></td></tr>\n";
+	echo "<tr><td colspan=2 align=\"center\">\n";
+  echo "<input type=\"submit\" name=\"mode\" value=\"Parse DCIv3 Files\">\n";
+  echo "</form>\n";
+  echo "</td></tr></table>\n";
+} 
 
 function dciInput() {
 	$reg = array();
@@ -1183,4 +1203,72 @@ function dciinputplayoffs($reg, $data) {
   }
   $event->assignTropiesFromMatches();
 }
+
+function dci3Input() { 
+  $reg = array();
+  if ($_FILES['302']['size'] > 0) { 
+    $fileptr = fopen($_FILES['302']['tmp_name'], 'r'); 
+    $regfilecontent = fread($fileptr, filesize($_FILES['302']['tmp_name'])); 
+    fclose($fileptr); 
+    $reg = dci3register($regfilecontent); 
+  }
+  if ($_FILES['305']['size'] > 0) { 
+    $fileptr = fopen($_FILES['305']['tmp_name'], 'r'); 
+    $matchfilecontent = fread($fileptr, filesize($_FILES['305']['tmp_name'])); 
+    fclose($fileptr); 
+    dci3makematches($matchfilecontent, $reg); 
+  }
+} 
+
+function dci3register($data) { 
+  $event = new Event($_POST['name']);
+  $result = array();
+  $data = preg_replace("/\n/", "\n", $data);
+  $lines = split("\n", $data);
+  foreach ($lines as $line) { 
+    $table = split("\t", $line); 
+    if (count($table) > 5) {
+      $playernumber = $table[0];
+      $playername = $table[5];
+      $result[$playernumber] = $playername;
+      Player::findOrCreateByName($playername);
+      $event->addPlayer($playername);
+    }
+  } 
+  return $result;
+} 
+
+function dci3makematches($data, $regmap) { 
+  $event = new Event($_POST['name']);
+  $result = array();
+  $data = preg_replace("/\n/", "\n", $data);
+  $lines = split("\n", $data);
+  $playernumber = 1;
+  $lastroundnum = 0;
+  $alreadyin = array();
+  foreach ($lines as $line) { 
+    $table = split(",", $line);
+    var_dump($table);
+    $roundnum = $table[0];
+    $opponentnum = $table[1];
+    $win = $table[2];
+    if ($roundnum < $lastroundnum) { 
+      $playernumber++;
+    }
+    if (!isset($alreadyin["{$opponentnum}-{$playernumber}-{$roundnum}"])) {
+      // Match hasn't been added yet
+      $res = 'D';
+      if ($win == 3) { 
+        $res = 'A';
+      } elseif ($win == 0) { 
+        $res = 'B';
+      } 
+      $event->addMatch($regmap[$playernumber], $regmap[$opponentnum], $roundnum, $res);
+      $alreadyin["{$playernumber}-{$opponentnum}-{$roundnum}"] = 1;
+    }
+    $lastroundnum = $roundnum;
+  }  
+  $event->assignTropiesFromMatches();
+}
+
 ?>
