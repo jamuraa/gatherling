@@ -252,7 +252,8 @@ function db_query_single() {
 } 
 
 function version_tagline() { 
-  print "Gatherling version 2.0.2 (\"Woah lady, I only speak two languages, English and bad English.\")"; 
+  print "Gatherling version 2.0.3 (\"Are you hungry? I haven't eaten since later this afternoon.\")";
+  # print "Gatherling version 2.0.2 (\"Woah lady, I only speak two languages, English and bad English.\")"; 
   # print "Gatherling version 2.0.1 (\"Use this to defend yourself. It's a powerful weapon.\")";
   # print "Gatherling version 2.0.0 (\"I'm here to keep you safe, Sam.  I want to help you.\")";
   # print "Gatherling version 1.9.9 (\"You'd think they'd never seen a girl and a cat on a broom before\")";
