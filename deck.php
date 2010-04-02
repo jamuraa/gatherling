@@ -300,8 +300,11 @@ function deckInfoCell($deck) {
   } 
   $line1 = "<b>" . strtoupper($name) . "</b>";
   $deck_format = $event->format;
-	if($ncards < 6) {$line1 .= $rstar;}
-	if($ncards < 60) {$line1 .= $rstar;}
+	if ($ncards < 6) {$line1 .= $rstar;}
+  if ($ncards < 60) {
+    $line1 .= $rstar;
+    $line1 .= " ({$ncards} cards)";
+  }
 	$line2 = $event->format . " &middot; " . $deck->getColorImages() . " " . $deck->archetype;
 	$line3 .= "<i>(" . $deck->recordString() . ")</i>";
 
