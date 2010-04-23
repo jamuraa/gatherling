@@ -393,11 +393,23 @@ function pointsAdjustmentForm($event) {
   echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
   echo "<table style=\"border-width: 0px\" align=\"center\">";
 	echo "<input type=\"hidden\" name=\"view\" value=\"points_adj\">";
-  echo "<tr class=\"top\"> <th> Player </th> <th> Points <br /> Adjustment </th> <th> Reason </th> </tr>"; 
+  echo "<tr class=\"top\"> <th> Player </th> <th> </th> <th> Deck </th> <th> Points <br /> Adj. </th> <th> Reason </th> </tr>"; 
   foreach ($entries as $entry) { 
     $name = $entry->player->name;
     $adjustments = $event->getSeasonPointAdjustment($name);
     echo "<tr> <td> {$name} </td>"; 
+    if ($entry->medal != "") { 
+      $img = "<img src=\"/images/{$entry->medal}.gif\">";
+      echo "<td> {$img} </td>";
+    } else {  
+      echo "<td> </td>"; 
+    } 
+    if ($entry->deck != NULL) { 
+      $img = "<img src=\"/images/gatherling/verified.png\" title=\"Player posted deck\" />";
+      echo "<td> {$img} </td>";
+    } else {
+      echo "<td> </td>";
+    } 
     if ($adjustments != NULL) { 
       echo "<td style=\"text-align: center;\"> <input type=\"text\" style=\"width: 50px;\" name=\"adjustments[{$name}]\" value=\"{$adjustments['adjustment']}\" /> </td>";
       echo "<td> <input type=\"text\" style=\"width: 400px;\" name=\"reasons[{$name}]\" value=\"{$adjustments['reason']}\" /> </td>";

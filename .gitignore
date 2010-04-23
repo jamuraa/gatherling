@@ -1,0 +1,11 @@
+util/*.txt
+util/setpassword.php
+config.php
+css/960.css
+css/pdcmagic.css
+css/reset.css
+css/text.css
+gatherling
+images/
+nav/
+tmp/

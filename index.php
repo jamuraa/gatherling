@@ -69,18 +69,18 @@ if (!is_null($event)) { ?>
 <div class="uppertitle alpha omega grid_10"> Latest Gatherling News </div>
 <div class="clear"></div>
  <p> 
+  <b> 2010-04-23 </b> - 
+  Oh it has been a couple weeks since an update hasn't it?   Well, we have a small update today.  As my time wanes, I expect to have less time to work on gatherling.  I do still hope to have updates though!
+  <ul> 
+    <li> The deck edit page now lets you choose recent decks to start from.  Useful if you play the same deck often. </li> 
+  </ul> 
+ </p>
+ <p> 
   <b> 2010-04-02 </b> - 
    This week there's a pretty small update.  The validated player count is growing, which is a good thing, and the new features of the last couple of weeks have been well-received.  In the next few weeks don't expect too many changes (except for bugfixes) as I'm going into "the tank" to build some exciting new features.
   <ul> 
     <li> The <a href="series.php">series page</a> looks better in Firefox now. </li> 
     <li> When you have less than 60 cards in your deck, gatherling now gives a card-count </li> 
-  </ul>
- <p> 
-  <b> 2010-03-19 </b> - 
-   More development of the Series support this week, including a page which will eventually replace the current events page.  Well, maybe sooner rather than later.   We still have less than 50 validated players.  In the future they will actually be useful I swear, so it's a good idea to verify your MTGO account with infobot!
-  <ul> 
-    <li> Events can now start on the half-hour.  All registrations still are assumed to happen 30 minutes before start time. </li> 
-    <li> Added the <a href="series.php">series page</a>, where you can get an overview of the current active series. </li>
   </ul>
  </p>
 <br /> 

@@ -7,7 +7,7 @@ $R1 = "#EEEEEE";
 $R2 = "#FFFFFF";
 $CC = $R1;
 
-function print_header($title) { 
+function print_header($title, $js = null) { 
   echo "<html><head><meta http-equiv=\"X-UA-Compatible\" content=\"IE=8\" />";
   echo "<title>{$title}</title>";
   echo <<<EOT
@@ -16,6 +16,14 @@ function print_header($title) {
     <link rel="stylesheet" type="text/css" media="all" href="/css/960.css" />
     <link rel="stylesheet" type="text/css" media="all" href="/css/pdcmagic.css" />
     <link rel="stylesheet" type="text/css" media="all" href="/gatherling/css/gatherling.css" /> 
+EOT;
+  if ($js) {
+    echo "<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js\"></script>\n";
+    echo "<script type=\"text/javascript\">";
+    echo $js;
+    echo "</script>";
+  } 
+  echo <<<EOT
   </head>
   <body>
     <div id="maincontainer" class="container_12">
@@ -251,8 +259,15 @@ function db_query_single() {
   return $result;
 } 
 
+function json_headers() { 
+  header('Content-type: application/json');
+  header('Cache-Control: no-cache');
+  header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+} 
+
 function version_tagline() { 
-  print "Gatherling version 2.0.3 (\"Are you hungry? I haven't eaten since later this afternoon.\")";
+  print "Gatherling version 2.0.4 (\"This is no time to talk about time. We don't have the time!\")";
+  # print "Gatherling version 2.0.3 (\"Are you hungry? I haven't eaten since later this afternoon.\")";
   # print "Gatherling version 2.0.2 (\"Woah lady, I only speak two languages, English and bad English.\")"; 
   # print "Gatherling version 2.0.1 (\"Use this to defend yourself. It's a powerful weapon.\")";
   # print "Gatherling version 2.0.0 (\"I'm here to keep you safe, Sam.  I want to help you.\")";
