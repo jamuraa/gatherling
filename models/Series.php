@@ -385,7 +385,11 @@ class Series {
       if (!isset($result[$playername])) { 
         $result[$playername] = array();
       }
-      $result[$playername][$eventname] = $matcheswon;
+      if (isset($result[$playername][$eventname])) { 
+        $result[$playername][$eventname] += $matcheswon;
+      } else { 
+        $result[$playername][$eventname] = $matcheswon;
+      } 
     } 
     $stmt->close(); 
 
@@ -419,7 +423,11 @@ class Series {
       if (!isset($result[$playername])) { 
         $result[$playername] = array();
       }
-      $result[$playername][$eventname] = $matches;
+      if (isset($result[$playername][$eventname])) { 
+        $result[$playername][$eventname] += $matches;
+      } else { 
+        $result[$playername][$eventname] = $matches;
+      } 
     } 
     $stmt->close(); 
 
