@@ -266,7 +266,8 @@ function json_headers() {
 } 
 
 function version_tagline() { 
-  print "Gatherling version 2.0.3 (\"Are you hungry? I haven't eaten since later this afternoon.\")";
+  print "Gatherling version 2.0.4 (\"This is no time to talk about time. We don't have the time!\")";
+  # print "Gatherling version 2.0.3 (\"Are you hungry? I haven't eaten since later this afternoon.\")";
   # print "Gatherling version 2.0.2 (\"Woah lady, I only speak two languages, English and bad English.\")"; 
   # print "Gatherling version 2.0.1 (\"Use this to defend yourself. It's a powerful weapon.\")";
   # print "Gatherling version 2.0.0 (\"I'm here to keep you safe, Sam.  I want to help you.\")";
