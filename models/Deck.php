@@ -30,7 +30,8 @@ class Deck {
     $stmt->bind_result($this->name, $this->archetype, $this->notes, $this->deck_hash, $this->sideboard_hash, $this->whole_hash);
     
     if ($stmt->fetch() == NULL) { 
-      throw new Exception('Deck id '. $id .' has not been found.');
+      $this->id = 0;
+      return;
     }
 
     $this->id = $id; 

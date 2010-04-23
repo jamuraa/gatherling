@@ -1,7 +1,39 @@
 <?php session_start();
 require_once 'lib.php';
 
-print_header("PDCMagic.com | Gatherling | Deck Database");
+$js = <<<'EOD'
+
+function deckAjaxResult(data) { 
+  if (data.id != 0) { 
+    $("#deck-name").val(data.name);
+    $("#deck-archetype").val(data.archetype);
+    var decktext =  "";
+    for (var card in data.maindeck) { 
+      decktext = decktext + data.maindeck[card] + " " + card + "\n";
+    }
+    $("#deck-contents").val(decktext);
+    decktext = "";
+    for (var card in data.sideboard) { 
+      decktext = decktext + data.sideboard[card] + " " + card + "\n";
+    }
+    $("#deck-sideboard").val(decktext);
+  }
+} 
+
+$(document).ready(function() { 
+  $("#autoenter-deck").change(function() {
+    var selid = $("#autoenter-deck").val();
+    $.ajax({
+      url: 'ajax.php?deck=' + selid,  
+      success: deckAjaxResult
+    }); 
+    $("#autoenter-deck").val(0);
+  }); 
+}); 
+
+EOD;
+
+print_header("PDCMagic.com | Gatherling | Deck Database", $js);
 
 ?> 
 <div class="grid_10 suffix_1 prefix_1">
@@ -94,19 +126,27 @@ function deckForm($deck = NULL) {
 	echo "<font color=\"#FF0000\">Do not use a format such as \"1x Card\". ";
 	echo "The parser will not accept this structure. The correct pattern is ";
 	echo "\"1 Card\".</font></td></tr>\n";
-	echo "<tr><td>&nbsp;</td></tr>\n";
+  echo "<tr><td><b>Recent Decks</b></td>\n<td>\n"; 
+  echo "<select id=\"autoenter-deck\">\n";
+  echo "<option value=\"0\">Select a recent deck to start from there</option>\n";
+  $deckplayer = new Player($player);
+  $recentdecks = $deckplayer->getRecentDecks();
+  foreach ($recentdecks as $adeck) { 
+    echo "<option value=\"{$adeck->id}\">{$adeck->name}</option>\n";
+  } 
+  echo "</select></td></tr>";
 	echo "<tr><td><b>Name</td>\n<td>";
-	echo "<input type=\"text\" name=\"name\" value=\"{$vals['name']}\" ";
+	echo "<input id=\"deck-name\" type=\"text\" name=\"name\" value=\"{$vals['name']}\" ";
 	echo "size=\"40\"></td></tr>\n";
 	if(!is_null($deck)) {echo "<input type=\"hidden\" name=\"id\" value=\"{$deck->id}\">\n";}
 	echo "<tr><td><b>Archetype</td>\n<td>";
 	archetypeDropMenu($vals['archetype']);
 	echo "</td></tr>\n";
 	echo "<tr><td valign=\"top\"><b>Main Deck</td>\n<td>";
-	echo "<textarea rows=\"20\" cols=\"60\" name=\"contents\">";
+	echo "<textarea id=\"deck-contents\" rows=\"20\" cols=\"60\" name=\"contents\">";
 	echo "{$vals['contents']}</textarea></td></tr>\n";
 	echo "<tr><td valign=\"top\"><b>Sideboard</td>\n<td>";
-	echo "<textarea rows=\"10\" cols=\"60\" name=\"sideboard\">";
+	echo "<textarea id=\"deck-sideboard\" rows=\"10\" cols=\"60\" name=\"sideboard\">";
 	echo "{$vals['sideboard']}</textarea></td></tr>\n";
 	echo "<tr><td valign=\"top\"><b>Comments</td>\n<td>";
 	echo "<textarea rows=\"10\" cols=\"60\" name=\"notes\">";
@@ -123,7 +163,7 @@ function archetypeDropMenu($def) {
 	$db = Database::getConnection();
 	$result = $db->query("SELECT name FROM archetypes WHERE priority > 0
 		ORDER BY priority DESC, name");
-	echo "<select name=\"archetype\">\n";
+	echo "<select id=\"deck-archetype\" name=\"archetype\">\n";
 	echo "<option value=\"Rogue\">- Archetype -</option>\n";
 	while($arch = $result->fetch_assoc()) {
 		$name = $arch['name'];
