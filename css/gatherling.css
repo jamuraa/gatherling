@@ -49,6 +49,7 @@ table.scoreboard .playername {
   line-height: 200px; 
   text-align: center;
   vertical-align: center;
+  padding-top: 10px
 } 
 
 .series .series-stewards { 
@@ -56,6 +57,11 @@ table.scoreboard .playername {
   width: 400px; 
   right: 0px; 
   top: 50px; 
+}
+
+.series .series-logo img { 
+  max-width: 280px; 
+  max-height: 200px;
 } 
 
 .series-stewards ul { 

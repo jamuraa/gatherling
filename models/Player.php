@@ -97,7 +97,7 @@ class Player {
   } 
 
   function isHost() { 
-    return ($this->super == 1) || ($this->host == 1);
+    return ($this->super == 1) || (count($this->stewardsSeries()) > 0);
   } 
 
   function getHostedEvents() { 

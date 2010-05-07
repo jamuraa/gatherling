@@ -76,10 +76,11 @@ class Series {
   } 
 
   function isSteward($name) {
-    return in_array($name, $this->stewards);
+    return in_array(strtolower($name), array_map('strtolower', $this->stewards));
   }
 
   function addSteward($name) { 
+    if (empty($name)) { return; }
     $db = Database::getConnection(); 
     $stmt = $db->prepare("INSERT INTO series_stewards(series, player) VALUES(?, ?)");
     $stmt->bind_param("ss", $this->name, $name); 
@@ -539,7 +540,7 @@ class Series {
 
   public function getSeasonEventNames($season_number) { 
     $db = Database::getConnection(); 
-    $stmt = $db->prepare("SELECT name FROM events WHERE series = ? AND season = ? AND events.number != 128");
+    $stmt = $db->prepare("SELECT name FROM events WHERE series = ? AND season = ? AND events.number != 128 ORDER BY start");
     $stmt or die($db->error);
     $stmt->bind_param("sd", $this->name, $season_number);
     $stmt->execute(); 
@@ -565,8 +566,13 @@ class Series {
     return $cutoff;
   } 
 
-  public static function dropMenu($series, $useall = 0) { 
-    $allseries = Series::allNames();
+  public static function dropMenu($series, $useall = 0, $limitTo = array()) {
+    $allseries = array();
+    if (count($limitTo) == 0) {
+      $allseries = Series::allNames();
+    } else { 
+      $allseries = $limitTo;
+    } 
     echo "<select name=\"series\">";
     $title = ($useall == 0) ? "- Series -" : "All";
     echo "<option value=\"\">$title</option>";

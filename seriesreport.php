@@ -49,7 +49,7 @@ function reverse_total_sort($a, $b) {
   return ($a['.total'] < $b['.total']) ? 1 : -1; 
 } 
 
-function showReport($series, $season) { 
+function showReport($series, $season) {
   $seasonevents = $series->getSeasonEventNames($season);
   $points = $series->seasonPointsTable($season);
   $cutoff = $series->getSeasonCutoff($season);

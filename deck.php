@@ -33,7 +33,9 @@ $(document).ready(function() {
 
 EOD;
 
-print_header("PDCMagic.com | Gatherling | Deck Database", $js);
+$deckboxScript = "<script src=\"http://deckbox.org/javascripts/bin/tooltip.js\"></script>";
+
+print_header("PDCMagic.com | Gatherling | Deck Database", $js, $deckboxScript);
 
 ?> 
 <div class="grid_10 suffix_1 prefix_1">
@@ -227,24 +229,6 @@ function parseCards($text) {
   return $cardarr; 
 }
 
-function printCardResults($result) {
-	if(mysql_num_rows($result) == 0) {
-		echo "<i>This deck has no cards in this category.</i>\n";}
-	else {
-		$firstcard = mysql_fetch_assoc($result);
-		echo "{$firstcard['qty']} ";
-		echo "<a href=\"http://www.magiccards.info/autocard.php?card=";
-		echo "{$firstcard['name']}\" target=\"_blank\">";
-		echo "{$firstcard['name']}</a>";
-	}
-	while($card = mysql_fetch_assoc($result)) {
-		echo "<br>\n";
-		echo "{$card['qty']} ";
-		echo "<a href=\"http://www.magiccards.info/autocard.php?card=";
-		echo "{$card['name']}\" target=\"_blank\">{$card['name']}</a>";
-	}
-}
-
 function printPlaceString($medal) {
 	$str = "";
 	if(strcmp($medal, "t8") == 0) {$str = " - Top 8";}
@@ -376,10 +360,10 @@ function sideboardTable($deck) {
 	echo "<table style=\"border-width: 0px\" cellpadding=1>\n";
   echo "<tr><td colspan=1><b>SIDEBOARD</td></tr>\n";
   foreach ($sideboardcards as $card => $amt) {
-        echo "<tr><td>{$amt} ";
-        echo "<a href=\"http://www.magiccards.info/autocard.php?card=";
-        echo "{$card}\" target=\"_blank\">{$card}</a></td></tr>\n";
-    }
+    echo "<tr><td>{$amt} ";
+    printCardLink($card);
+    echo "</td></tr>";
+  }
 	echo "</table>\n";
 }
 
@@ -469,21 +453,21 @@ function maindeckTable($deck) {
 	echo "<tr><td colspan=1><b>MAINDECK</td></tr>\n";
   echo "<tr><td colspan=2><i>Creatures</td></tr>\n";
   foreach ($creatures as $card => $amt) { 
-		echo "<tr><td>{$amt} ";
-		echo "<a href=\"http://www.magiccards.info/autocard.php?card=";
-		echo "{$card}\" target=\"_blank\">{$card}</a></td></tr>\n";
+    echo "<tr><td>{$amt} ";
+    printCardLink($card);
+    echo "</td></tr>\n";
   }
 	echo "<tr><td colspan=2><i>Spells</td></tr>\n";
   foreach ($other as $card => $amt) { 
 		echo "<tr><td>{$amt} ";
-		echo "<a href=\"http://www.magiccards.info/autocard.php?card=";
-		echo "{$card}\" target=\"_blank\">{$card}</a></td></tr>\n";
+    printCardLink($card);
+    echo "</td></tr>\n";
 	}
 	echo "<tr><td colspan=2><i>Lands</td></tr>\n";
   foreach ($lands as $card => $amt) { 
 		echo "<tr><td>{$amt} ";
-		echo "<a href=\"http://www.magiccards.info/autocard.php?card=";
-		echo "{$card}\" target=\"_blank\">{$card}</a></td></tr>\n";
+    printCardLink($card);
+    echo "</td></tr>\n";
 	}
 	echo "</table>\n";
 }

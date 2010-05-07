@@ -7,7 +7,7 @@ $R1 = "#EEEEEE";
 $R2 = "#FFFFFF";
 $CC = $R1;
 
-function print_header($title, $js = null) { 
+function print_header($title, $js = null, $extra_head_content = "") { 
   echo "<html><head><meta http-equiv=\"X-UA-Compatible\" content=\"IE=8\" />";
   echo "<title>{$title}</title>";
   echo <<<EOT
@@ -23,6 +23,7 @@ EOT;
     echo $js;
     echo "</script>";
   } 
+  echo $extra_head_content;
   echo <<<EOT
   </head>
   <body>
@@ -115,9 +116,14 @@ function rowColor() {
 
 function linkToLogin() {
 	echo "<center>\n";
-    echo "Please <a href=\"login.php\">Click Here</a> to log in.\n";
+  echo "Please <a href=\"login.php\">Click Here</a> to log in.\n";
 	echo "</center>\n";
 }
+
+function printCardLink($card) { 
+  echo "<a href=\"http://www.deckbox.org/mtg/{$card}\"";
+  echo " target=\"_blank\">{$card}</a>";
+} 
 
 function noHost() {
 	echo "<center>\n";
@@ -266,7 +272,8 @@ function json_headers() {
 } 
 
 function version_tagline() { 
-  print "Gatherling version 2.0.4 (\"This is no time to talk about time. We don't have the time!\")";
+  print "Gatherling version 2.0.5 (\"No, that's perfectly normal paranoia. Everyone in the universe gets that.\")"; 
+  # print "Gatherling version 2.0.4 (\"This is no time to talk about time. We don't have the time!\")";
   # print "Gatherling version 2.0.3 (\"Are you hungry? I haven't eaten since later this afternoon.\")";
   # print "Gatherling version 2.0.2 (\"Woah lady, I only speak two languages, English and bad English.\")"; 
   # print "Gatherling version 2.0.1 (\"Use this to defend yourself. It's a powerful weapon.\")";
