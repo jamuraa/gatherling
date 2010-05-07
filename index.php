@@ -68,20 +68,21 @@ if (!is_null($event)) { ?>
 <div class="box" id="gatherling_news">
 <div class="uppertitle alpha omega grid_10"> Latest Gatherling News </div>
 <div class="clear"></div>
+ <p>
+  <b> 2010-05-07 </b> - 
+  Two weeks again since the update, but we have some interesting updates today.  There are some major improvements for the backend for hosts.  More interesting things will happen next week as I have a bunch of time.
+  <ul> 
+    <li> Popups of the cards on the deck list page </li> 
+    <li> Series scoreboards now sort their events by date </li>
+    <li> Series logos on the events page are now reasonably sized </li>
+  </ul>
+ </p>
  <p> 
   <b> 2010-04-23 </b> - 
   Oh it has been a couple weeks since an update hasn't it?   Well, we have a small update today.  As my time wanes, I expect to have less time to work on gatherling.  I do still hope to have updates though!
   <ul> 
     <li> The deck edit page now lets you choose recent decks to start from.  Useful if you play the same deck often. </li> 
   </ul> 
- </p>
- <p> 
-  <b> 2010-04-02 </b> - 
-   This week there's a pretty small update.  The validated player count is growing, which is a good thing, and the new features of the last couple of weeks have been well-received.  In the next few weeks don't expect too many changes (except for bugfixes) as I'm going into "the tank" to build some exciting new features.
-  <ul> 
-    <li> The <a href="series.php">series page</a> looks better in Firefox now. </li> 
-    <li> When you have less than 60 cards in your deck, gatherling now gives a card-count </li> 
-  </ul>
  </p>
 <br /> 
 <div class="clear"></div>
