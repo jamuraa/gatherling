@@ -43,7 +43,7 @@ function do_page() {
   if (count($player_series) > 1) { 
     printStewardSelect($player_series, $active_series_name); 
   } else { 
-    echo "<center> Managing {$active_series} </center>";
+    echo "<center> Managing {$active_series_name} </center>";
   } 
   $active_series = new Series($active_series_name);
   printError();
@@ -136,8 +136,9 @@ function printStewardsForm($series) {
     echo "/> </td> </tr>"; 
   } 
   echo "<tr> <td colspan=\"2\"> Add new: <input type=\"text\" name=\"addsteward\" /> </td> </tr> "; 
+  echo "<tr> <td colspan=\"2\" class=\"buttons\">"; 
+  echo "<input type=\"submit\" value=\"Update Organizers\" name=\"action\" /> </td> </tr> "; 
   echo "</table> ";
-  echo "<input type=\"submit\" value=\"Update Organizers\" name=\"action\" /> ";
 }
 
 function printPointsRule($rule, $key, $rules, $formtype = 'text', $size = 4) { 
@@ -278,7 +279,12 @@ function handleActions() {
       return; 
     } 
     $addition = $_POST['addsteward']; 
-    $addplayer = new Player($addition);
+    $addplayer = Player::findByName($addition);
+    if ($addplayer == NULL) { 
+      $hasError = true;
+      $errormsg .= "Can't add {$addition} to stewards, they don't exist!";
+      return; 
+    } 
     if ($addplayer->verified == 0 && Player::getSessionPlayer()->super == 0 ) { 
       $hasError = true;
       $errormsg .= "Can't add {$addition} to stewards, they aren't a verified user!";

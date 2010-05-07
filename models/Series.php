@@ -76,10 +76,11 @@ class Series {
   } 
 
   function isSteward($name) {
-    return in_array($name, $this->stewards);
+    return in_array(strtolower($name), array_map('strtolower', $this->stewards));
   }
 
   function addSteward($name) { 
+    if (empty($name)) { return; }
     $db = Database::getConnection(); 
     $stmt = $db->prepare("INSERT INTO series_stewards(series, player) VALUES(?, ?)");
     $stmt->bind_param("ss", $this->name, $name); 
