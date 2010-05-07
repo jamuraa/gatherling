@@ -540,7 +540,7 @@ class Series {
 
   public function getSeasonEventNames($season_number) { 
     $db = Database::getConnection(); 
-    $stmt = $db->prepare("SELECT name FROM events WHERE series = ? AND season = ? AND events.number != 128");
+    $stmt = $db->prepare("SELECT name FROM events WHERE series = ? AND season = ? AND events.number != 128 ORDER BY start");
     $stmt or die($db->error);
     $stmt->bind_param("sd", $this->name, $season_number);
     $stmt->execute(); 
