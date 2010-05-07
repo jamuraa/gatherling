@@ -25,8 +25,8 @@ function content() {
     eventForm($event);
   } elseif (strcmp($_POST['mode'], "Create New Event") == 0) { 
     if (Player::getSessionPlayer()->isHost() && isset($_POST['insert'])) { 
-      insertEvent(); 
-      eventList(); 
+      insertEvent();
+      eventList();
     } else { 
       authFailed(); 
     } 
@@ -95,13 +95,22 @@ function content() {
 }
 
 function eventList($series = "", $season = "") {
-	$db = Database::getConnection(); 
+  $db = Database::getConnection(); 
+  $player = Player::getSessionPlayer();
+  $playerSeries = $player->stewardsSeries();
+  $seriesEscaped = array();
+  foreach ($playerSeries as $oneSeries) { 
+    $seriesEscaped[] = $db->escape_string($oneSeries);
+  } 
+  $seriesString = '"' . implode('","', $seriesEscaped) . '"';
 	$query = "SELECT e.name AS name, e.format AS format,
 		COUNT(DISTINCT n.player) AS players, e.host AS host, e.start AS start,
 		e.finalized, e.cohost
 		FROM events e
 		LEFT OUTER JOIN entries AS n ON n.event = e.name 
-		WHERE 1=1";
+    WHERE (e.host = \"{$db->escape_string($player->name)}\" 
+           OR e.cohost = \"{$db->escape_string($player->name)}\"
+           OR e.series IN (" . $seriesString . "))";
 	if(isset($_GET['format']) && strcmp($_GET['format'], "") != 0) {
 		$query = $query . " AND e.format=\"{$db->escape_string($_GET['format'])}\" ";
 	}
@@ -111,7 +120,7 @@ function eventList($series = "", $season = "") {
 	if(isset($_GET['season']) && strcmp($_GET['season'], "") != 0) {
 		$query = $query . " AND e.season=\"{$db->escape_string($_GET['season'])}\" ";
 	}
-	$query = $query . " GROUP BY e.name ORDER BY e.start DESC LIMIT 100";
+  $query = $query . " GROUP BY e.name ORDER BY e.start DESC LIMIT 100";
 	$result = $db->query($query);
 
 	echo "<form action=\"event.php\" method=\"get\">";
@@ -123,7 +132,7 @@ function eventList($series = "", $season = "") {
 	formatDropMenu($_GET['format'], 1);
 	echo "</td></tr>";
 	echo "<tr><th>Series</th><td>";
-  Series::dropMenu($_GET['series'], 1);
+  Series::dropMenu($_GET['series'], 1, $playerSeries);
 	echo "</td></tr>";
 	echo "<tr><th>Season</th><td>";
 	seasonDropMenu($_GET['season'], 1);
@@ -230,7 +239,7 @@ function eventForm($event = NULL, $forcenew = false) {
 	timeDropMenu($hour, $minutes);
 	echo "</td></tr>";
 	echo "<tr><th>Series</th><td>";
-  Series::dropMenu($event->series);
+  Series::dropMenu($event->series, 0, Player::getSessionPlayer()->stewardsSeries());
 	echo "</td></tr>";
 	echo "<tr><th>Season</th><td>";
 	seasonDropMenu($event->season);

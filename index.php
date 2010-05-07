@@ -35,7 +35,7 @@ tournaments here, and your ratings for Pauper Magic will also be calculated.</p>
 if (!is_null($event)) { ?>
 <li> <a href="event.php?name=<?php echo $event->name ?>">Manage <?php echo $event->name ?></a> </li>
 <?php } ?> 
-<?php if ($player->host) { ?>
+<?php if ($player->isHost()) { ?>
 <li> <a href="event.php">Host Control Panel</a> </li>
 <?php } ?> 
 </ul>

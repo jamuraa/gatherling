@@ -565,8 +565,13 @@ class Series {
     return $cutoff;
   } 
 
-  public static function dropMenu($series, $useall = 0) { 
-    $allseries = Series::allNames();
+  public static function dropMenu($series, $useall = 0, $limitTo = array()) {
+    $allseries = array();
+    if (count($limitTo) == 0) {
+      $allseries = Series::allNames();
+    } else { 
+      $allseries = $limitTo;
+    } 
     echo "<select name=\"series\">";
     $title = ($useall == 0) ? "- Series -" : "All";
     echo "<option value=\"\">$title</option>";
