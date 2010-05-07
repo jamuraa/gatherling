@@ -7,7 +7,7 @@ $R1 = "#EEEEEE";
 $R2 = "#FFFFFF";
 $CC = $R1;
 
-function print_header($title, $js = null) { 
+function print_header($title, $js = null, $extra_head_content = "") { 
   echo "<html><head><meta http-equiv=\"X-UA-Compatible\" content=\"IE=8\" />";
   echo "<title>{$title}</title>";
   echo <<<EOT
@@ -23,6 +23,7 @@ EOT;
     echo $js;
     echo "</script>";
   } 
+  echo $extra_head_content;
   echo <<<EOT
   </head>
   <body>
@@ -115,9 +116,14 @@ function rowColor() {
 
 function linkToLogin() {
 	echo "<center>\n";
-    echo "Please <a href=\"login.php\">Click Here</a> to log in.\n";
+  echo "Please <a href=\"login.php\">Click Here</a> to log in.\n";
 	echo "</center>\n";
 }
+
+function printCardLink($card) { 
+  echo "<a href=\"http://www.deckbox.org/mtg/{$card}\"";
+  echo " target=\"_blank\">{$card}</a>";
+} 
 
 function noHost() {
 	echo "<center>\n";
