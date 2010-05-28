@@ -24,14 +24,14 @@ function content() {
     $event = new Event($_GET['name']);
     eventForm($event);
   } elseif (strcmp($_POST['mode'], "Create New Event") == 0) { 
-    if (Player::getSessionPlayer()->isHost() && isset($_POST['insert'])) { 
+    if (Player::getSessionPlayer()->isSteward() && isset($_POST['insert'])) { 
       insertEvent();
       eventList();
     } else { 
       authFailed(); 
     } 
   } elseif (strcmp($_GET['mode'], "Create New Event") == 0) {
-		if(Player::getSessionPlayer()->isHost()) {
+		if(Player::getSessionPlayer()->isSteward()) {
       eventForm();
     } else {
       authFailed();
@@ -105,7 +105,7 @@ function eventList($series = "", $season = "") {
   $seriesString = '"' . implode('","', $seriesEscaped) . '"';
 	$query = "SELECT e.name AS name, e.format AS format,
 		COUNT(DISTINCT n.player) AS players, e.host AS host, e.start AS start,
-		e.finalized, e.cohost
+		e.finalized, e.cohost, e.series
 		FROM events e
 		LEFT OUTER JOIN entries AS n ON n.event = e.name 
     WHERE (e.host = \"{$db->escape_string($player->name)}\" 
@@ -123,6 +123,19 @@ function eventList($series = "", $season = "") {
   $query = $query . " GROUP BY e.name ORDER BY e.start DESC LIMIT 100";
 	$result = $db->query($query);
 
+  $seriesShown = array();
+  $results = array();
+  while ($thisEvent = $result->fetch_assoc()) { 
+    $results[] = $thisEvent;
+    $seriesShown[] = $thisEvent['series'];
+  } 
+
+  if (isset($_GET['series'] ) && $_GET['series'] != "") { 
+    $seriesShown = $playerSeries;
+  } else {
+    $seriesShown = array_unique($seriesShown);
+  } 
+  
 	echo "<form action=\"event.php\" method=\"get\">";
 	echo "<table class=\"form\" style=\"border-width: 0px\" align=\"center\">";
 	echo "<tr><td colspan=\"2\" align=\"center\"><b>Filters</td></tr>";
@@ -132,14 +145,16 @@ function eventList($series = "", $season = "") {
 	formatDropMenu($_GET['format'], 1);
 	echo "</td></tr>";
 	echo "<tr><th>Series</th><td>";
-  Series::dropMenu($_GET['series'], 1, $playerSeries);
+  Series::dropMenu($_GET['series'], 1, $seriesShown);
 	echo "</td></tr>";
 	echo "<tr><th>Season</th><td>";
 	seasonDropMenu($_GET['season'], 1);
 	echo "</td></tr>";
 	echo "<tr><td>&nbsp;</td></tr>";
-	echo "<tr><td colspan=\"2\" class=\"buttons\">";
-  echo "<input type=\"submit\" name=\"mode\" value=\"Create New Event\" />\n";
+  echo "<tr><td colspan=\"2\" class=\"buttons\">";
+  if (count($playerSeries) > 0) {
+    echo "<input type=\"submit\" name=\"mode\" value=\"Create New Event\" />\n";
+  }
   echo "<input type=\"submit\" name=\"mode\" value=\"Filter Events\" />\n";
 	echo "</td></tr></table>";
 	echo "<table style=\"border-width: 0px\" align=\"center\" cellpadding=\"3\">";
@@ -150,7 +165,7 @@ function eventList($series = "", $season = "") {
 	#echo "<td><b>Date</td>";
 	echo "<td align=\"center\"><b>Finalized</td></tr>";
 	
-	while($thisEvent = $result->fetch_assoc()) {
+	foreach ($results as $thisEvent) {
 		$dateStr = $thisEvent['start'];
 		$dateArr = split(" ", $dateStr);
 		$date = $dateArr[0];
@@ -239,7 +254,7 @@ function eventForm($event = NULL, $forcenew = false) {
 	timeDropMenu($hour, $minutes);
 	echo "</td></tr>";
 	echo "<tr><th>Series</th><td>";
-  Series::dropMenu($event->series, 0, Player::getSessionPlayer()->stewardsSeries());
+  Series::dropMenu($event->series, 0, array_push(Player::getSessionPlayer()->stewardsSeries(), "Other"));
 	echo "</td></tr>";
 	echo "<tr><th>Season</th><td>";
 	seasonDropMenu($event->season);
@@ -643,7 +658,7 @@ function insertEvent() {
 
   $event->save(); 
 
-	if(strcmp($_POST['host'], $_SESSION['username']) != 0) {
+	if (strcmp($_POST['host'], $_SESSION['username']) != 0) {
     $event->addSteward($_SESSION['username']);
   }
 

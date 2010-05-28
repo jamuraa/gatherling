@@ -97,8 +97,12 @@ class Player {
   } 
 
   function isHost() { 
-    return ($this->super == 1) || (count($this->stewardsSeries()) > 0);
+    return ($this->super == 1) || (count($this->stewardsSeries()) > 0) || ($this->getHostedEventsCount() > 0);
   } 
+
+  function isSteward() { 
+    return ($this->super == 1) || (count($this->stewardsSeries()) > 0);
+  }
 
   function getHostedEvents() { 
     $db = Database::getConnection(); 
