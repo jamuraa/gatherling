@@ -253,8 +253,10 @@ function eventForm($event = NULL, $forcenew = false) {
   numDropMenu("day", "- Day- ", 31, $day, 1);
 	timeDropMenu($hour, $minutes);
 	echo "</td></tr>";
-	echo "<tr><th>Series</th><td>";
-  Series::dropMenu($event->series, 0, array_push(Player::getSessionPlayer()->stewardsSeries(), "Other"));
+  echo "<tr><th>Series</th><td>";
+  $seriesList = Player::getSessionPlayer()->stewardsSeries();
+  $seriesList[] = "Other";
+  Series::dropMenu($event->series, 0, $seriesList);
 	echo "</td></tr>";
 	echo "<tr><th>Season</th><td>";
 	seasonDropMenu($event->season);
