@@ -166,7 +166,7 @@ function archetypeDropMenu($def) {
 	$result = $db->query("SELECT name FROM archetypes WHERE priority > 0
 		ORDER BY priority DESC, name");
 	echo "<select id=\"deck-archetype\" name=\"archetype\">\n";
-	echo "<option value=\"Rogue\">- Archetype -</option>\n";
+	echo "<option value=\"Unclassified\">- Archetype -</option>\n";
 	while($arch = $result->fetch_assoc()) {
 		$name = $arch['name'];
 		$sel = (strcmp($name, $def) == 0) ? "selected" : "";

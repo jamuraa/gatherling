@@ -280,7 +280,7 @@ function fullmetagame($event) {
 }
 
 function deckInfo($deck) {
-	$ret = array("No Deck Submitted", "blackout", 0, "Rogue");
+	$ret = array("No Deck Submitted", "blackout", 0, "Unclassified");
   if(!is_null($deck)) {
     $colorstr = "";
     $row = $deck->getColorCounts();

@@ -131,4 +131,15 @@ if ($version < 6) {
   echo "... DB now at version 6! <br />";
 } 
 
+if ($version < 7) { 
+  echo "Updating to version 7... <br />";
+  
+  do_query("UPDATE decks SET archetype = 'Unclassified' WHERE archetype = 'Rogue'");
+  do_query("UPDATE archetypes SET name = 'Unclassified' WHERE name = 'Rogue'"); 
+
+  do_query("UPDATE db_version SET version = 7");
+  $db->commit();
+  echo "... DB now at version 7! <br />";
+} 
+
 $db->autocommit(TRUE);

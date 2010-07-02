@@ -28,7 +28,7 @@ INSERT INTO `archetypes` (`name`, `description`, `priority`) VALUES ('Aggro-Cont
 INSERT INTO `archetypes` (`name`, `description`, `priority`) VALUES ('Combo',NULL,2);
 INSERT INTO `archetypes` (`name`, `description`, `priority`) VALUES ('Combo-Control',NULL,1);
 INSERT INTO `archetypes` (`name`, `description`, `priority`) VALUES ('Control',NULL,2);
-INSERT INTO `archetypes` (`name`, `description`, `priority`) VALUES ('Rogue',NULL,0);
+INSERT INTO `archetypes` (`name`, `description`, `priority`) VALUES ('Unclassified',NULL,0);
 /*!40000 ALTER TABLE `archetypes` ENABLE KEYS */;
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `bans`;
