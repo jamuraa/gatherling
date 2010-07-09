@@ -77,14 +77,13 @@ class Player {
 
   function __construct($name) { 
     $database = Database::getConnection();
-    $stmt = $database->prepare("SELECT password, host, super, mtgo_confirmed FROM players WHERE name = ?");
+    $stmt = $database->prepare("SELECT name, password, host, super, mtgo_confirmed FROM players WHERE name = ?");
     $stmt->bind_param("s", $name);
     $stmt->execute();
-    $stmt->bind_result($this->password, $this->host, $this->super, $this->verified);
+    $stmt->bind_result($this->name, $this->password, $this->host, $this->super, $this->verified);
     if ($stmt->fetch() == NULL) {
       throw new Exception('Player '. $name .' is not found.');
     } 
-    $this->name = $name;
     $stmt->close();
   }
 

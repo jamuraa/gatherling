@@ -809,11 +809,7 @@ function updateReg() {
 
 	$new = chop($_POST['newentry']);
   if (strcmp($new, "") != 0) {
-    $player = Player::findByName($new); 
-    if (!$player) { 
-      $player = Player::createByName($new); 
-    } 
-    $event->addPlayer($player->name);
+    $event->addPlayer($new);
 	}
 }
 
@@ -989,8 +985,6 @@ function autoInput() {
 				$standings[$rnd][$playerB] - $standings[$rnd - 1][$playerB]>1)
 				{$winner = "B";}	
       }
-      $objplayera = Player::findOrCreateByName($playerA);
-      $objplayerb = Player::findOrCreateByName($playerB);
 
       $event->addPlayer($playerA); 
       $event->addPlayer($playerB);
@@ -1185,7 +1179,6 @@ function dciregister($data) {
 	for($ndx = 0; $ndx < sizeof($lines); $ndx++) {
 		$tokens = split(",", $lines[$ndx]);
     if(preg_match("/\"(.*)\"/", $tokens[3], $matches)) {
-      Player::findOrCreateByName($matches[1]);
       $event->addPlayer($matches[1]);
 			$ret[] = $matches[1];
 		}
@@ -1269,7 +1262,6 @@ function dci3register($data) {
       $playernumber = $table[0];
       $playername = $table[5];
       $result[$playernumber] = $playername;
-      Player::findOrCreateByName($playername);
       $event->addPlayer($playername);
     }
   } 

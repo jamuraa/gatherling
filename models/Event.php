@@ -361,7 +361,7 @@ class Event {
       $player = Player::findOrCreateByName($playername);
       $db = Database::getConnection(); 
       $stmt = $db->prepare("INSERT INTO entries(event, player) VALUES(?, ?)");
-      $stmt->bind_param("ss", $this->name, $playername); 
+      $stmt->bind_param("ss", $this->name, $player->name); 
       $stmt->execute(); 
       $stmt->close();
       $added = true;

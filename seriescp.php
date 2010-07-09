@@ -287,10 +287,10 @@ function handleActions() {
     } 
     if ($addplayer->verified == 0 && Player::getSessionPlayer()->super == 0 ) { 
       $hasError = true;
-      $errormsg .= "Can't add {$addition} to stewards, they aren't a verified user!";
+      $errormsg .= "Can't add {$addplayer->name} to stewards, they aren't a verified user!";
       return;
     }
-    $series->addSteward($addition); 
+    $series->addSteward($addplayer->name); 
   } else if ($_POST['action'] == "Update Points Rules") { 
     $new_rules = $_POST['new_rules']; 
     $series->setSeasonRules($_POST['season'], $new_rules); 
