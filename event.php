@@ -415,14 +415,14 @@ function pointsAdjustmentForm($event) {
   $entries = $event->getEntries();
 
   // Start a new form  
-  echo "<form action=\"event.php\" method=\"post\" ";
+  echo "<form action=\"event.php\" method=\"post\">";
   echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
   echo "<table style=\"border-width: 0px\" align=\"center\">";
 	echo "<input type=\"hidden\" name=\"view\" value=\"points_adj\">";
   echo "<tr class=\"top\"> <th> Player </th> <th> </th> <th> Deck </th> <th> Points <br /> Adj. </th> <th> Reason </th> </tr>"; 
   foreach ($entries as $entry) { 
     $name = $entry->player->name;
-    $adjustments = $event->getSeasonPointAdjustment($name);
+    $adjustment = $event->getSeasonPointAdjustment($name);
     echo "<tr> <td> {$name} </td>"; 
     if ($entry->medal != "") { 
       $img = "<img src=\"/images/{$entry->medal}.gif\">";
@@ -436,9 +436,9 @@ function pointsAdjustmentForm($event) {
     } else {
       echo "<td> </td>";
     } 
-    if ($adjustments != NULL) { 
-      echo "<td style=\"text-align: center;\"> <input type=\"text\" style=\"width: 50px;\" name=\"adjustments[{$name}]\" value=\"{$adjustments['adjustment']}\" /> </td>";
-      echo "<td> <input type=\"text\" style=\"width: 400px;\" name=\"reasons[{$name}]\" value=\"{$adjustments['reason']}\" /> </td>";
+    if ($adjustment != NULL) { 
+      echo "<td style=\"text-align: center;\"> <input type=\"text\" style=\"width: 50px;\" name=\"adjustments[{$name}]\" value=\"{$adjustment['adjustment']}\" /> </td>";
+      echo "<td> <input type=\"text\" style=\"width: 400px;\" name=\"reasons[{$name}]\" value=\"{$adjustment['reason']}\" /> </td>";
     } else { 
       echo "<td style=\"text-align: center;\"> <input type=\"text\" style=\"width: 50px;\" name=\"adjustments[{$name}]\" value=\"\" /> </td>";
       echo "<td> <input type=\"text\" style=\"width: 400px;\" name=\"reasons[{$name}]\" value=\"\" /> </td>";
