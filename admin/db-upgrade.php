@@ -136,7 +136,7 @@ if ($version < 7) {
   
   do_query("UPDATE decks SET archetype = 'Unclassified' WHERE archetype = 'Rogue'");
   do_query("UPDATE archetypes SET name = 'Unclassified' WHERE name = 'Rogue'"); 
-
+  do_query("ALTER TABLE events MODIFY COLUMN name VARCHAR(80)");
   do_query("UPDATE db_version SET version = 7");
   $db->commit();
   echo "... DB now at version 7! <br />";
