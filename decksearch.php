@@ -93,14 +93,16 @@ function content() {
     }
     $stmt->close(); 
   } else {
-    echo "<form method=\"get\" action=\"{$_SERVER['REQUEST_URI']}\"><table class=\"form\">";
-    echo "<tr><th>Deck name contains</th> <td>";
-    echo "<input type=\"text\" name=\"deck\"></td></tr>";
-    echo "<tr><th>Deck contains card</th><td>"; 
-    echo "<input type=\"text\" name=\"card\"></td></tr>";
-    echo "<tr><td colspan=2 class=\"buttons\">";
-    echo "<input type=\"submit\" value=\"Gimme some decks!\"></td></tr>";
-    echo "</table></form>";
+    ## SEARCH DISABLED UNTIL I CAN DEBUG IT
+    echo "<center><h3> Search disabled temporarily. Sorry for the inconvenience. </h3></center>";
+    #echo "<form method=\"get\" action=\"{$_SERVER['REQUEST_URI']}\"><table class=\"form\">";
+    #echo "<tr><th>Deck name contains</th> <td>";
+    #echo "<input type=\"text\" name=\"deck\"></td></tr>";
+    #echo "<tr><th>Deck contains card</th><td>"; 
+    #echo "<input type=\"text\" name=\"card\"></td></tr>";
+    #echo "<tr><td colspan=2 class=\"buttons\">";
+    #echo "<input type=\"submit\" value=\"Gimme some decks!\"></td></tr>";
+    #echo "</table></form>";
     echo "<table><tr><th colspan=2><b>MOST PLAYED DECKS</b></th></tr>";
     echo "<tr><th>Deck Name</th><th>Played</th></tr>";
     $db = Database::getConnection(); 
