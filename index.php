@@ -69,6 +69,16 @@ if (!is_null($event)) { ?>
 <div class="uppertitle alpha omega grid_10"> Latest Gatherling News </div>
 <div class="clear"></div>
  <p>
+  <b> 2010-07-30 </b> -
+  Wow, long time with no update.  Backend improvements mostly, and bugfixes for everyone.
+  <ul>
+    <li> Super new players now can actually do stuff before they have a match. </li>
+    <li> Standard events show up with a format correctly now on the events page. </li>
+    <li> Events page is standard throughout the site pointing to gatherling now. </li>
+    <li> Should be many less issues with players and capitalization of names. </li>
+    <li> "Rogue" as a decktype has been renamed to "Unclassified" to more accurately reflect reality. </li>
+ </p>
+ <p>
   <b> 2010-05-07 </b> - 
   Two weeks again since the update, but we have some interesting updates today.  There are some major improvements for the backend for hosts.  More interesting things will happen next week as I have a bunch of time.
   <ul> 
@@ -77,14 +87,7 @@ if (!is_null($event)) { ?>
     <li> Series logos on the events page are now reasonably sized </li>
   </ul>
  </p>
- <p> 
-  <b> 2010-04-23 </b> - 
-  Oh it has been a couple weeks since an update hasn't it?   Well, we have a small update today.  As my time wanes, I expect to have less time to work on gatherling.  I do still hope to have updates though!
-  <ul> 
-    <li> The deck edit page now lets you choose recent decks to start from.  Useful if you play the same deck often. </li> 
-  </ul> 
- </p>
-<br /> 
+<br />
 <div class="clear"></div>
 </div> <!-- box gatherlingnews -->
 </div> <!-- grid 10 pre 1 suff 1-->

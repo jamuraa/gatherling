@@ -7,7 +7,7 @@ $R1 = "#EEEEEE";
 $R2 = "#FFFFFF";
 $CC = $R1;
 
-function print_header($title, $js = null, $extra_head_content = "") { 
+function print_header($title, $js = null, $extra_head_content = "") {
   echo "<html><head><meta http-equiv=\"X-UA-Compatible\" content=\"IE=8\" />";
   echo "<title>{$title}</title>";
   echo <<<EOT
@@ -15,14 +15,14 @@ function print_header($title, $js = null, $extra_head_content = "") {
     <link rel="stylesheet" type="text/css" media="all" href="/css/text.css" />
     <link rel="stylesheet" type="text/css" media="all" href="/css/960.css" />
     <link rel="stylesheet" type="text/css" media="all" href="/css/pdcmagic.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="/gatherling/css/gatherling.css" /> 
+    <link rel="stylesheet" type="text/css" media="all" href="/gatherling/css/gatherling.css" />
 EOT;
   if ($js) {
     echo "<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js\"></script>\n";
     echo "<script type=\"text/javascript\">";
     echo $js;
     echo "</script>";
-  } 
+  }
   echo $extra_head_content;
   echo <<<EOT
   </head>
@@ -48,92 +48,92 @@ EOT;
       </div>
 EOT;
 
-  $player = Player::getSessionPlayer(); 
+  $player = Player::getSessionPlayer();
 
   $super = false;
   $host = false;
   $steward = false;
 
-  if ($player != NULL) { 
+  if ($player != NULL) {
     $host = $player->isHost();
     $super = $player->isSuper();
     $steward = count($player->stewardsSeries()) > 0;
-  } 
+  }
 
   $tabs = 5;
-  if ($super || $steward) { 
+  if ($super || $steward) {
     $tabs += 1;
   }
-  if ($host) { 
+  if ($host) {
     $tabs += 1;
   }
 
   echo <<<EOT
 <div id="submenu" class="grid_12 tabs_$tabs">
-  <ul> 
+  <ul>
     <li><a href="profile.php">Profile</a></li>
     <li><a href="player.php">Player CP</a></li>
     <li><a href="eventreport.php">Metagame</a></li>
     <li><a href="decksearch.php">Decks</a></li>
 EOT;
-  if ($host || $super) { 
+  if ($host || $super) {
     echo "<li><a href=\"event.php\">Host CP</a></li>\n";
-  } 
+  }
 
-  if ($steward || $super) { 
+  if ($steward || $super) {
     echo "<li><a href=\"seriescp.php\">Series CP</a></li>\n";
-  } 
+  }
 
-  if ($player == NULL) { 
-    echo "<li class=\"last\"><a href=\"login.php\">Login</a></li>\n"; 
-  } else { 
-    echo "<li class=\"last\"><a href=\"logout.php\">Logout [{$player->name}]</a></li>\n"; 
-  } 
+  if ($player == NULL) {
+    echo "<li class=\"last\"><a href=\"login.php\">Login</a></li>\n";
+  } else {
+    echo "<li class=\"last\"><a href=\"logout.php\">Logout [{$player->name}]</a></li>\n";
+  }
 
   echo "</ul> </div>\n";
-} 
+}
 
-function print_footer() { 
-  echo "<div class=\"grid_10 prefix_1 suffix_1\"> <div id=\"gatherling_footer\" class=\"box\">"; 
-  version_tagline(); 
+function print_footer() {
+  echo "<div class=\"grid_10 prefix_1 suffix_1\"> <div id=\"gatherling_footer\" class=\"box\">";
+  version_tagline();
   echo "</div> </div>";
-  echo "<div class=\"clear\"></div>\n"; 
+  echo "<div class=\"clear\"></div>\n";
   include_once('util/tracking.php');
-} 
+}
 
 function headerColor() {
-	global $HC, $CC, $R1, $R2;
-	$CC = $R2;
-	return $HC;
+  global $HC, $CC, $R1, $R2;
+  $CC = $R2;
+  return $HC;
 }
 
 function rowColor() {
-	global $CC, $R1, $R2;
-	if(strcmp($CC, $R1) == 0) {$CC = $R2;}
-	else {$CC = $R1;}
-	return $CC;
+  global $CC, $R1, $R2;
+  if(strcmp($CC, $R1) == 0) {$CC = $R2;}
+  else {$CC = $R1;}
+  return $CC;
 }
 
 function linkToLogin() {
-	echo "<center>\n";
+  echo "<center>\n";
   echo "Please <a href=\"login.php\">Click Here</a> to log in.\n";
-	echo "</center>\n";
+  echo "</center>\n";
 }
 
-function printCardLink($card) { 
+function printCardLink($card) {
   echo "<a href=\"http://www.deckbox.org/mtg/{$card}\"";
   echo " target=\"_blank\">{$card}</a>";
-} 
+}
 
 function noHost() {
-	echo "<center>\n";
-	echo "Only hosts and admins may access that page.</center>\n";
+  echo "<center>\n";
+  echo "Only hosts and admins may access that page.</center>\n";
 }
 
 function medalImgStr($medal) {
-	$ret = "<img style=\"border-width: 0px\" ";
-	$ret = $ret . "src=\"/images/" . $medal . ".gif\">";
-	return $ret;
+  $ret = "<img style=\"border-width: 0px\" ";
+  $ret = $ret . "src=\"/images/" . $medal . ".gif\">";
+  return $ret;
 }
 
 function seasonDropMenu($season, $useall = 0) {
@@ -179,22 +179,22 @@ function numDropMenu($field, $title, $max, $def, $min = 0, $special="") {
 }
 
 function timeDropMenu($hour, $minutes = 0) {
-	if(strcmp($hour, "") == 0) {$hour = -1;}
-	echo "<select name=\"hour\">";
-	echo "<option value=\"\">- Hour -</option>";
-	for($h = 0; $h < 24; $h++) {
+  if(strcmp($hour, "") == 0) {$hour = -1;}
+  echo "<select name=\"hour\">";
+  echo "<option value=\"\">- Hour -</option>";
+  for($h = 0; $h < 24; $h++) {
     for ($m = 0; $m < 60; $m += 30) {
-      $hstring = $h; 
+      $hstring = $h;
       if ($m == 0) {
-        $mstring = ":00"; 
-      } else { 
+        $mstring = ":00";
+      } else {
         $mstring = ":$m";
-      } 
-      if ($h == 0) { 
+      }
+      if ($h == 0) {
         $hstring = "12";
-      } 
+      }
       $apstring = " AM";
-      if ($h >= 12) { 
+      if ($h >= 12) {
         $hstring = $h != 12 ? $h - 12 : $h;
         $apstring = " PM";
       }
@@ -209,73 +209,74 @@ function timeDropMenu($hour, $minutes = 0) {
       }
       $selStr = ($hour == $h) && ($minutes == $m) ? "selected" : "";
       echo "<option value=\"$h:$m\" $selStr>$hstring$mstring$apstring</option>";
-    } 
-	}
-	echo "</select>";
+    }
+  }
+  echo "</select>";
 }
 
-function minutes($mins) { 
-  return $mins * 60; 
-} 
+function minutes($mins) {
+  return $mins * 60;
+}
 
-function db_query_single() { 
+function db_query_single() {
   $params = func_get_args();
   $query = array_shift($params);
-  $paramspec = array_shift($params); 
-  $db = Database::getConnection(); 
+  $paramspec = array_shift($params);
+  $db = Database::getConnection();
   $stmt = $db->prepare($query);
   $stmt or die($db->error);
-  if (count($params) == 1) { 
+  if (count($params) == 1) {
     list($one) = $params;
-    $stmt->bind_param($paramspec, $one); 
-  } else if (count($params) == 2) { 
+    $stmt->bind_param($paramspec, $one);
+  } else if (count($params) == 2) {
     list($one, $two) = $params;
-    $stmt->bind_param($paramspec, $one, $two); 
-  } else if (count($params) == 3) { 
+    $stmt->bind_param($paramspec, $one, $two);
+  } else if (count($params) == 3) {
     list($one, $two, $three) = $params;
-    $stmt->bind_param($paramspec, $one, $two, $three); 
-  } else if (count($params) == 4) { 
+    $stmt->bind_param($paramspec, $one, $two, $three);
+  } else if (count($params) == 4) {
     list($one, $two, $three, $four) = $params;
-    $stmt->bind_param($paramspec, $one, $two, $three, $four); 
-  } else if (count($params) == 5) { 
+    $stmt->bind_param($paramspec, $one, $two, $three, $four);
+  } else if (count($params) == 5) {
     list($one, $two, $three, $four, $five) = $params;
-    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five); 
-  } else if (count($params) == 6) { 
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five);
+  } else if (count($params) == 6) {
     list($one, $two, $three, $four, $five, $six) = $params;
-    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six); 
-  } else if (count($params) == 7) { 
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six);
+  } else if (count($params) == 7) {
     list($one, $two, $three, $four, $five, $six, $seven) = $params;
-    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven); 
-  } else if (count($params) == 8) { 
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven);
+  } else if (count($params) == 8) {
     list($one, $two, $three, $four, $five, $six, $seven, $eight) = $params;
-    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven, $eight); 
-  } else if (count($params) == 9) { 
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven, $eight);
+  } else if (count($params) == 9) {
     list($one, $two, $three, $four, $five, $six, $seven, $eight, $nine) = $params;
-    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven, $eight, $nine); 
-  } else if (count($params) == 10) { 
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven, $eight, $nine);
+  } else if (count($params) == 10) {
     list($one, $two, $three, $four, $five, $six, $seven, $eight, $nine, $ten) = $params;
-    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven, $eight, $nine, $ten); 
-  } 
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven, $eight, $nine, $ten);
+  }
 
   $stmt->execute() or die($stmt->error);
   $stmt->bind_result($result);
 
-  $stmt->fetch(); 
-  $stmt->close(); 
+  $stmt->fetch();
+  $stmt->close();
   return $result;
-} 
+}
 
-function json_headers() { 
+function json_headers() {
   header('Content-type: application/json');
   header('Cache-Control: no-cache');
   header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-} 
+}
 
-function version_tagline() { 
-  print "Gatherling version 2.0.5 (\"No, that's perfectly normal paranoia. Everyone in the universe gets that.\")"; 
+function version_tagline() {
+  print "Gatherlinv version 2.0.6 (\"We stole the Statue of Liberty! ...  The small one, from Las Vegas.\")";
+  # print "Gatherling version 2.0.5 (\"No, that's perfectly normal paranoia. Everyone in the universe gets that.\")";
   # print "Gatherling version 2.0.4 (\"This is no time to talk about time. We don't have the time!\")";
   # print "Gatherling version 2.0.3 (\"Are you hungry? I haven't eaten since later this afternoon.\")";
-  # print "Gatherling version 2.0.2 (\"Woah lady, I only speak two languages, English and bad English.\")"; 
+  # print "Gatherling version 2.0.2 (\"Woah lady, I only speak two languages, English and bad English.\")";
   # print "Gatherling version 2.0.1 (\"Use this to defend yourself. It's a powerful weapon.\")";
   # print "Gatherling version 2.0.0 (\"I'm here to keep you safe, Sam.  I want to help you.\")";
   # print "Gatherling version 1.9.9 (\"You'd think they'd never seen a girl and a cat on a broom before\")";
@@ -288,4 +289,4 @@ function version_tagline() {
   # print "Gatherling version 1.9.2 (\"So now you're the boss. You're the King of Bob.\")";
   # print "Gatherling version 1.9.1 (\"It's the United States of Don't Touch That Thing Right in Front of You.\")";
   # print "Gatherling version 1.9 (\"It's funny 'cause the squirrel got dead\")";
-} 
+}
