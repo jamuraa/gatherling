@@ -534,7 +534,6 @@ class Series {
         } 
       } 
     } 
-
     return $total_pointarray; 
   } 
 

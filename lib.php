@@ -36,7 +36,7 @@ EOT;
           <li><a href="http://pdcmagic.com/">Home</a></li>
           <li><a href="http://forums.pdcmagic.com/">Forums</a></li>
           <li><a href="/wordpress/">Articles</a></li>
-          <li><a href="/events/index.php">Events</a></li>
+          <li><a href="/gatherling/series.php">Events</a></li>
           <li class="current">
             <a href="index.php">
             Gatherling
@@ -272,7 +272,7 @@ function json_headers() {
 }
 
 function version_tagline() {
-  print "Gatherlinv version 2.0.6 (\"We stole the Statue of Liberty! ...  The small one, from Las Vegas.\")";
+  print "Gatherling version 2.0.6 (\"We stole the Statue of Liberty! ...  The small one, from Las Vegas.\")";
   # print "Gatherling version 2.0.5 (\"No, that's perfectly normal paranoia. Everyone in the universe gets that.\")";
   # print "Gatherling version 2.0.4 (\"This is no time to talk about time. We don't have the time!\")";
   # print "Gatherling version 2.0.3 (\"Are you hungry? I haven't eaten since later this afternoon.\")";

@@ -248,7 +248,7 @@ function eventForm($event = NULL, $forcenew = false) {
     $year = strftime('Y', time());
   }
   echo "<tr><th>Date & Time</th><td>";
-  numDropMenu("year", "- Year -", 2010, $year, 2005);
+  numDropMenu("year", "- Year -", 2011, $year, 2005);
   monthDropMenu($month);
   numDropMenu("day", "- Day- ", 31, $day, 1);
   timeDropMenu($hour, $minutes);
@@ -720,22 +720,28 @@ function insertTrophy() {
     $type = $file['type'];
 
     $f = fopen($tmp, 'rb');
-    $content = fread($f, filesize($tmp));
-    fclose($f);
+    #$content = fread($f, filesize($tmp));
+    #$db = Database::getConnection();
 
-    $db = Database::getConnection();
+    include('config.php');
+    $db = new PDO('mysql:unix_socket=/var/run/mysqld/mysqld.sock;dbname=' . $CONFIG['db_database'], $CONFIG['db_username'], $CONFIG['db_password']);
     $stmt = $db->prepare("DELETE FROM trophies WHERE event = ?");
-    $stmt->bind_param("s", $event);
-    $stmt->execute() or die($stmt->error);
-    $stmt->close();
+    $stmt->bindParam(1, $event, PDO::PARAM_STR);
+    $stmt->execute() or die($stmt->errorCode());
+    #$stmt->close();
 
     $stmt = $db->prepare("INSERT INTO trophies(event, size, type, image)
       VALUES(?, ?, ?, ?)");
-    $null = NULL;
-    $stmt->bind_param("sdsb", $event, $size, $type, $null);
-    $stmt->send_long_data(3, $content);
-    $stmt->execute() or die($stmt->error);
-    $stmt->close();
+    $stmt->bindParam(1, $event, PDO::PARAM_STR);
+    $stmt->bindParam(2, $size, PDO::PARAM_INT);
+    $stmt->bindParam(3, $type, PDO::PARAM_STR);
+    $stmt->bindParam(4, $f, PDO::PARAM_LOB);
+    #$stmt->bind_param("sdsb", $event, $size, $type, $null);
+    #$stmt->send_long_data(3, $content);
+    $stmt->execute() or die($stmt->errorCode());
+    fclose($f);
+    #$stmt->close();
+    
     return true;
   }
 }
