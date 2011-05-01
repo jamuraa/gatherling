@@ -133,13 +133,25 @@ if ($version < 6) {
 
 if ($version < 7) { 
   echo "Updating to version 7... <br />";
-  
+
   do_query("UPDATE decks SET archetype = 'Unclassified' WHERE archetype = 'Rogue'");
   do_query("UPDATE archetypes SET name = 'Unclassified' WHERE name = 'Rogue'"); 
   do_query("ALTER TABLE events MODIFY COLUMN name VARCHAR(80)");
   do_query("UPDATE db_version SET version = 7");
   $db->commit();
   echo "... DB now at version 7! <br />";
-} 
+}
+
+if ($version < 8) {
+  echo "Updating to version 8 (alter tables that reference event to have longer name too, make trophy image column larger).... <br />";
+
+  do_query("ALTER TABLE entries MODIFY COLUMN event VARCHAR(80)");
+  do_query("ALTER TABLE trophies MODIFY COLUMN event VARCHAR(80)");
+  do_query("ALTER TABLE trophies MODIFY COLUMN image MEDIUMBLOB");
+  do_query("ALTER TABLE subevents MODIFY COLUMN parent VARCHAR(80)");
+  do_query("ALTER TABLE stewards MODIFY COLUMN event VARCHAR(80)");
+  db->commit();
+  echo "... DB now at version 8! <br />";
+}
 
 $db->autocommit(TRUE);
