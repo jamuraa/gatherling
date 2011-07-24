@@ -317,7 +317,7 @@ function initArchetypeCount() {
 }
 
 function imageCell($event) {
-	echo "<img width=150 height=150 src=\"displaySeries.php?series=$event->series\">";
+	echo "<div class=\"series-logo\"><img src=\"displaySeries.php?series=$event->series\"></div>";
 }
 
 function infoCell($event) {
