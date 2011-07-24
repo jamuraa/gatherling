@@ -63,6 +63,7 @@ class Event {
     $this->name = $name;
 
     // Main rounds
+    $this->mainid = NULL; $this->mainrounds = ""; $this->mainstruct = "";
     $stmt = $db->prepare("SELECT id, rounds, type FROM subevents
       WHERE parent = ? AND timing = 1"); 
     $stmt->bind_param("s", $this->name); 
@@ -72,6 +73,7 @@ class Event {
     $stmt->close(); 
 
     // Final rounds
+    $this->finalid = NULL; $this->finalrounds = ""; $this->finalstruct = "";
     $stmt = $db->prepare("SELECT id, rounds, type FROM subevents
       WHERE parent = ? AND timing = 2"); 
     $stmt->bind_param("s", $this->name); 
@@ -100,8 +102,8 @@ class Event {
         VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)");
       $stmt->bind_param("sssssdddssss", $this->name, $this->start, $this->format, $this->host, $this->cohost, $this->kvalue, $this->number, $this->season, $this->series, $this->threadurl, $this->reporturl, $this->metaurl); 
       $stmt->execute() or die($stmt->error);
-      $stmt->close(); 
-      
+      $stmt->close();
+
       $this->newSubevent($this->mainrounds, 1, $this->mainstruct);
       $this->newSubevent($this->finalrounds, 2, $this->finalstruct);
 
@@ -115,15 +117,23 @@ class Event {
       $stmt->execute() or die($stmt->error);
       $stmt->close(); 
 
-      $main = new Subevent($this->mainid); 
-      $main->rounds = $this->mainrounds; 
-      $main->type = $this->mainstruct;
-      $main->save(); 
+      if ($this->mainid == NULL) {
+        $this->newSubevent($this->mainrounds, 1, $this->mainstruct);
+      } else {
+        $main = new Subevent($this->mainid);
+        $main->rounds = $this->mainrounds; 
+        $main->type = $this->mainstruct;
+        $main->save(); 
+      }
 
-      $final = new Subevent($this->finalid);
-      $final->rounds = $this->finalrounds; 
-      $final->type = $this->finalstruct; 
-      $final->save();
+      if ($this->finalid == NULL) {
+        $this->newSubevent($this->finalrounds, 2, $this->finalstruct);
+      } else {
+        $final = new Subevent($this->finalid);
+        $final->rounds = $this->finalrounds; 
+        $final->type = $this->finalstruct; 
+        $final->save();
+      }
     }
   } 
 

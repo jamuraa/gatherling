@@ -42,7 +42,6 @@ function content() {
     $newevent->season = $oldevent->season;
     $newevent->number = $oldevent->number + 1;
     $newevent->format = $oldevent->format;
-    //$newevent->start = "{$_POST['year']}-{$_POST['month']}-{$_POST['day']} {$_POST['hour']}:00:00";
     $newevent->start = strftime("%Y-%m-%d %H:00:00", strtotime($oldevent->start) + (86400 * 7));
     $newevent->kvalue = $oldevent->kvalue;
     $newevent->finalized = 0;
@@ -670,7 +669,7 @@ function insertEvent() {
 function updateEvent() {
   $event = new Event($_POST['name']);
   $event->start = "{$_POST['year']}-{$_POST['month']}-{$_POST['day']} {$_POST['hour']}:00:00";
-  $event->finalize = $_POST['finalize'] == 1 ? 1 : 0;
+  $event->finalized = $_POST['finalized'] == 1 ? 1 : 0;
 
   $event->format = $_POST['format'];
   $event->host = $_POST['host'];
@@ -682,7 +681,6 @@ function updateEvent() {
   $event->threadurl = $_POST['threadurl'];
   $event->metaurl = $_POST['metaurl'];
   $event->reporturl = $_POST['reporturl'];
-  $event->finalized = $_POST['finalized'];
 
   if($_POST['mainrounds'] == "") {$_POST['mainrounds'] = 3;}
   if($_POST['mainstruct'] == "") {$_POST['mainstruct'] = "Swiss";}
