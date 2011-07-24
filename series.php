@@ -20,8 +20,11 @@ $active_series = Series::activeNames();
 foreach ($active_series as $series_name) {
   if ($series_name == "Other") { 
     continue;
-  } 
+  }
   $series = new Series($series_name);
+  if (strtotime($series->mostRecentEvent()->start) + (86400 * 7 * 4) < time() && !$series->nextEvent()) {
+    continue;
+  }
 ?>
 <div class="series">
   <div class="series-name">
