@@ -11,19 +11,24 @@ class Deck {
 
   public $cardcount = 0;
 
+  public $errors = array();
+
   public $playername; // Belongs to player through entries
   public $eventname; // Belongs to event thorugh entries
 
   public $medal; // has a medal
 
+  public $new; // is new
+
   function __construct($id) { 
     if ($id == 0) { 
       $this->id = 0;
+      $this->new = true;
       return;
     } 
     $database = Database::getConnection(); 
     $stmt = $database->prepare("SELECT name, archetype, notes, deck_hash, sideboard_hash, whole_hash
-      FROM decks d 
+      FROM decks d
       WHERE id = ?");
     $stmt->bind_param("d", $id);
     $stmt->execute();
@@ -31,9 +36,11 @@ class Deck {
     
     if ($stmt->fetch() == NULL) { 
       $this->id = 0;
+      $this->new = true;
       return;
     }
 
+    $this->new = false;
     $this->id = $id; 
 
     $stmt->close();
@@ -46,16 +53,17 @@ class Deck {
     $stmt->bind_result($cardname, $cardqty, $isside);
 
     $this->cardcount = 0;
-    while ($stmt->fetch()) { 
+    while ($stmt->fetch()) {
       if ($isside == 0) {
         $this->maindeck_cards[$cardname] = $cardqty;
         $this->cardcount += $cardqty;
-      } else { 
+      } else {
         $this->sideboard_cards[$cardname] = $cardqty;
       }
-    } 
+    }
 
     $stmt->close();
+
     // Retrieve player
     $stmt = $database->prepare("SELECT p.name 
       FROM players p, entries e, decks d
@@ -66,6 +74,7 @@ class Deck {
     $stmt->fetch(); 
 
     $stmt->close();
+
     // Retrieve event 
     $stmt = $database->prepare("SELECT e.name
       FROM events e, entries n, decks d
@@ -84,9 +93,18 @@ class Deck {
     $stmt->bind_result($this->medal); 
     $stmt->fetch(); 
     $stmt->close();
+  }
 
-
-    
+  static function getArchetypes() {
+    $db = Database::getConnection();
+    $result = $db->query("SELECT name FROM archetypes WHERE priority > 0
+      ORDER BY priority DESC, name");
+    $ret = array();
+    while ($arch = $result->fetch_assoc()) {
+      $ret[] = $arch['name'];
+    }
+    $result->close();
+    return $ret;
   }
 
   function getEntry() { 
@@ -235,11 +253,29 @@ class Deck {
     $stmt->close(); 
 
     return $cardar;
-  } 
+  }
+
+  function validate() {
+    // Name must exist
+    if ($this->name == NULL || $this->name == "") {
+      $this->errors[] = "Name cannot be blank";
+    }
+    if ($this->archetype != "Unclassified" && !in_array($this->archetype, Deck::getArchetypes())) {
+      $this->errors[] = "Archetype needs to be in the approved list";
+    }
+    if (count($this->errors) > 0) {
+      return false;
+    }
+    return true;
+  }
 
   function save() { 
     $db = Database::getConnection(); 
     $db->autocommit(FALSE);
+
+    if (!$this->validate()) {
+      return false;
+    }
 
     if ($this->id == 0) { 
       // New record.  Set up the decks entry and the Entry.

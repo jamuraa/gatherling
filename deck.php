@@ -67,10 +67,14 @@ if (strcmp($_GET['mode'], "view") == 0) {
   if (checkDeckAuth($_POST['event'], $deck_player, $deck)) {
     if (strcmp($_POST['mode'], "Create Deck") == 0) {
       $deck = insertDeck();
-      deckProfile($deck);
+      if (count($deck->errors) == 0) {
+        deckProfile($deck);
+      }
     } elseif (strcmp($_POST['mode'], "Update Deck") == 0) {
       $deck = updateDeck($deck);
-      deckProfile($deck);
+      if (count($deck->errors) == 0) {
+        deckProfile($deck);
+      }
     } elseif (strcmp($_POST['mode'], "Edit Deck") == 0) {
       deckForm($deck);
     } elseif (strcmp($_GET['mode'], "create") == 0) {
@@ -101,7 +105,7 @@ function deckForm($deck = NULL) {
     return;
   }
 
-  $vals = array();
+  $vals = array('contents' => '', 'sideboard' => '');
   if(!is_null($deck)) {
     foreach ($deck->maindeck_cards as $card => $amt) {
       $line = $amt . " " . $card . "\n";
@@ -122,7 +126,7 @@ function deckForm($deck = NULL) {
   echo "<td style=\"color: #000000\">To enter your deck, please give it ";
   echo "a name and select an archetype from the drop-down menu below. If ";
   echo "you do not specify and archetype, your deck will be labeled as ";
-  echo "\"rogue.\" To enter cards, save your deck a a .txt file using the ";
+  echo "\"Unclassified\". To enter cards, save your deck a a .txt file using the ";
   echo "official MTGO client, and then copy and paste the maindeck and ";
   echo "sideboard into the appropriate text boxes. ";
   echo "<font color=\"#FF0000\">Do not use a format such as \"1x Card\". ";
@@ -132,11 +136,21 @@ function deckForm($deck = NULL) {
   echo "<select id=\"autoenter-deck\">\n";
   echo "<option value=\"0\">Select a recent deck to start from there</option>\n";
   $deckplayer = new Player($player);
-  $recentdecks = $deckplayer->getRecentDecks();
-  foreach ($recentdecks as $adeck) {
-    echo "<option value=\"{$adeck->id}\">{$adeck->name}</option>\n";
+  if (count($deck->errors) == 0 && count($deck->maindeck_cards) == 0) {
+    $recentdecks = $deckplayer->getRecentDecks();
+    foreach ($recentdecks as $adeck) {
+      echo "<option value=\"{$adeck->id}\">{$adeck->name}</option>\n";
+    }
   }
+
   echo "</select></td></tr>";
+  if (count($deck->errors) > 0) {
+    echo "<tr><td>Errors</td><td> There are some problems adding your deck: <ul>";
+    foreach ($deck->errors as $error) {
+      echo "<li>$error</li>";
+    }
+    echo "</ul></td></tr>";
+  }
   echo "<tr><td><b>Name</td>\n<td>";
   echo "<input id=\"deck-name\" type=\"text\" name=\"name\" value=\"{$vals['name']}\" ";
   echo "size=\"40\"></td></tr>\n";
@@ -162,17 +176,13 @@ function deckForm($deck = NULL) {
 }
 
 function archetypeDropMenu($def) {
-  $db = Database::getConnection();
-  $result = $db->query("SELECT name FROM archetypes WHERE priority > 0
-    ORDER BY priority DESC, name");
+  $archetypes = Deck::getArchetypes();
   echo "<select id=\"deck-archetype\" name=\"archetype\">\n";
   echo "<option value=\"Unclassified\">- Archetype -</option>\n";
-  while($arch = $result->fetch_assoc()) {
-    $name = $arch['name'];
+  foreach ($archetypes as $name) {
     $sel = (strcmp($name, $def) == 0) ? "selected" : "";
     echo "<option value=\"$name\" $sel>$name</option>\n";
   }
-  $result->close();
 }
 
 function insertDeck() {
@@ -188,7 +198,9 @@ function insertDeck() {
   $deck->maindeck_cards = parseCards($_POST['contents']);
   $deck->sideboard_cards = parseCards($_POST['sideboard']);
 
-  $deck->save();
+  if (!$deck->save()) {
+    deckForm($deck);
+  }
 
   return $deck;
 }
@@ -201,7 +213,9 @@ function updateDeck($deck) {
   $deck->maindeck_cards = parseCards($_POST['contents']);
   $deck->sideboard_cards = parseCards($_POST['sideboard']);
 
-  $deck->save();
+  if (!$deck->save()) {
+    deckForm($deck);
+  }
 
   return $deck;
 }
@@ -212,7 +226,7 @@ function parseCards($text) {
   $cardarr = array();
   for ($ndx = 0; $ndx < sizeof($lines); $ndx++) {
     $chopped = chop($lines[$ndx]);
-    if (preg_match("/[ \t]*([0-9]+)[ \t]+(.*)/i", $chopped, $m)) {
+    if (preg_match("/[ \t]*([0-9]+)x?[ \t]+(.*)/i", $chopped, $m)) {
       $qty = $m[1];
       $card = chop($m[2]);
       // AE ligature.
