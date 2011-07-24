@@ -150,7 +150,8 @@ if ($version < 8) {
   do_query("ALTER TABLE trophies MODIFY COLUMN image MEDIUMBLOB");
   do_query("ALTER TABLE subevents MODIFY COLUMN parent VARCHAR(80)");
   do_query("ALTER TABLE stewards MODIFY COLUMN event VARCHAR(80)");
-  db->commit();
+  do_query("UPDATE db_version SET version = 7");
+  $db->commit();
   echo "... DB now at version 8! <br />";
 }
 
