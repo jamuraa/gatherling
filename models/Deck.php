@@ -430,7 +430,16 @@ class Deck {
     $uniquecount = $stmt->num_rows;
     $stmt->close(); 
     return $uniquecount; 
-  } 
+  }
+
+  function linkTo() {
+    if ($this->new) {
+      return "Deck not found";
+    } else {
+      if (empty($this->name)) { $this->name = "** NO NAME **"; }
+      return "<a href=\"deck.php?mode=view&id={$this->id}\">{$this->name}</a>";
+    }
+  }
 
 }
 

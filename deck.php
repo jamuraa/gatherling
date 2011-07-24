@@ -398,8 +398,7 @@ function exactMatchTable($deck) {
     $cell1 = medalImgStr($deck->medal);
     $cell4 = $deck->recordString();
     echo "<tr><td>$cell1</td>\n";
-    echo "<td style=\"width: 140px\"><a href=\"deck.php?mode=view&id={$deck->id}\">";
-    echo "{$deck->name}</a></td>\n";
+    echo "<td style=\"width: 140px\">" . $deck->linkTo() . "</td>\n";
     echo "<td>{$deck->playername}</td>\n";
     echo "<td><a href=\"{$deck->getEvent()->threadurl}\">{$deck->eventname}</a></td>\n";
     echo "<td style=\"text-align: right; width: 30px;\">$cell4</td></tr>\n";
@@ -437,16 +436,8 @@ function matchupTable($deck) {
     $deckcell = "No Deck Found";
     $oppdeck = $opp->getDeckEvent($deck->eventname);
     if($oppdeck != NULL) {
-      $deckcell = "<a href=\"deck.php?id={$oppdeck->id}&mode=view\">" .
-         $oppdeck->name . "</a>";
+      $deckcell = $oppdeck->linkTo();
     }
-
-#    echo "<tr><td align=\"center\">$rnd</td>\n";
-#    echo "<td><b><font color=\"$color\">$res</font></td>\n";
-#    echo "<td>$opp</td>\n";
-#    echo "<td>$deckcell</td></tr>\n";
-
-#    echo "<tr><td>{$rnd}: $resStr vs. $opp, $deckcell</td></tr>";
 
     echo "<tr><td align=\"right\">$rnd:&nbsp;</td>\n";
     echo "<td align=\"left\"><b><font color=\"$color\">$res</font>&nbsp;</td>\n";

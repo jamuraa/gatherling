@@ -378,11 +378,10 @@ function playerList($event) {
       $img = "<img src=\"/images/{$entry->medal}.gif\">";
     }
     echo "<td align=\"center\">$img</td>";
-    $decklink = "<a style=\"color: #D28950\" href=\"deck.php?player={$entry->player->name}&event={$event->name}&mode=create\">Create Deck</a>";
-    if($entry->deck) {
-      $deckname = $entry->deck->name;
-      if ($deckname == "") {$deckname = "* NO NAME *";}
-      $decklink = "<a href=\"deck.php?id={$entry->deck->id}&mode=view\">{$deckname}</a>";
+    if ($entry->deck) {
+      $decklink = $entry->deck->linkTo();
+    } else {
+      $decklink = $entry->createDeckLink();
     }
     $rstar = "<font color=\"#FF0000\">*</font>";
     if ($entry->deck != NULL) {

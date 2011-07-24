@@ -105,3 +105,8 @@ table.scoreboard .playername {
   vertical-align: baseline;
 }
 
+a.create_deck_link {
+  font-size: 11px;
+  color: #D28950;
+}
+

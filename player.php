@@ -201,8 +201,7 @@ function print_recentDeckTable() {
     $cell1 = medalImgStr($entry->medal);
     $cell4 = $entry->recordString();
     echo "<tr><td>$cell1</td>\n";
-    echo "<td align=\"left\"><a style=\"font-size: 11px; color: #D28950;\" href=\"deck.php?mode=create&event={$entry->event->name}&";
-    echo "player={$player->name}\">[Create Deck]</a></td>";
+    echo "<td align=\"left\">" . $entry->createDeckLink() . "</td>";
     echo "<td><a href=\"{$event->threadurl}\">{$event->name}</a></td>\n";
     echo "<td align=\"right\">$cell4</td></tr>\n";
   }
@@ -210,8 +209,7 @@ function print_recentDeckTable() {
     $cell1 = medalImgStr($deck->medal);
     $cell4 = $deck->recordString();
     echo "<tr><td>$cell1</td>\n";
-    echo "<td><a href=\"deck.php?mode=view&id={$deck->id}\">";
-    echo "{$deck->name}</a></td>\n";
+    echo "<td>" . $deck->linkTo() . "</td>\n"
     echo "<td><a href=\"{$deck->getEvent()->threadurl}\">{$deck->eventname}</a></td>\n";
     echo "<td align=\"right\">$cell4</td></tr>\n";
   }
@@ -235,8 +233,7 @@ function print_noDeckTable() {
   foreach ($entriesnodecks as $entry) {
     $imgcell = medalImgStr($entry->medal);
     echo "<tr><td>$imgcell</td>\n";
-    echo "<td align=\"left\"><a style=\"font-size: 11px; color: #D28950;\" href=\"deck.php?mode=create&event={$entry->event->name}&";
-    echo "player={$player->name}\">[Create Deck]</a></td>";
+    echo "<td align=\"left\">" . $entry->createDeckLink() . "</td>";
     echo "<td align=\"right\"><a href=\"{$entry->event->threadurl}\">{$entry->event->name}</a></td>\n";
     echo "<td><input type=\"checkbox\" name=\"ignore[{$entry->event->name}]\" value=\"yes\" ";
     if ($entry->ignored) {
@@ -262,8 +259,7 @@ function print_allDeckTable() {
   foreach ($decks as $deck) {
     $imgcell = medalImgStr($deck->medal);
     echo "<td width=20>$imgcell</td>\n";
-    echo "<td><a href=\"deck.php?mode=view&id={$deck->id}\">";
-    echo "{$deck->name}</a>";
+    echo "<td>" . $deck->linkTo();
     $cards = $deck->getCardCount();
     if($cards < 60) {print $rstar;}
     if($cards < 6)  {print $rstar;}
@@ -351,8 +347,7 @@ function print_matchTable($player, $limit=0) {
     $oppDeck = $opponent->getDeckEvent($event->name);
     $deckStr = "No Deck Found";
     if(!is_null($oppDeck)) {
-      $deckStr = "<a href=\"deck.php?mode=view&id={$oppDeck->id}\">" .
-        "{$oppDeck->name}</a>";
+      $deckStr = $oppDeck->linkTo();
     }
 
     if($oldname != $event->name) {
@@ -460,8 +455,7 @@ function print_ratingsHistory($format) {
 
       echo "<tr><td align=\"center\">{$rating}</td>\n";
       echo "<td>{$preveventname}</td>\n";
-      echo "<td><a href=\"deck.php?id={$entry->deck->id}&mode=view\">";
-      echo "{$entry->deck->name}</a></td>\n";
+      echo "<td>" . $entry->deck->linkTo() . "</td>\n";
       echo "<td align=\"center\">$wl</td>\n";
       echo "<td align=\"center\">$img</td>";
       echo "<td align=\"center\">{$prevrating}</td></tr>";
@@ -473,12 +467,11 @@ function print_ratingsHistory($format) {
     $wl = $entry->recordString();
     $img = medalImgStr($entry->medal);
     echo "<tr><td align=\"center\">1600</td>\n";
-        echo "<td>{$preveventname}</td>\n";
-        echo "<td><a href=\"deck.php?id={$entry->deck->id}&mode=view\">";
-        echo "{$entry->deck->name}</a></td>\n";
-        echo "<td align=\"center\">$wl</td>\n";
-        echo "<td align=\"center\">$img</td>";
-        echo "<td align=\"center\">{$prevrating}</td></tr>";
+    echo "<td>{$preveventname}</td>\n";
+    echo "<td>" . $entry->deck->linkTo() . "</td>\n";
+    echo "<td align=\"center\">$wl</td>\n";
+    echo "<td align=\"center\">$img</td>";
+    echo "<td align=\"center\">{$prevrating}</td></tr>";
   } else {
     echo "<tr><td colspan=6 align=\"center\"><i>";
     echo "You have not played any $format events.</td></tr>\n";

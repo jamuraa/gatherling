@@ -144,7 +144,11 @@ function finalists($event) {
   echo "<tr><td colspan=3 align=\"center\"><b>TOP $nfinalists</td></tr>\n";
   foreach ($event->getFinalists() as $finalist) { 
     $finaldeck = new Deck($finalist['deck']);
-		$deckinfoarr = deckInfo($finaldeck);
+    if ($finaldeck->new) {
+      $deckinfoarr = deckInfo(NULL);
+    } else {
+      $deckinfoarr = deckInfo($finaldeck);
+    }
 		$redstar = "<font color=\"#FF0000\">*</font>";
 		$append = " " . $finalist['medal'];
 		if($finalist['medal'] == 't8' || $finalist['medal'] == 't4') {
@@ -152,8 +156,7 @@ function finalists($event) {
 		$medalSTR = "<img src=\"/images/{$finalist['medal']}.gif\">";
 		$medalSTR .= $append;
 		$deckSTR = "<img src=\"/images/rename/{$deckinfoarr[1]}.gif\"> ";
-		$deckSTR .= "<a href=\"deck.php?mode=view&id={$finalist['deck']}\">";
-		$deckSTR .= "{$deckinfoarr[0]}</a>";
+		$deckSTR .= $finaldeck->linkTo();
 		if($deckinfoarr[2] < 60) {$deckSTR .= $redstar;}
     if($deckinfoarr[2] < 6)  {$deckSTR .= $redstar;}
     $thisplayer = new Player($finalist['player']);  
@@ -376,8 +379,8 @@ function trophyCell($event) {
     echo $playerwin->linkTo();
     $info = deckInfo($deck);
     echo "<img src=\"/images/rename/{$info[1]}.gif\"> ";
-    echo "<a href=\"deck.php?mode=view&id={$deck->id}\">";
-    echo "{$info[0]}</a><br>\n";
+    echo $deck->linkTo();
+    echo "<br>\n";
   } 
 }
 ?>
