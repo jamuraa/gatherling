@@ -159,7 +159,7 @@ function eventList($series = "", $season = "") {
   echo "<table style=\"border-width: 0px\" align=\"center\" cellpadding=\"3\">";
   echo "<tr><td colspan=\"5\">&nbsp;</td></tr>";
   echo "<tr><td><b>Event</td><td><b>Format</td>";
-  echo "<td align=\"center\"><b>No. Players</td>";
+  echo "<td align=\"center\"><b>Players</td>";
   echo "<td><b>Host(s)</td>";
   #echo "<td><b>Date</td>";
   echo "<td align=\"center\"><b>Finalized</td></tr>";
