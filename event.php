@@ -1,7 +1,51 @@
 <?php session_start();
 include 'lib.php';
 
-print_header("PDCMagic.com | Gatherling | Host Control Panel");
+$js = <<<'EOD'
+
+function addPlayerRow(data) {
+  if (!data.success) { return false; }
+  var html = '<tr id="entry_row_' + data.player + '"><td>';
+  if (data.verified) {
+    html += '<img src="/images/gatherling/verified.png" />';
+  }
+  html += '</td><td>' + data.player + '</td>';
+  html += '<td align="center"><img src="/images/dot.gif" /></td>';
+  html += '<td><a class="create_deck_link" href="deck.php?player=' + data.player + '&event=' + event_name + '&mode=create">[Create Deck]</a></td>';
+  html += '<td align="center"><input type="checkbox" name="delentries[]" value="' + data.player + '" /></td></tr>';
+  $('input[name=newentry]').val("");
+  $('#row_new_entry').before(html);
+  $('#entry_row_' + data.player).find('td').wrapInner('<div style="display: none;" />').parent().find('td > div').slideDown(500, function() { var set = $(this); set.replaceWith(set.contents()); });
+}
+
+function delPlayerRow(data) {
+  if (!data.success) { return false; }
+  $('#entry_row_' + data.player).find('td').wrapInner('<div style="display: block;" />').parent().find('td > div').slideUp(500, function() { $(this).parent().parent().remove(); });
+}
+
+function updateRegistration() {
+  event_name = $('input[name=name]').val();
+  newentry_name = $('input[name=newentry]').val();
+  if (newentry_name != "") {
+    $.ajax({url: 'ajax.php?event=' + event_name
+                       + '&addplayer=' + newentry_name,
+                       success: addPlayerRow});
+  }
+  $('input[name=delentries[]]').each(function(x, e) {
+    if (e.checked) {
+      $.ajax({url: 'ajax.php?event=' + event_name + '&delplayer=' + e.value,
+              success: delPlayerRow});
+    }
+  });
+  return false;
+}
+
+$(document).ready(function() {
+  $('#update_reg').click(updateRegistration);
+});
+EOD;
+
+print_header("PDCMagic.com | Gatherling | Host Control Panel", $js);
 ?>
 <div class="grid_10 suffix_1 prefix_1">
 <div id="gatherling_main" class="box">
@@ -368,14 +412,14 @@ function playerList($event) {
     echo "No players are currently registered for this event.</i></td></tr>";
   }
   foreach ($entries as $entry) {
-    echo "<tr><td>";
+    echo "<tr id=\"entry_row_{$entry->player->name}\"><td>";
     if ($entry->player->verified) {
       echo "<img src=\"/images/gatherling/verified.png\" title=\"Player verified on MTGO\" />";
     }
     echo "</td>";
     echo "<td>{$entry->player->name}</td>";
     if(strcmp("", $entry->medal) != 0) {
-      $img = "<img src=\"/images/{$entry->medal}.gif\">";
+      $img = "<img src=\"/images/{$entry->medal}.gif\" />";
     }
     echo "<td align=\"center\">$img</td>";
     if ($entry->deck) {
@@ -393,15 +437,12 @@ function playerList($event) {
     echo "<input type=\"checkbox\" name=\"delentries[]\" ";
     echo "value=\"{$entry->player->name}\"></td></tr>";
   }
-  echo "<tr><td>&nbsp;</td></tr>";
-  echo "<tr><td colspan=\"4\" align=\"center\">";
-  echo "<b>Add a Player</td></tr>";
-  echo "<tr><td colspan=\"4\" align=\"center\">";
+  echo "<tr id=\"row_new_entry\"><td>New:</td><td>";
   stringField("newentry", "", 20);
+  echo "</td><td>&nbsp;</td><td colspan=2>";
+  echo "<input id=\"update_reg\" type=\"submit\" name=\"mode\" value=\"Update Registration\" />";
   echo "</td></tr>";
-  echo "<tr><td colspan=\"4\" width=\"400\">&nbsp;</td></tr>";
   echo "<tr><td align=\"center\" colspan=\"4\">";
-  echo "<input type=\"submit\" name=\"mode\" value=\"Update Registration\">";
   echo "</form>";
   echo "</td></tr>";
   echo "</table>";
@@ -810,11 +851,7 @@ function updateReg() {
   for($ndx = 0; $ndx < sizeof($_POST['delentries']); $ndx++) {
     $event->removeEntry($_POST['delentries'][$ndx]);
   }
-
-  $new = chop($_POST['newentry']);
-  if (strcmp($new, "") != 0) {
-    $event->addPlayer($new);
-  }
+  $event->addPlayer($_POST['newentry']);
 }
 
 function updateMatches() {

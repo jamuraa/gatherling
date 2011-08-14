@@ -209,7 +209,7 @@ function print_recentDeckTable() {
     $cell1 = medalImgStr($deck->medal);
     $cell4 = $deck->recordString();
     echo "<tr><td>$cell1</td>\n";
-    echo "<td>" . $deck->linkTo() . "</td>\n"
+    echo "<td>" . $deck->linkTo() . "</td>\n";
     echo "<td><a href=\"{$deck->getEvent()->threadurl}\">{$deck->eventname}</a></td>\n";
     echo "<td align=\"right\">$cell4</td></tr>\n";
   }
