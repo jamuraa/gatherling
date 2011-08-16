@@ -22,7 +22,7 @@ if (!Player::isLoggedIn()) {
 <div class="clear"></div> 
 </div></div>
 
-<?php print_footer() ?> 
+<?php print_footer(); ?> 
 
 <?php 
 
@@ -177,39 +177,39 @@ function printPointsForm($series) {
   echo "<input type=\"hidden\" name=\"season\" value=\"{$chosen_season}\" />";
   echo "<table class=\"form\" style=\"border-width: 0px;\" align=\"center\">";
   echo "<tr> <th class=\"top\" colspan=\"2\"> Season {$chosen_season} Settings </th></tr>";
-  printPointsRule("First Place", "first_pts", $seasonrules);    
-  printPointsRule("Second Place", "second_pts", $seasonrules);    
-  printPointsRule("Top 4", "semi_pts", $seasonrules);    
-  printPointsRule("Top 8", "quarter_pts", $seasonrules);    
-  printPointsRule("Participating", "participation_pts", $seasonrules);    
-  printPointsRule("Each round played", "rounds_pts", $seasonrules);    
-  printPointsRule("Match win", "win_pts", $seasonrules);    
-  printPointsRule("Match loss", "loss_pts", $seasonrules);    
-  printPointsRule("Round bye", "bye_pts", $seasonrules);    
-  printPointsRule("Posting a decklist", "decklist_pts", $seasonrules); 
+  printPointsRule("First Place", "first_pts", $seasonrules);
+  printPointsRule("Second Place", "second_pts", $seasonrules);
+  printPointsRule("Top 4", "semi_pts", $seasonrules);
+  printPointsRule("Top 8", "quarter_pts", $seasonrules);
+  printPointsRule("Participating", "participation_pts", $seasonrules);
+  printPointsRule("Each round played", "rounds_pts", $seasonrules);
+  printPointsRule("Match win", "win_pts", $seasonrules);
+  printPointsRule("Match loss", "loss_pts", $seasonrules);
+  printPointsRule("Round bye", "bye_pts", $seasonrules);
+  printPointsRule("Posting a decklist", "decklist_pts", $seasonrules);
   printPointsRule("Require decklist for points", "must_decklist", $seasonrules, 'checkbox');
-  printPointsRule("WORLDS Cutoff (players)", "cutoff_ord", $seasonrules); 
-  printPointsRule("Master Document Location", "master_link", $seasonrules, 'text', 50); 
+  printPointsRule("WORLDS Cutoff (players)", "cutoff_ord", $seasonrules);
+  printPointsRule("Master Document Location", "master_link", $seasonrules, 'text', 50);
   printPointsRule("Season Format", "format", $seasonrules, 'format');
   echo "<tr> <td colspan=\"2\" class=\"buttons\">";
   echo "<input type=\"submit\" name=\"action\" value=\"Update Points Rules\" />";
   echo "</td> </table> </form>";
 } 
 
-function printLogoForm($series) { 
+function printLogoForm($series) {
   echo "<form action=\"seriescp.php\" method=\"post\" enctype=\"multipart/form-data\">";
-  echo "<table class=\"form\" style=\"border-width: 0px;\" align=\"center\">"; 
+  echo "<table class=\"form\" style=\"border-width: 0px;\" align=\"center\">";
   echo "<input type=\"hidden\" name=\"series\" value=\"{$series->name}\" />";
   echo "<tr><th> Current Logo </th>";
   echo "<td> <img src=\"displaySeries.php?series={$series->name}\" /> </td> </tr>";
   echo "<tr><th> Upload New Logo </th>";
   echo "<td> <input type=\"file\" name=\"logo\" /> ";
   echo "<input type=\"submit\" name=\"action\" value=\"Change Logo\" /> </td> </tr>";
-  echo "</table> </form> "; 
+  echo "</table> </form> ";
 }
 
-function printRecentEventsTable($series) { 
-  $recentEvents = $series->getRecentEvents(); 
+function printRecentEventsTable($series) {
+  $recentEvents = $series->getRecentEvents();
   echo "<center> <h3> Recent Events </h3> </center>";
   echo "<table style=\"width: 75%;\"> <tr> <th> Event </th> <th> Date </th> <th> Players </th> <th> Hosts </th> </tr> ";
   if (count($recentEvents) == 0)  {
@@ -217,19 +217,19 @@ function printRecentEventsTable($series) {
   } 
   foreach ($recentEvents as $event) {
     echo "<tr> <td> <a href=\"event.php?name={$event->name}\">{$event->name}</a> </td> ";
-    $timefmted = strftime("%b %e", strtotime($event->start)); 
-    echo "<td> {$timefmted} </td> <td style=\"text-align: center;\"> {$event->getPlayerCount()} </td>"; 
+    $timefmted = strftime("%b %e", strtotime($event->start));
+    echo "<td> {$timefmted} </td> <td style=\"text-align: center;\"> {$event->getPlayerCount()} </td>";
     echo "<td> {$event->host}";
-    if ($event->cohost != "") { 
-      echo " / {$event->cohost} </td> "; 
-    } 
+    if ($event->cohost != "") {
+      echo " / {$event->cohost} </td> ";
+    }
     echo "</tr>";
   }
-  echo "</table>"; 
+  echo "</table>";
 
 } 
 
-function handleActions() { 
+function handleActions() {
   global $hasError;
   global $errormsg;
   if (!isset($_POST['series'])) { 

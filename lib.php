@@ -67,6 +67,9 @@ EOT;
   if ($host) {
     $tabs += 1;
   }
+  if ($super) {
+    $tabs += 1;
+  }
 
   echo <<<EOT
 <div id="submenu" class="grid_12 tabs_$tabs">
@@ -82,6 +85,10 @@ EOT;
 
   if ($steward || $super) {
     echo "<li><a href=\"seriescp.php\">Series CP</a></li>\n";
+  }
+
+  if ($super) {
+    echo "<li><a href=\"admincp.php\">Admin CP</a></li>\n";
   }
 
   if ($player == NULL) {
