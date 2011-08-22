@@ -262,11 +262,7 @@ function handleActions() {
       $size = $file['size']; 
       $type = $file['type'];
 
-      $f = fopen($tmp, 'r');
-      $content = fread($f, filesize($tmp)); 
-      fclose($f);
-      
-      $series->setLogo($content, $type, $size); 
+      $series->setLogo($tmp, $type, $size); 
     }
   } else if ($_POST['action'] == "Update Organizers") { 
     if (isset($_POST['delstewards'])) { 

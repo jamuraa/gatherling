@@ -376,7 +376,10 @@ class Event {
       $db = Database::getConnection(); 
       $stmt = $db->prepare("INSERT INTO entries(event, player) VALUES(?, ?)");
       $stmt->bind_param("ss", $this->name, $player->name); 
-      $stmt->execute();
+      if (!$stmt->execute()) {
+        print_r($stmt->error);
+        return false;
+      }
       $stmt->close();
       $added = true;
     }

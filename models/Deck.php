@@ -33,7 +33,7 @@ class Deck {
     $stmt->bind_param("d", $id);
     $stmt->execute();
     $stmt->bind_result($this->name, $this->archetype, $this->notes, $this->deck_hash, $this->sideboard_hash, $this->whole_hash);
-    
+
     if ($stmt->fetch() == NULL) { 
       $this->id = 0;
       $this->new = true;
@@ -335,14 +335,14 @@ class Deck {
     $this->maindeck_cards = $newmaindeck;
 
     $newsideboard = array();
-    foreach ($this->sideboard_cards as $card => $amt) { 
+    foreach ($this->sideboard_cards as $card => $amt) {
       $card = stripslashes($card);
-      $cardar = $this->getCard($card); 
-      if (is_null($cardar)) { 
-        if (!isset($this->unparsed_side[$card])) { 
-          $this->unparsed_side[$card] = 0; 
+      $cardar = $this->getCard($card);
+      if (is_null($cardar)) {
+        if (!isset($this->unparsed_side[$card])) {
+          $this->unparsed_side[$card] = 0;
         } 
-        $this->unparsed_side[$card] += $amt; 
+        $this->unparsed_side[$card] += $amt;
         continue; 
       }
       $stmt = $db->prepare("INSERT INTO deckcontents (deck, card, issideboard, qty) values(?, ?, 1, ?)"); 
@@ -351,7 +351,15 @@ class Deck {
       $newsideboard[$cardar['name']] = $amt;
     }
 
-    $this->sideboard_cards = $newsideboard; 
+    $this->sideboard_cards = $newsideboard;
+
+    $this->deck_contents_cache = implode('|', array_merge(array_keys($this->maindeck_cards),
+                                                          array_keys($this->sideboard_cards)));
+
+    $stmt = $db->prepare("UPDATE decks set deck_contents_cache = ? WHERE id = ?");
+
+    $stmt->bind_param("sd", $this->deck_contents_cache, $this->id);
+    $stmt->execute();
 
     $db->commit();
     $db->autocommit(TRUE);
@@ -420,7 +428,7 @@ class Deck {
     $stmt->bind_param("sssd", $this->sideboard_hash, $this->deck_hash, $this->whole_hash, $this->id);
     $stmt->execute();
     $stmt->close();
-  } 
+  }
 
   static function uniqueCount() { 
     $db = Database::getConnection(); 

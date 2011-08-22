@@ -18,47 +18,27 @@ print_header("PDCMagic.com | Gatherling | Basic Deck Search");
 function content() {
   if(!empty($_GET['deck']) || !empty($_GET['card'])) {
     $db = Database::getConnection(); 
-    $decknamesearch = "%" . $_GET['deck'] . "%";
-    $cardsearch = $_GET['card'];
+    $decknamesearch = "%" . $db->escape_string($_GET['deck']) . "%";
+    $cardsearch_wild = "%" . $db->escape_string($_GET['card']) . "%";
     // TODO: I need a better way of doing this
     if (empty($_GET['card']) && !empty($_GET['deck'])) {
-      $stmt = $db->prepare("SELECT d.id, d.name, n.player, n.event, n.medal 
-        FROM decks d, entries n, deckcontents dc, events e, cards c 
-        WHERE d.name LIKE ? AND n.deck=d.id 
-        AND dc.deck=d.id AND dc.issideboard=0
-        AND n.event=e.name
-        GROUP BY dc.deck
-        ORDER BY e.start DESC, n.medal LIMIT 20");
+      $stmt = $db->prepare("SELECT id FROM decks WHERE name LIKE ? LIMIT 20");
       $stmt->bind_param("s", $decknamesearch);
     } else if (!empty($_GET['card']) && !empty($_GET['deck'])) { 
-      $stmt = $db->prepare("SELECT d.id, d.name, n.player, n.event, n.medal 
-        FROM decks d, entries n, deckcontents dc, events e, cards c 
-        WHERE d.name LIKE ? AND n.deck=d.id 
-        AND dc.deck=d.id AND dc.issideboard=0
-        AND n.event=e.name
-        AND dc.card=c.id AND c.name = ?
-        GROUP BY dc.deck
-        ORDER BY e.start DESC, n.medal LIMIT 20");
+      $stmt = $db->prepare("SELECT id FROM decks WHERE name LIKE ? AND deck_contents_cache LIKE ? LIMIT 20");
       $stmt->bind_param("ss", $decknamesearch, $cardsearch);
     } else if (!empty($_GET['card']) && empty($_GET['deck'])) {
-      $stmt = $db->prepare("SELECT d.id, d.name, n.player, n.event, n.medal
-        FROM decks d, entries n, deckcontents dc, events e, cards c
-        WHERE n.deck=d.id
-        AND dc.deck=d.id AND dc.issideboard=0
-        AND n.event=e.name
-        AND dc.card=c.id AND c.name = ?
-        GROUP BY dc.deck
-        ORDER BY e.start DESC, n.medal LIMIT 20");
-      $stmt->bind_param("s", $cardsearch);
+      $stmt = $db->prepare("SELECT id FROM decks WHERE deck_contents_cache LIKE ? LIMIT 20");
+      $stmt->bind_param("s", $cardsearch_wild);
     }
 
     $stmt->execute(); 
     $stmt->store_result();
-    $stmt->bind_result($id, $name, $player, $event, $medal);
+    $stmt->bind_result($id);
 
     $search_desc = "";
     if (!empty($_GET['card'])) {
-      $search_desc .= " with {$cardsearch} in them";
+      $search_desc .= " with {$_GET['card']} in them";
     } 
     if (!empty($_GET['deck'])) {
       if (!empty($search_desc)) { 
@@ -75,34 +55,34 @@ function content() {
       } else {
         echo "<center>{$stmt->num_rows()} decks {$search_desc}</center>\n";
       }
+      $deck_ids = array();
+      while($stmt->fetch()) {
+        $deck_ids[] = $id;
+      }
+      $stmt->close(); 
       echo "<table align=\"center\" style=\"border-width: 0px;\" cellpadding=3>";
       echo "<tr><th>Deck Name</th><th>Played by</th><th>Event</th> </tr>";
-      while($stmt->fetch()) {
-        echo "<tr><td><img src=\"/images/{$medal}.gif\">\n";
-        echo "<a href=\"deck.php?mode=view&id={$id}\">";
-        if (empty($name)) {
-          $name = "** NO NAME **";
-        } 
-        echo "{$name}</a></td>";
-        $aplay = new Player($player);
+      foreach ($deck_ids as $deck_id) {
+        $deck = new Deck($deck_id);
+        echo "<tr><td><img src=\"/images/{$deck->medal}.gif\">\n";
+        echo $deck->linkTo();
+        echo "</td>";
+        $aplay = new Player($deck->playername);
         echo "<td>{$aplay->linkTo()}</td>";
-        echo "<td>{$event}";
-        echo "</td></tr>\n";
+        echo "<td>{$deck->eventname}</td>";
+        echo "</tr>\n";
       }
       echo "</table>";
     }
-    $stmt->close(); 
   } else {
-    ## SEARCH DISABLED UNTIL I CAN DEBUG IT
-    echo "<center><h3> Search disabled temporarily. Sorry for the inconvenience. </h3></center>";
-    #echo "<form method=\"get\" action=\"{$_SERVER['REQUEST_URI']}\"><table class=\"form\">";
-    #echo "<tr><th>Deck name contains</th> <td>";
-    #echo "<input type=\"text\" name=\"deck\"></td></tr>";
-    #echo "<tr><th>Deck contains card</th><td>"; 
-    #echo "<input type=\"text\" name=\"card\"></td></tr>";
-    #echo "<tr><td colspan=2 class=\"buttons\">";
-    #echo "<input type=\"submit\" value=\"Gimme some decks!\"></td></tr>";
-    #echo "</table></form>";
+    echo "<form method=\"get\" action=\"{$_SERVER['REQUEST_URI']}\"><table class=\"form\">";
+    echo "<tr><th>Deck name contains</th> <td>";
+    echo "<input type=\"text\" name=\"deck\"></td></tr>";
+    echo "<tr><th>Deck contains card</th><td>"; 
+    echo "<input type=\"text\" name=\"card\"></td></tr>";
+    echo "<tr><td colspan=2 class=\"buttons\">";
+    echo "<input type=\"submit\" value=\"Gimme some decks!\"></td></tr>";
+    echo "</table></form>";
     echo "<table><tr><th colspan=2><b>MOST PLAYED DECKS</b></th></tr>";
     echo "<tr><th>Deck Name</th><th>Played</th></tr>";
     $db = Database::getConnection(); 

@@ -192,14 +192,20 @@ class Series {
     } 
   } 
 
-  public function setLogo($content, $type, $size) { 
-    $db = Database::getConnection(); 
-    $stmt = $db->prepare("UPDATE series SET logo = ?, imgsize = ?, imgtype = ? WHERE name = ?"); 
-    $stmt->bind_param("bdss", $null, $size, $type, $this->name); 
-    $stmt->send_long_data(0, $content);
-    $stmt->execute() or die($stmt->error); 
-    $stmt->close(); 
-  } 
+  public function setLogo($content_filename, $type, $size) { 
+    $db = Database::getPDOConnection(); 
+    $f = fopen($content_filename, 'rb');
+    #$content = fread($f, filesize($content_filename));
+    #$content = mysqli::escape_string($content);
+    $name = $db->quote($this->name);
+    $stmt = $db->prepare("UPDATE series SET imgsize = ?, imgtype = ?, logo = ? WHERE name = {$name}"); 
+    $stmt->bindParam(1, $size, PDO::PARAM_INT);
+    $stmt->bindParam(2, $type, PDO::PARAM_STR);
+    $stmt->bindParam(3, $f, PDO::PARAM_LOB);
+    #$stmt->bindParam(3, $this->name, PDO::PARAM_STR);
+    $stmt->execute() or print_r($stmt->errorInfo()); 
+    fclose($f);
+  }
 
   public function currentSeason() { 
     $seasonnum = 0;
