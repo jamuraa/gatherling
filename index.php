@@ -69,6 +69,17 @@ if (!is_null($event)) { ?>
 <div class="uppertitle alpha omega grid_10"> Latest Gatherling News </div>
 <div class="clear"></div>
  <p>
+  <b> 2011-10-10 </b> -
+  If you thought that the last time between updates was long, I have news for you.  At any rate, I've been given some time to get some stuff done again and I have been able to fix some bugs and provide some new functionality for everyone.
+  <ul>
+    <li> You can now pre-register for events if the event host allows it.  More features to be added soon related to this. </li>
+    <li> Deck search is re-enabled now, so you can find popular decks and decks with specific cards. </li>
+    <li> Event hosts will find some fancy UI improvements in the back end. </li>
+    <li> You can't make a deck without a name anymore. </li>
+    <li> A bunch of backend bugfixes and improvements. </li>
+   </ul>
+ </p>
+ <p>
   <b> 2010-07-30 </b> -
   Wow, long time with no update.  Backend improvements mostly, and bugfixes for everyone.
   <ul>
@@ -77,14 +88,6 @@ if (!is_null($event)) { ?>
     <li> Events page is standard throughout the site pointing to gatherling now. </li>
     <li> Should be many less issues with players and capitalization of names. </li>
     <li> "Rogue" as a decktype has been renamed to "Unclassified" to more accurately reflect reality. </li>
- </p>
- <p>
-  <b> 2010-05-07 </b> - 
-  Two weeks again since the update, but we have some interesting updates today.  There are some major improvements for the backend for hosts.  More interesting things will happen next week as I have a bunch of time.
-  <ul> 
-    <li> Popups of the cards on the deck list page </li> 
-    <li> Series scoreboards now sort their events by date </li>
-    <li> Series logos on the events page are now reasonably sized </li>
   </ul>
  </p>
 <br />
