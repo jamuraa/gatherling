@@ -11,29 +11,36 @@ class Deck {
 
   public $cardcount = 0;
 
+  public $errors = array();
+
   public $playername; // Belongs to player through entries
   public $eventname; // Belongs to event thorugh entries
 
   public $medal; // has a medal
 
+  public $new; // is new
+
   function __construct($id) { 
     if ($id == 0) { 
       $this->id = 0;
+      $this->new = true;
       return;
     } 
     $database = Database::getConnection(); 
     $stmt = $database->prepare("SELECT name, archetype, notes, deck_hash, sideboard_hash, whole_hash
-      FROM decks d 
+      FROM decks d
       WHERE id = ?");
     $stmt->bind_param("d", $id);
     $stmt->execute();
     $stmt->bind_result($this->name, $this->archetype, $this->notes, $this->deck_hash, $this->sideboard_hash, $this->whole_hash);
-    
+
     if ($stmt->fetch() == NULL) { 
       $this->id = 0;
+      $this->new = true;
       return;
     }
 
+    $this->new = false;
     $this->id = $id; 
 
     $stmt->close();
@@ -46,26 +53,28 @@ class Deck {
     $stmt->bind_result($cardname, $cardqty, $isside);
 
     $this->cardcount = 0;
-    while ($stmt->fetch()) { 
+    while ($stmt->fetch()) {
       if ($isside == 0) {
         $this->maindeck_cards[$cardname] = $cardqty;
         $this->cardcount += $cardqty;
-      } else { 
+      } else {
         $this->sideboard_cards[$cardname] = $cardqty;
       }
-    } 
+    }
 
     $stmt->close();
+
     // Retrieve player
     $stmt = $database->prepare("SELECT p.name 
       FROM players p, entries e, decks d
       WHERE p.name = e.player AND d.id = e.deck AND d.id = ?");
     $stmt->bind_param("d", $id);
-    $stmt->execute(); 
+    $stmt->execute();
     $stmt->bind_result($this->playername);
-    $stmt->fetch(); 
+    $stmt->fetch();
 
     $stmt->close();
+
     // Retrieve event 
     $stmt = $database->prepare("SELECT e.name
       FROM events e, entries n, decks d
@@ -80,24 +89,35 @@ class Deck {
     $stmt = $database->prepare("SELECT n.medal
       FROM entries n WHERE n.deck = ?");
     $stmt->bind_param("d", $id);
-    $stmt->execute(); 
-    $stmt->bind_result($this->medal); 
-    $stmt->fetch(); 
+    $stmt->execute();
+    $stmt->bind_result($this->medal);
+    $stmt->fetch();
     $stmt->close();
-
-
-    
+    if ($this->medal == NULL) { $this->medal = "dot"; }
   }
 
-  function getEntry() { 
+  static function getArchetypes() {
+    $db = Database::getConnection();
+    $result = $db->query("SELECT name FROM archetypes WHERE priority > 0
+      ORDER BY priority DESC, name");
+    $ret = array();
+    while ($arch = $result->fetch_assoc()) {
+      $ret[] = $arch['name'];
+    }
+    $result->close();
+    return $ret;
+  }
+
+  function getEntry() {
     return new Entry($this->eventname, $this->playername);
   } 
 
-  function recordString() { 
+  function recordString() {
+    if ($this->playername == NULL) { return "?-?"; }
     return $this->getEntry()->recordString();
   } 
 
-  function getColorImages() { 
+  function getColorImages() {
     $count = $this->getColorCounts();
     $str = ""; 
     foreach ($count as $color => $n) { 
@@ -203,6 +223,7 @@ class Deck {
   } 
 
   function getMatches() { 
+    if ($this->playername == NULL) { return array(); }
     return $this->getEntry()->getMatches();
   } 
 
@@ -235,11 +256,29 @@ class Deck {
     $stmt->close(); 
 
     return $cardar;
-  } 
+  }
+
+  function validate() {
+    // Name must exist
+    if ($this->name == NULL || $this->name == "") {
+      $this->errors[] = "Name cannot be blank";
+    }
+    if ($this->archetype != "Unclassified" && !in_array($this->archetype, Deck::getArchetypes())) {
+      $this->errors[] = "Archetype needs to be in the approved list";
+    }
+    if (count($this->errors) > 0) {
+      return false;
+    }
+    return true;
+  }
 
   function save() { 
     $db = Database::getConnection(); 
     $db->autocommit(FALSE);
+
+    if (!$this->validate()) {
+      return false;
+    }
 
     if ($this->id == 0) { 
       // New record.  Set up the decks entry and the Entry.
@@ -299,14 +338,14 @@ class Deck {
     $this->maindeck_cards = $newmaindeck;
 
     $newsideboard = array();
-    foreach ($this->sideboard_cards as $card => $amt) { 
+    foreach ($this->sideboard_cards as $card => $amt) {
       $card = stripslashes($card);
-      $cardar = $this->getCard($card); 
-      if (is_null($cardar)) { 
-        if (!isset($this->unparsed_side[$card])) { 
-          $this->unparsed_side[$card] = 0; 
+      $cardar = $this->getCard($card);
+      if (is_null($cardar)) {
+        if (!isset($this->unparsed_side[$card])) {
+          $this->unparsed_side[$card] = 0;
         } 
-        $this->unparsed_side[$card] += $amt; 
+        $this->unparsed_side[$card] += $amt;
         continue; 
       }
       $stmt = $db->prepare("INSERT INTO deckcontents (deck, card, issideboard, qty) values(?, ?, 1, ?)"); 
@@ -315,7 +354,15 @@ class Deck {
       $newsideboard[$cardar['name']] = $amt;
     }
 
-    $this->sideboard_cards = $newsideboard; 
+    $this->sideboard_cards = $newsideboard;
+
+    $this->deck_contents_cache = implode('|', array_merge(array_keys($this->maindeck_cards),
+                                                          array_keys($this->sideboard_cards)));
+
+    $stmt = $db->prepare("UPDATE decks set deck_contents_cache = ? WHERE id = ?");
+
+    $stmt->bind_param("sd", $this->deck_contents_cache, $this->id);
+    $stmt->execute();
 
     $db->commit();
     $db->autocommit(TRUE);
@@ -384,7 +431,7 @@ class Deck {
     $stmt->bind_param("sssd", $this->sideboard_hash, $this->deck_hash, $this->whole_hash, $this->id);
     $stmt->execute();
     $stmt->close();
-  } 
+  }
 
   static function uniqueCount() { 
     $db = Database::getConnection(); 
@@ -394,7 +441,16 @@ class Deck {
     $uniquecount = $stmt->num_rows;
     $stmt->close(); 
     return $uniquecount; 
-  } 
+  }
+
+  function linkTo() {
+    if ($this->new) {
+      return "Deck not found";
+    } else {
+      if (empty($this->name)) { $this->name = "** NO NAME **"; }
+      return "<a href=\"deck.php?mode=view&id={$this->id}\">{$this->name}</a>";
+    }
+  }
 
 }
 

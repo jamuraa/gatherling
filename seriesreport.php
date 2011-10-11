@@ -57,9 +57,11 @@ function showReport($series, $season) {
 
   echo "<h3><center>Scoreboard for {$series->name} season {$season}</center></h3>";
   echo "<table class=\"scoreboard\">";
-  echo "<tr class=\"top\"> <th> Place </th> <th> Player </th> <th> Total Points </th>";
+  echo "<tr class=\"top\"> <th> Place </th> <th> Player </th> <th> Total </th>";
   foreach ($seasonevents as $evname) { 
-    echo "<th> {$evname} </th>";
+    $shortname = preg_replace("/^{$series->name} /", '', $evname);
+    $reportlink = "eventreport.php?event=" . urlencode($evname);
+    echo "<th> <a href=\"{$reportlink}\">{$shortname}</a> </th>";
   } 
   echo "</tr>";    
   $count = 0;

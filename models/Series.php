@@ -165,16 +165,16 @@ class Series {
     return $names;
   }
 
-  public static function activeNames() { 
-    $db = Database::getConnection(); 
+  public static function activeNames() {
+    $db = Database::getConnection();
     $stmt = $db->prepare("SELECT series.name FROM series LEFT JOIN events ON events.series = series.name WHERE series.isactive = 1 GROUP BY series.name ORDER BY count(events.name) DESC, name"); 
-    $stmt->execute(); 
+    $stmt->execute();
     $stmt->bind_result($onename);
-    $names = array(); 
-    while ($stmt->fetch()) { 
-      $names[] = $onename; 
-    } 
-    $stmt->close(); 
+    $names = array();
+    while ($stmt->fetch()) {
+      $names[] = $onename;
+    }
+    $stmt->close();
     return $names;
   }
 

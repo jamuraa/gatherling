@@ -30,7 +30,32 @@ function do_query($query) {
     exit(0);
   } 
   return $result;
-} 
+}
+
+function redirect_deck_update($latest_id = 0) {
+  $url = explode('?', $_SERVER['REQUEST_URI']);
+  $url = $url[0] . "?deckupdate=" . $latest_id;
+  echo "<a href=\"{$url}\">Continue</a>";
+  echo "<script type=\"text/javascript\"> window.location = \"http://{$_SERVER['SERVER_NAME']}$url\"; </script>";
+  exit(0);
+}
+
+if (isset($_GET['deckupdate'])) {
+  $deckquery = do_query("SELECT id FROM decks WHERE id > " . $_GET['deckupdate']);
+  $timestart = time();
+  while ($deckid = $deckquery->fetch_array()) {
+    flush();
+    $deck = new Deck($deckid[0]);
+    $deck->save();
+    flush();
+    if ((time() - $timestart) > 5) {
+      echo "-> Updating decks, ID: {$deck->id}... <br />";
+      redirect_deck_update($deck->id);
+    }
+  }
+  echo "Done with deck updates...<br />";
+  exit(0);
+}
 
 # Check for version 0.  (no players table) 
 
@@ -46,9 +71,13 @@ if (!$db->query("SELECT name FROM players LIMIT 1")) {
   echo ".. DB now at version 1!<br />"; 
 } 
 
-$result = do_query("SELECT version FROM db_version LIMIT 1");
-$obj = $result->fetch_object();
-$version = $obj->version;
+if (!isset($_GET['version'])) {
+  $result = do_query("SELECT version FROM db_version LIMIT 1");
+  $obj = $result->fetch_object();
+  $version = $obj->version;
+} else {
+  $version = $_GET['version'];
+}
 
 $db->autocommit(FALSE); 
 
@@ -133,13 +162,46 @@ if ($version < 6) {
 
 if ($version < 7) { 
   echo "Updating to version 7... <br />";
-  
+
   do_query("UPDATE decks SET archetype = 'Unclassified' WHERE archetype = 'Rogue'");
   do_query("UPDATE archetypes SET name = 'Unclassified' WHERE name = 'Rogue'"); 
   do_query("ALTER TABLE events MODIFY COLUMN name VARCHAR(80)");
   do_query("UPDATE db_version SET version = 7");
   $db->commit();
   echo "... DB now at version 7! <br />";
-} 
+}
+
+if ($version < 8) {
+  echo "Updating to version 8 (alter tables that reference event to have longer name too, make trophy image column larger).... <br />";
+
+  do_query("ALTER TABLE entries MODIFY COLUMN event VARCHAR(80)");
+  do_query("ALTER TABLE trophies MODIFY COLUMN event VARCHAR(80)");
+  do_query("ALTER TABLE trophies MODIFY COLUMN image MEDIUMBLOB");
+  do_query("ALTER TABLE subevents MODIFY COLUMN parent VARCHAR(80)");
+  do_query("ALTER TABLE stewards MODIFY COLUMN event VARCHAR(80)");
+  do_query("UPDATE db_version SET version = 8");
+  $db->commit();
+  echo "... DB now at version 8! <br />";
+}
+
+if ($version < 9) {
+  echo "Updating to version 9 (add deck contents cache column for searching, series logo column larger).... <br />";
+  do_query("ALTER TABLE decks ADD COLUMN (deck_contents_cache text)");
+  do_query("ALTER TABLE series MODIFY COLUMN logo MEDIUMBLOB");
+  do_query("UPDATE db_version SET version = 9");
+  $db->commit();
+  echo "... DB now at version 9! <br />";
+  redirect_deck_update();
+}
+
+if ($version < 10) {
+  echo "Updating to version 10 (add database stuff for pre-registration)... <br />";
+  do_query("ALTER TABLE events ADD COLUMN (prereg_allowed INTEGER DEFAULT 0)");
+  do_query("ALTER TABLE series ADD COLUMN (prereg_default INTEGER DEFAULT 0)");
+  do_query("ALTER TABLE entries ADD COLUMN (registered_at DATETIME)");
+  do_query("UPDATE db_version SET version = 10");
+  $db->commit();
+  echo "... DB now at version 10! <br />";
+}
 
 $db->autocommit(TRUE);

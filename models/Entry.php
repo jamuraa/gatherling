@@ -94,6 +94,14 @@ class Entry {
     $stmt->execute();
     $stmt->close();
   }
+
+  function createDeckLink() {
+    if ($this->canCreateDeck(Player::loginName())) {
+      return "<a class=\"create_deck_link\" href=\"deck.php?player={$this->player->name}&event={$this->event->name}&mode=create\">[Create Deck]</a>";
+    } else {
+      return "(no deck entered)";
+    }
+  }
 }
 
 

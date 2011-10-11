@@ -150,11 +150,12 @@ function print_mainPlayerCP($player) {
   echo "<div id=\"gatherling_lefthalf\">\n";
   print_conditionalAllDecks();
   print_recentDeckTable();
-  print_ratingsTableSmall();
+  print_preRegistration();
   print_recentMatchTable();
   echo "</div></div>\n";
   echo "<div class=\"omega grid_5\">\n";
   echo "<div id=\"gatherling_righthalf\">\n";
+  print_ratingsTableSmall();
   print_statsTable();
   echo "<b>ACTIONS</b><br />\n";
   echo "<ul>\n";
@@ -192,7 +193,7 @@ function print_recentDeckTable() {
     $decks = $player->getRecentDecks(5);
   }
 
-  echo "<table style=\"border-width: 5px solid black;\">\n";
+  echo "<table>\n";
   echo "<tr><td colspan=2><b>RECENT DECKS</td>\n";
   echo "<td colspan=2 align=\"right\">";
   echo "<a href=\"player.php?mode=alldecks\">";
@@ -201,8 +202,7 @@ function print_recentDeckTable() {
     $cell1 = medalImgStr($entry->medal);
     $cell4 = $entry->recordString();
     echo "<tr><td>$cell1</td>\n";
-    echo "<td align=\"left\"><a style=\"font-size: 11px; color: #D28950;\" href=\"deck.php?mode=create&event={$entry->event->name}&";
-    echo "player={$player->name}\">[Create Deck]</a></td>";
+    echo "<td align=\"left\">" . $entry->createDeckLink() . "</td>";
     echo "<td><a href=\"{$event->threadurl}\">{$event->name}</a></td>\n";
     echo "<td align=\"right\">$cell4</td></tr>\n";
   }
@@ -210,12 +210,31 @@ function print_recentDeckTable() {
     $cell1 = medalImgStr($deck->medal);
     $cell4 = $deck->recordString();
     echo "<tr><td>$cell1</td>\n";
-    echo "<td><a href=\"deck.php?mode=view&id={$deck->id}\">";
-    echo "{$deck->name}</a></td>\n";
+    echo "<td>" . $deck->linkTo() . "</td>\n";
     echo "<td><a href=\"{$deck->getEvent()->threadurl}\">{$deck->eventname}</a></td>\n";
     echo "<td align=\"right\">$cell4</td></tr>\n";
   }
   echo "</table>\n";
+}
+
+function print_preRegistration() {
+  global $player;
+  $events = Event::getNextPreRegister();
+  echo "<table><tr><td colspan=\"3\"><b>PREREGISTER FOR EVENTS</b></td></tr>";
+  if (count($events) == 0) { 
+    echo "<tr><td colspan=\"3\"> No Upcoming Events! </td> </tr>";
+  }
+  foreach ($events as $event) {
+    echo "<tr><td>{$event->name}</td>";
+    echo "<td>" . distance_of_time_in_words(time(), strtotime($event->start)) . "</td>";
+    if ($event->hasRegistrant($player->name)) {
+      echo "<td>Registered <a href=\"prereg.php?action=unreg&event={$event->name}\">(Unreg)</a></td>";
+    } else {
+      echo "<td><a href=\"prereg.php?action=reg&event={$event->name}\">Register</a></td>";
+    }
+    echo "</tr>";
+  }
+  echo "</table>";
 }
 
 function print_noDeckTable() {
@@ -235,8 +254,7 @@ function print_noDeckTable() {
   foreach ($entriesnodecks as $entry) {
     $imgcell = medalImgStr($entry->medal);
     echo "<tr><td>$imgcell</td>\n";
-    echo "<td align=\"left\"><a style=\"font-size: 11px; color: #D28950;\" href=\"deck.php?mode=create&event={$entry->event->name}&";
-    echo "player={$player->name}\">[Create Deck]</a></td>";
+    echo "<td align=\"left\">" . $entry->createDeckLink() . "</td>";
     echo "<td align=\"right\"><a href=\"{$entry->event->threadurl}\">{$entry->event->name}</a></td>\n";
     echo "<td><input type=\"checkbox\" name=\"ignore[{$entry->event->name}]\" value=\"yes\" ";
     if ($entry->ignored) {
@@ -262,8 +280,7 @@ function print_allDeckTable() {
   foreach ($decks as $deck) {
     $imgcell = medalImgStr($deck->medal);
     echo "<td width=20>$imgcell</td>\n";
-    echo "<td><a href=\"deck.php?mode=view&id={$deck->id}\">";
-    echo "{$deck->name}</a>";
+    echo "<td>" . $deck->linkTo();
     $cards = $deck->getCardCount();
     if($cards < 60) {print $rstar;}
     if($cards < 6)  {print $rstar;}
@@ -351,8 +368,7 @@ function print_matchTable($player, $limit=0) {
     $oppDeck = $opponent->getDeckEvent($event->name);
     $deckStr = "No Deck Found";
     if(!is_null($oppDeck)) {
-      $deckStr = "<a href=\"deck.php?mode=view&id={$oppDeck->id}\">" .
-        "{$oppDeck->name}</a>";
+      $deckStr = $oppDeck->linkTo();
     }
 
     if($oldname != $event->name) {
@@ -460,8 +476,7 @@ function print_ratingsHistory($format) {
 
       echo "<tr><td align=\"center\">{$rating}</td>\n";
       echo "<td>{$preveventname}</td>\n";
-      echo "<td><a href=\"deck.php?id={$entry->deck->id}&mode=view\">";
-      echo "{$entry->deck->name}</a></td>\n";
+      echo "<td>" . $entry->deck->linkTo() . "</td>\n";
       echo "<td align=\"center\">$wl</td>\n";
       echo "<td align=\"center\">$img</td>";
       echo "<td align=\"center\">{$prevrating}</td></tr>";
@@ -473,12 +488,11 @@ function print_ratingsHistory($format) {
     $wl = $entry->recordString();
     $img = medalImgStr($entry->medal);
     echo "<tr><td align=\"center\">1600</td>\n";
-        echo "<td>{$preveventname}</td>\n";
-        echo "<td><a href=\"deck.php?id={$entry->deck->id}&mode=view\">";
-        echo "{$entry->deck->name}</a></td>\n";
-        echo "<td align=\"center\">$wl</td>\n";
-        echo "<td align=\"center\">$img</td>";
-        echo "<td align=\"center\">{$prevrating}</td></tr>";
+    echo "<td>{$preveventname}</td>\n";
+    echo "<td>" . $entry->deck->linkTo() . "</td>\n";
+    echo "<td align=\"center\">$wl</td>\n";
+    echo "<td align=\"center\">$img</td>";
+    echo "<td align=\"center\">{$prevrating}</td></tr>";
   } else {
     echo "<tr><td colspan=6 align=\"center\"><i>";
     echo "You have not played any $format events.</td></tr>\n";

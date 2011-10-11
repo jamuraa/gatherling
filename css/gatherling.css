@@ -12,9 +12,10 @@ table.scoreboard tr.cutoff {
   border-bottom: 3px double black;
 } 
 
-table.scoreboard td { 
+table.scoreboard td, table.scoreboard th { 
   text-align: center;
-} 
+  padding-right: 5px;
+}
 
 table.scoreboard .playername { 
   text-align: left;
@@ -102,5 +103,10 @@ table.scoreboard .playername {
 
 #gatherling_main .series .series-info table td { 
   vertical-align: baseline;
+}
+
+a.create_deck_link {
+  font-size: 11px;
+  color: #D28950;
 }
 

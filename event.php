@@ -1,7 +1,51 @@
 <?php session_start();
 include 'lib.php';
 
-print_header("PDCMagic.com | Gatherling | Host Control Panel");
+$js = <<<'EOD'
+
+function addPlayerRow(data) {
+  if (!data.success) { return false; }
+  var html = '<tr id="entry_row_' + data.player + '"><td>';
+  if (data.verified) {
+    html += '<img src="/images/gatherling/verified.png" />';
+  }
+  html += '</td><td>' + data.player + '</td>';
+  html += '<td align="center"><img src="/images/dot.gif" /></td>';
+  html += '<td><a class="create_deck_link" href="deck.php?player=' + data.player + '&event=' + event_name + '&mode=create">[Create Deck]</a></td>';
+  html += '<td align="center"><input type="checkbox" name="delentries[]" value="' + data.player + '" /></td></tr>';
+  $('input[name=newentry]').val("");
+  $('#row_new_entry').before(html);
+  $('#entry_row_' + data.player).find('td').wrapInner('<div style="display: none;" />').parent().find('td > div').slideDown(500, function() { var set = $(this); set.replaceWith(set.contents()); });
+}
+
+function delPlayerRow(data) {
+  if (!data.success) { return false; }
+  $('#entry_row_' + data.player).find('td').wrapInner('<div style="display: block;" />').parent().find('td > div').slideUp(500, function() { $(this).parent().parent().remove(); });
+}
+
+function updateRegistration() {
+  event_name = $('input[name=name]').val();
+  newentry_name = $('input[name=newentry]').val();
+  if (newentry_name != "") {
+    $.ajax({url: 'ajax.php?event=' + event_name
+                       + '&addplayer=' + newentry_name,
+                       success: addPlayerRow});
+  }
+  $('input[name=delentries[]]').each(function(x, e) {
+    if (e.checked) {
+      $.ajax({url: 'ajax.php?event=' + event_name + '&delplayer=' + e.value,
+              success: delPlayerRow});
+    }
+  });
+  return false;
+}
+
+$(document).ready(function() {
+  $('#update_reg').click(updateRegistration);
+});
+EOD;
+
+print_header("PDCMagic.com | Gatherling | Host Control Panel", $js);
 ?>
 <div class="grid_10 suffix_1 prefix_1">
 <div id="gatherling_main" class="box">
@@ -42,7 +86,6 @@ function content() {
     $newevent->season = $oldevent->season;
     $newevent->number = $oldevent->number + 1;
     $newevent->format = $oldevent->format;
-    //$newevent->start = "{$_POST['year']}-{$_POST['month']}-{$_POST['day']} {$_POST['hour']}:00:00";
     $newevent->start = strftime("%Y-%m-%d %H:00:00", strtotime($oldevent->start) + (86400 * 7));
     $newevent->kvalue = $oldevent->kvalue;
     $newevent->finalized = 0;
@@ -160,7 +203,7 @@ function eventList($series = "", $season = "") {
   echo "<table style=\"border-width: 0px\" align=\"center\" cellpadding=\"3\">";
   echo "<tr><td colspan=\"5\">&nbsp;</td></tr>";
   echo "<tr><td><b>Event</td><td><b>Format</td>";
-  echo "<td align=\"center\"><b>No. Players</td>";
+  echo "<td align=\"center\"><b>Players</td>";
   echo "<td><b>Host(s)</td>";
   #echo "<td><b>Date</td>";
   echo "<td align=\"center\"><b>Finalized</td></tr>";
@@ -179,9 +222,9 @@ function eventList($series = "", $season = "") {
     if(!is_null($ch) && strcmp($ch, "") != 0) {echo "/$ch";}
     echo "</td>";
     #echo "<td>$date</td>";
-    echo "<td align=\"center\"><input type=\"checkbox\" ";
-    if($thisEvent['finalized'] == 1) {echo "checked";}
-    echo "></td>";
+    echo "<td align=\"center\">";
+    if($thisEvent['finalized'] == 1) {echo "&#x2714;";}
+    echo "</td>";
     echo "</tr>";
   }
 
@@ -301,9 +344,13 @@ function eventForm($event = NULL, $forcenew = false) {
     echo "<input type=\"hidden\" name=\"insert\" value=\"1\">";
     echo "</td></tr>";
   } else {
-    echo "<tr><th>Finalize Event</td>";
+    echo "<tr><th>Finalize Event</th>";
     echo "<td><input type=\"checkbox\" name=\"finalized\" value=\"1\" ";
     if($event->finalized == 1) {echo "checked=\"yes\" ";}
+    echo "/></td></tr>";
+    echo "<tr><th>Allow Pre-Registration</th>";
+    echo "<td><input type=\"checkbox\" name=\"prereg_allowed\" value=\"1\" ";
+    if($event->prereg_allowed == 1) {echo "checked=\"yes\" ";}
     echo "/></td></tr>";
     trophyField($event);
     echo "<tr><td>&nbsp;</td></tr>";
@@ -369,21 +416,20 @@ function playerList($event) {
     echo "No players are currently registered for this event.</i></td></tr>";
   }
   foreach ($entries as $entry) {
-    echo "<tr><td>";
+    echo "<tr id=\"entry_row_{$entry->player->name}\"><td>";
     if ($entry->player->verified) {
       echo "<img src=\"/images/gatherling/verified.png\" title=\"Player verified on MTGO\" />";
     }
     echo "</td>";
     echo "<td>{$entry->player->name}</td>";
     if(strcmp("", $entry->medal) != 0) {
-      $img = "<img src=\"/images/{$entry->medal}.gif\">";
+      $img = "<img src=\"/images/{$entry->medal}.gif\" />";
     }
     echo "<td align=\"center\">$img</td>";
-    $decklink = "<a style=\"color: #D28950\" href=\"deck.php?player={$entry->player->name}&event={$event->name}&mode=create\">Create Deck</a>";
-    if($entry->deck) {
-      $deckname = $entry->deck->name;
-      if ($deckname == "") {$deckname = "* NO NAME *";}
-      $decklink = "<a href=\"deck.php?id={$entry->deck->id}&mode=view\">{$deckname}</a>";
+    if ($entry->deck) {
+      $decklink = $entry->deck->linkTo();
+    } else {
+      $decklink = $entry->createDeckLink();
     }
     $rstar = "<font color=\"#FF0000\">*</font>";
     if ($entry->deck != NULL) {
@@ -395,15 +441,12 @@ function playerList($event) {
     echo "<input type=\"checkbox\" name=\"delentries[]\" ";
     echo "value=\"{$entry->player->name}\"></td></tr>";
   }
-  echo "<tr><td>&nbsp;</td></tr>";
-  echo "<tr><td colspan=\"4\" align=\"center\">";
-  echo "<b>Add a Player</td></tr>";
-  echo "<tr><td colspan=\"4\" align=\"center\">";
+  echo "<tr id=\"row_new_entry\"><td>New:</td><td>";
   stringField("newentry", "", 20);
+  echo "</td><td>&nbsp;</td><td colspan=2>";
+  echo "<input id=\"update_reg\" type=\"submit\" name=\"mode\" value=\"Update Registration\" />";
   echo "</td></tr>";
-  echo "<tr><td colspan=\"4\" width=\"400\">&nbsp;</td></tr>";
   echo "<tr><td align=\"center\" colspan=\"4\">";
-  echo "<input type=\"submit\" name=\"mode\" value=\"Update Registration\">";
   echo "</form>";
   echo "</td></tr>";
   echo "</table>";
@@ -670,7 +713,8 @@ function insertEvent() {
 function updateEvent() {
   $event = new Event($_POST['name']);
   $event->start = "{$_POST['year']}-{$_POST['month']}-{$_POST['day']} {$_POST['hour']}:00:00";
-  $event->finalize = $_POST['finalize'] == 1 ? 1 : 0;
+  $event->finalized = $_POST['finalized'] == 1 ? 1 : 0;
+  $event->prereg_allowed = $_POST['prereg_allowed'] == 1 ? 1 : 0;
 
   $event->format = $_POST['format'];
   $event->host = $_POST['host'];
@@ -682,7 +726,6 @@ function updateEvent() {
   $event->threadurl = $_POST['threadurl'];
   $event->metaurl = $_POST['metaurl'];
   $event->reporturl = $_POST['reporturl'];
-  $event->finalized = $_POST['finalized'];
 
   if($_POST['mainrounds'] == "") {$_POST['mainrounds'] = 3;}
   if($_POST['mainstruct'] == "") {$_POST['mainstruct'] = "Swiss";}
@@ -813,11 +856,7 @@ function updateReg() {
   for($ndx = 0; $ndx < sizeof($_POST['delentries']); $ndx++) {
     $event->removeEntry($_POST['delentries'][$ndx]);
   }
-
-  $new = chop($_POST['newentry']);
-  if (strcmp($new, "") != 0) {
-    $event->addPlayer($new);
-  }
+  $event->addPlayer($_POST['newentry']);
 }
 
 function updateMatches() {
