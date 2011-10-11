@@ -150,11 +150,12 @@ function print_mainPlayerCP($player) {
   echo "<div id=\"gatherling_lefthalf\">\n";
   print_conditionalAllDecks();
   print_recentDeckTable();
-  print_ratingsTableSmall();
+  print_preRegistration();
   print_recentMatchTable();
   echo "</div></div>\n";
   echo "<div class=\"omega grid_5\">\n";
   echo "<div id=\"gatherling_righthalf\">\n";
+  print_ratingsTableSmall();
   print_statsTable();
   echo "<b>ACTIONS</b><br />\n";
   echo "<ul>\n";
@@ -192,7 +193,7 @@ function print_recentDeckTable() {
     $decks = $player->getRecentDecks(5);
   }
 
-  echo "<table style=\"border-width: 5px solid black;\">\n";
+  echo "<table>\n";
   echo "<tr><td colspan=2><b>RECENT DECKS</td>\n";
   echo "<td colspan=2 align=\"right\">";
   echo "<a href=\"player.php?mode=alldecks\">";
@@ -214,6 +215,26 @@ function print_recentDeckTable() {
     echo "<td align=\"right\">$cell4</td></tr>\n";
   }
   echo "</table>\n";
+}
+
+function print_preRegistration() {
+  global $player;
+  $events = Event::getNextPreRegister();
+  echo "<table><tr><td colspan=\"3\"><b>PREREGISTER FOR EVENTS</b></td></tr>";
+  if (count($events) == 0) { 
+    echo "<tr><td colspan=\"3\"> No Upcoming Events! </td> </tr>";
+  }
+  foreach ($events as $event) {
+    echo "<tr><td>{$event->name}</td>";
+    echo "<td>" . distance_of_time_in_words(time(), strtotime($event->start)) . "</td>";
+    if ($event->hasRegistrant($player->name)) {
+      echo "<td>Registered <a href=\"prereg.php?action=unreg&event={$event->name}\">(Unreg)</a></td>";
+    } else {
+      echo "<td><a href=\"prereg.php?action=reg&event={$event->name}\">Register</a></td>";
+    }
+    echo "</tr>";
+  }
+  echo "</table>";
 }
 
 function print_noDeckTable() {

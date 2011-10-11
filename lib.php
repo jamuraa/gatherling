@@ -278,8 +278,74 @@ function json_headers() {
   header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 }
 
+function distance_of_time_in_words($from_time,$to_time = 0, $include_seconds = false) {
+  $dm = $distance_in_minutes = abs(($from_time - $to_time))/60;
+  $ds = $distance_in_seconds = abs(($from_time - $to_time));
+  
+  switch ($distance_in_minutes) {
+    case $dm > 0 && $dm < 1:
+    if($include_seconds == false) {
+      if ($dm == 0) {
+        return 'less than a minute';
+      } else {
+        return '1 minute';
+      }
+    } else {
+      switch ($distance_of_seconds) {
+        case $ds > 0 && $ds < 4:
+          return 'less than 5 seconds';
+          break;
+        case $ds > 5 && $ds < 9:
+          return 'less than 10 seconds';
+          break;
+        case $ds > 10 && $ds < 19:
+          return 'less than 20 seconds';
+          break;
+        case $ds > 20 && $ds < 39:
+          return 'half a minute';
+          break;
+        case $ds > 40 && $ds < 59:
+          return 'less than a minute';
+          break;
+        default:
+          return '1 minute';
+        break;
+      }
+    }
+    break;
+    case $dm > 2 && $dm < 44:
+      return round($dm) . ' minutes';
+      break;
+    case $dm > 45 && $dm < 89:
+      return 'about 1 hour';
+      break;
+    case $dm > 90 && $dm < 1439:
+      return 'about ' . round($dm / 60.0) . ' hours';
+      break;
+    case $dm > 1440 && $dm < 2879:
+      return '1 day';
+      break;
+    case $dm > 2880 && $dm < 43199:
+      return round($dm / 1440) . ' days';
+      break;
+    case $dm > 43200 && $dm < 86399:
+      return 'about 1 month';
+      break;
+    case $dm > 86400 && $dm < 525599:
+      return round($dm / 43200) . ' months';
+      break;
+    case $dm > 525600 && $dm < 1051199:
+      return 'about 1 year';
+      break;
+    default:
+      return 'over ' . round($dm / 525600) . ' years';
+    break;
+  }
+}
+
 function version_tagline() {
-  print "Gatherling version 2.0.6 (\"We stole the Statue of Liberty! ...  The small one, from Las Vegas.\")";
+  print "Gatherling version 2.1.0 (\"The program wasn't designed to alter the past. It was designed to affect the future.\")";
+  # print "Gatherling version 2.0.6 (\"We stole the Statue of Liberty! ...  The small one, from Las Vegas.\")";
   # print "Gatherling version 2.0.5 (\"No, that's perfectly normal paranoia. Everyone in the universe gets that.\")";
   # print "Gatherling version 2.0.4 (\"This is no time to talk about time. We don't have the time!\")";
   # print "Gatherling version 2.0.3 (\"Are you hungry? I haven't eaten since later this afternoon.\")";

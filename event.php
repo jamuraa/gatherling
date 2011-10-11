@@ -222,9 +222,9 @@ function eventList($series = "", $season = "") {
     if(!is_null($ch) && strcmp($ch, "") != 0) {echo "/$ch";}
     echo "</td>";
     #echo "<td>$date</td>";
-    echo "<td align=\"center\"><input type=\"checkbox\" ";
-    if($thisEvent['finalized'] == 1) {echo "checked";}
-    echo "></td>";
+    echo "<td align=\"center\">";
+    if($thisEvent['finalized'] == 1) {echo "&#x2714;";}
+    echo "</td>";
     echo "</tr>";
   }
 
@@ -344,9 +344,13 @@ function eventForm($event = NULL, $forcenew = false) {
     echo "<input type=\"hidden\" name=\"insert\" value=\"1\">";
     echo "</td></tr>";
   } else {
-    echo "<tr><th>Finalize Event</td>";
+    echo "<tr><th>Finalize Event</th>";
     echo "<td><input type=\"checkbox\" name=\"finalized\" value=\"1\" ";
     if($event->finalized == 1) {echo "checked=\"yes\" ";}
+    echo "/></td></tr>";
+    echo "<tr><th>Allow Pre-Registration</th>";
+    echo "<td><input type=\"checkbox\" name=\"prereg_allowed\" value=\"1\" ";
+    if($event->prereg_allowed == 1) {echo "checked=\"yes\" ";}
     echo "/></td></tr>";
     trophyField($event);
     echo "<tr><td>&nbsp;</td></tr>";
@@ -710,6 +714,7 @@ function updateEvent() {
   $event = new Event($_POST['name']);
   $event->start = "{$_POST['year']}-{$_POST['month']}-{$_POST['day']} {$_POST['hour']}:00:00";
   $event->finalized = $_POST['finalized'] == 1 ? 1 : 0;
+  $event->prereg_allowed = $_POST['prereg_allowed'] == 1 ? 1 : 0;
 
   $event->format = $_POST['format'];
   $event->host = $_POST['host'];

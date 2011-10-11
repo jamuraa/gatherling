@@ -71,9 +71,13 @@ if (!$db->query("SELECT name FROM players LIMIT 1")) {
   echo ".. DB now at version 1!<br />"; 
 } 
 
-$result = do_query("SELECT version FROM db_version LIMIT 1");
-$obj = $result->fetch_object();
-$version = $obj->version;
+if (!isset($_GET['version'])) {
+  $result = do_query("SELECT version FROM db_version LIMIT 1");
+  $obj = $result->fetch_object();
+  $version = $obj->version;
+} else {
+  $version = $_GET['version'];
+}
 
 $db->autocommit(FALSE); 
 
@@ -188,6 +192,16 @@ if ($version < 9) {
   $db->commit();
   echo "... DB now at version 9! <br />";
   redirect_deck_update();
+}
+
+if ($version < 10) {
+  echo "Updating to version 10 (add database stuff for pre-registration)... <br />";
+  do_query("ALTER TABLE events ADD COLUMN (prereg_allowed INTEGER DEFAULT 0)");
+  do_query("ALTER TABLE series ADD COLUMN (prereg_default INTEGER DEFAULT 0)");
+  do_query("ALTER TABLE entries ADD COLUMN (registered_at DATETIME)");
+  do_query("UPDATE db_version SET version = 10");
+  $db->commit();
+  echo "... DB now at version 10! <br />";
 }
 
 $db->autocommit(TRUE);
