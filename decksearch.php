@@ -67,9 +67,17 @@ function content() {
         echo "<tr><td><img src=\"/images/{$deck->medal}.gif\">\n";
         echo $deck->linkTo();
         echo "</td>";
-        $aplay = new Player($deck->playername);
-        echo "<td>{$aplay->linkTo()}</td>";
-        echo "<td>{$deck->eventname}</td>";
+        if ($deck->playername != NULL) {
+          $aplay = new Player($deck->playername);
+          echo "<td>{$aplay->linkTo()}</td>";
+        } else {
+          echo "<td>???</td>";
+        }
+        if ($deck->eventname != NULL) {
+          echo "<td>{$deck->eventname}</td>";
+        } else {
+          echo "<td>???</td>";
+        }
         echo "</tr>\n";
       }
       echo "</table>";

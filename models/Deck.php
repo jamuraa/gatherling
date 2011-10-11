@@ -69,9 +69,9 @@ class Deck {
       FROM players p, entries e, decks d
       WHERE p.name = e.player AND d.id = e.deck AND d.id = ?");
     $stmt->bind_param("d", $id);
-    $stmt->execute(); 
+    $stmt->execute();
     $stmt->bind_result($this->playername);
-    $stmt->fetch(); 
+    $stmt->fetch();
 
     $stmt->close();
 
@@ -89,10 +89,11 @@ class Deck {
     $stmt = $database->prepare("SELECT n.medal
       FROM entries n WHERE n.deck = ?");
     $stmt->bind_param("d", $id);
-    $stmt->execute(); 
-    $stmt->bind_result($this->medal); 
-    $stmt->fetch(); 
+    $stmt->execute();
+    $stmt->bind_result($this->medal);
+    $stmt->fetch();
     $stmt->close();
+    if ($this->medal == NULL) { $this->medal = "dot"; }
   }
 
   static function getArchetypes() {
@@ -107,15 +108,16 @@ class Deck {
     return $ret;
   }
 
-  function getEntry() { 
+  function getEntry() {
     return new Entry($this->eventname, $this->playername);
   } 
 
-  function recordString() { 
+  function recordString() {
+    if ($this->playername == NULL) { return "?-?"; }
     return $this->getEntry()->recordString();
   } 
 
-  function getColorImages() { 
+  function getColorImages() {
     $count = $this->getColorCounts();
     $str = ""; 
     foreach ($count as $color => $n) { 
@@ -221,6 +223,7 @@ class Deck {
   } 
 
   function getMatches() { 
+    if ($this->playername == NULL) { return array(); }
     return $this->getEntry()->getMatches();
   } 
 

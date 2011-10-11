@@ -327,9 +327,13 @@ function deckInfoCell($deck) {
     $placing = "Played by";
   }
   $line3 = "{$placing} ";
-  $deckplayer = new Player($deck->playername);
-  $line3 .= $deckplayer->linkTo();
-  $line3 .= " in <span class=\"eventname\" title=\"{$day}\">{$event->name}</span>\n";
+  if ($deck->playername != NULL) {
+    $deckplayer = new Player($deck->playername);
+    $line3 .= $deckplayer->linkTo();
+    $line3 .= " in <span class=\"eventname\" title=\"{$day}\">{$event->name}</span>\n";
+  } else {
+    $line3 .= "Never played (?) according to records.";
+  }
 
   $rstar = "<font color=\"#FF0000\">*</font>";
   $name = $deck->name;
