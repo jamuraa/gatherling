@@ -1,6 +1,6 @@
 <?php include 'lib.php';
 
-print_header("PDCMagic.com | Gatherling | Register");
+print_header("PauperKrew.com | Gatherling | Register");
 ?> 
 
 <div class="grid_10 suffix_1 prefix_1">
