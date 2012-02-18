@@ -2,7 +2,7 @@
 session_start(); 
 include 'lib.php'; 
 
-print_header("PDCMagic.com | Gatherling | Season Report");
+print_header("PauperKrew.com | Gatherling | Season Report");
 
 ?> 
 
