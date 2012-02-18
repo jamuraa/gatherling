@@ -1,7 +1,7 @@
 <?php session_start();
 require_once 'lib.php';
 
-$js = <<<'EOD'
+$js = <<<EOD
 
 function deckAjaxResult(data) {
   if (data.id != 0) {
@@ -35,7 +35,7 @@ EOD;
 
 $deckboxScript = "<script src=\"http://deckbox.org/javascripts/bin/tooltip.js\"></script>";
 
-print_header("PDCMagic.com | Gatherling | Deck Database", $js, $deckboxScript);
+print_header("PauperKrew.com | Gatherling | Deck Database", $js, $deckboxScript);
 
 ?>
 <div class="grid_10 suffix_1 prefix_1">
@@ -123,7 +123,7 @@ function deckForm($deck = NULL) {
   echo "<form action=\"deck.php\" method=\"post\">\n";
   echo "<table align=\"center\" style=\"border-width: 0px;\">\n";
   echo "<tr><td valign=\"top\"><b>Directions:</td>\n";
-  echo "<td style=\"color: #000000\">To enter your deck, please give it ";
+  echo "<td>To enter your deck, please give it ";
   echo "a name and select an archetype from the drop-down menu below. If ";
   echo "you do not specify and archetype, your deck will be labeled as ";
   echo "\"Unclassified\". To enter cards, save your deck a a .txt file using the ";
@@ -221,7 +221,7 @@ function updateDeck($deck) {
 }
 
 function parseCards($text) {
-  $lines = split("\n", $text);
+  $lines = explode("\n", $text);
   $badcards = array();
   $cardarr = array();
   for ($ndx = 0; $ndx < sizeof($lines); $ndx++) {
@@ -312,16 +312,16 @@ function deckInfoCell($deck) {
   $event = $deck->getEvent();
   $day = date("F j, Y", strtotime($event->start));
   if($deck->medal == '1st') {
-    $mstr = "<img src=\"/images/1st.gif\">&nbsp;";
+    $mstr = "<img src=\"./imageset/1st.png\">&nbsp;";
     $placing = $mstr . "1st by";
   } else if($deck->medal == '2nd') {
-    $mstr = "<img src=\"/images/2nd.gif\">&nbsp;";
+    $mstr = "<img src=\"./imageset/2nd.png\">&nbsp;";
     $placing = $mstr . "2nd by";
   } else if($deck->medal == 't4') {
-    $mstr = "<img src=\"/images/t4.gif\">&nbsp;";
+    $mstr = "<img src=\"./imageset/t4.png\">&nbsp;";
     $placing = $mstr . "Top 4 by";
   } else if($deck->medal == 't8') {
-    $mstr = "<img src=\"/images/t8.gif\">&nbsp;";
+    $mstr = "<img src=\"./imageset/t8.png\">&nbsp;";
     $placing = $mstr . "Top 8 by";
   } else {
     $placing = "Played by";
@@ -489,7 +489,7 @@ function ccTable($deck) {
   $total = 0; $cards = 0;
   foreach ($convertedcosts as $cost => $amt) {
     echo "<tr><td align=\"right\" width=75>";
-    echo "<img src=\"/images/mana{$cost}.gif\">";
+    echo "<img src=\"./imageset/mana{$cost}.png\">";
     echo " &nbsp;</td>\n";
     echo "<td width=75 align=\"left\">{$amt}</td></tr>\n";
     $total += $cost * $amt;
@@ -514,7 +514,7 @@ function symbolTable($deck) {
   foreach($cnts as $color => $num) {
     if($num > 0) {
     echo "<tr><td align=\"right\" width=75>";
-    echo "<img src=\"/images/mana{$color}.gif\">";
+    echo "<img src=\"./imageset/mana{$color}.png\">";
     echo "&nbsp;</td>\n";
     echo "<td align=\"left\">$num</td></tr>\n";
     $sum += $num;
