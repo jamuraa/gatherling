@@ -901,7 +901,7 @@ class Player {
   public function linkTo() {
     $result = "<a href=\"profile.php?player={$this->name}\">$this->name";
     if ($this->verified == 1) {
-      $result .= " <img src=\"/images/gatherling/verified.png\" width=\"12\" height=\"12\" />";
+      $result .= " <img src=\"./imageset/verified.png\" width=\"12\" height=\"12\" />";
     }
     $result .= "</a>";
 
@@ -909,7 +909,7 @@ class Player {
   }
 
   public static function activeCount() {
-    $db = Database::getConnection();
+    $db = @Database::getConnection();
     $stmt = $db->prepare("SELECT count(name) FROM players where password is not null");
     $stmt->execute();
     $stmt->bind_result($result);
@@ -919,7 +919,7 @@ class Player {
   }
 
   public static function verifiedCount() {
-    $db = Database::getConnection();
+    $db = @Database::getConnection();
     $stmt = $db->prepare("SELECT count(name) FROM players where mtgo_confirmed = 1");
     $stmt->execute();
     $stmt->bind_result($result);

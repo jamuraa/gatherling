@@ -2,7 +2,7 @@
 require_once 'lib.php';
 $player = Player::getSessionPlayer();
 
-print_header("PDCMagic.com | Gatherling | Player Control Panel");
+print_header("PauperKrew.com | Gatherling | Player Control Panel");
 ?>
 <div class="grid_10 suffix_1 prefix_1">
 <div id="gatherling_main" class="box">

@@ -11,11 +11,11 @@ function print_header($title, $js = null, $extra_head_content = "") {
   echo "<html><head><meta http-equiv=\"X-UA-Compatible\" content=\"IE=8\" />";
   echo "<title>{$title}</title>";
   echo <<<EOT
-    <link rel="stylesheet" type="text/css" media="all" href="/css/reset.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="/css/text.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="/css/960.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="/css/pdcmagic.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="/gatherling/css/gatherling.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="./css/reset.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="./css/text.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="./css/960.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="./css/pauperkrew.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="./css/gatherling.css" /> 
 EOT;
   if ($js) {
     echo "<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js\"></script>\n";
@@ -29,21 +29,17 @@ EOT;
   <body>
     <div id="maincontainer" class="container_12">
       <div id="headerimage" class="grid_12">
-        <img src="http://pdcmagic.com/img/zen_header2.jpg" />
+        <img src="./imageset/Header.png"/>
       </div>
       <div id="mainmenu_submenu" class="grid_12">
         <ul>
-          <li><a href="http://pdcmagic.com/">Home</a></li>
-          <li><a href="http://forums.pdcmagic.com/">Forums</a></li>
-          <li><a href="/wordpress/">Articles</a></li>
+          <li><a href="/gatherling/">Home</a></li>
+          <li><a href="http://pauperkrew.com/">Forums</a></li>
           <li><a href="/gatherling/series.php">Events</a></li>
-          <li class="current">
-            <a href="index.php">
-            Gatherling
-            </a>
-          </li>
+          <li class="current"><a href="index.php">Gatherling</a></li>
           <li><a href="/gatherling/ratings.php">Ratings</a></li>
-          <li class="last"><a href="http://community.wizards.com/pauperonline/wiki/">Wiki</a></li>
+          <li><a href="http://www.wizards.com/Magic/Digital/MagicOnline.aspx?x=mtg/digital/magiconline/whatshappening">MTGO News</a></li>
+          <li><a href="http://www.mtgotraders.com/">MTGO Traders</a></li>
         </ul>
       </div>
 EOT;
@@ -139,7 +135,7 @@ function noHost() {
 
 function medalImgStr($medal) {
   $ret = "<img style=\"border-width: 0px\" ";
-  $ret = $ret . "src=\"/images/" . $medal . ".gif\">";
+  $ret = $ret . "src=\"./imageset/" . $medal . ".png\">";
   return $ret;
 }
 
@@ -344,7 +340,7 @@ function distance_of_time_in_words($from_time,$to_time = 0, $include_seconds = f
 }
 
 function version_tagline() {
-  print "Gatherling version 2.1.0 (\"The program wasn't designed to alter the past. It was designed to affect the future.\")";
+  print "Gatherling version 2.1.0PK (\"The program wasn't designed to alter the past. It was designed to affect the future.\")";
   # print "Gatherling version 2.0.6 (\"We stole the Statue of Liberty! ...  The small one, from Las Vegas.\")";
   # print "Gatherling version 2.0.5 (\"No, that's perfectly normal paranoia. Everyone in the universe gets that.\")";
   # print "Gatherling version 2.0.4 (\"This is no time to talk about time. We don't have the time!\")";

@@ -1,7 +1,7 @@
 <?php session_start();
 include 'lib.php';
 
-print_header("PDCMagic.com | Gatherling | Player Profile");
+print_header("PauperKrew.com | Gatherling | Player Profile");
 
 $playername = "";
 if(isset($_SESSION['username'])) {$playername = $_SESSION['username'];}
@@ -82,7 +82,7 @@ function infoTable($player) {
 
   $line1 = strtoupper($player->name);
   if ($player->verified) { 
-    $line1 .= "  <img src=\"/images/gatherling/verified.png\" title=\"Verified their MTGO account\" />";
+    $line1 .= "  <img src=\"./imageset/verified.png\" title=\"Verified their MTGO account\" />";
   }
 
   $matches = $player->getAllMatches(); 
@@ -189,12 +189,12 @@ function bestDecksTable($player) {
 function medalCell($medal, $n) {
 	if(is_null($n)) {$n = 0;}
 	echo "<tr><td align=\"right\" width=130>";
-	echo "<img src=\"/images/$medal.gif\">&nbsp;</td>\n";
+	echo "<img src=\"./imageset/$medal.png\">&nbsp;</td>\n";
 	echo  "<td>$n</td></tr>\n";
 }
 
 function inlineMedal($medal) {
-	echo "<img src=\"/images/$medal.gif\">&nbsp;";
+	echo "<img src=\"./imageset/$medal.png\">&nbsp;";
 }
 
 function deckRecordString($deckname, $player) {

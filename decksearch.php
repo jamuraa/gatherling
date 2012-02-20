@@ -1,7 +1,7 @@
 <?php session_start();
 include 'lib.php';
 
-print_header("PDCMagic.com | Gatherling | Basic Deck Search");
+print_header("PauperKrew.com | Gatherling | Basic Deck Search");
 ?> 
 <div class="grid_10 suffix_1 prefix_1">
 <div id="gatherling_main" class="box">
@@ -64,7 +64,7 @@ function content() {
       echo "<tr><th>Deck Name</th><th>Played by</th><th>Event</th> </tr>";
       foreach ($deck_ids as $deck_id) {
         $deck = new Deck($deck_id);
-        echo "<tr><td><img src=\"/images/{$deck->medal}.gif\">\n";
+        echo "<tr><td><img src=\"./imageset/{$deck->medal}.png\">\n";
         echo $deck->linkTo();
         echo "</td>";
         if ($deck->playername != NULL) {
@@ -82,7 +82,7 @@ function content() {
       }
       echo "</table>";
     }
-  } else {
+  } else { 
     echo "<form method=\"get\" action=\"{$_SERVER['REQUEST_URI']}\"><table class=\"form\">";
     echo "<tr><th>Deck name contains</th> <td>";
     echo "<input type=\"text\" name=\"deck\"></td></tr>";
