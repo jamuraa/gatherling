@@ -2,7 +2,7 @@
 require_once 'lib.php';
 $player = Player::getSessionPlayer();
 
-print_header("PauperKrew.com | Gatherling | Player Control Panel");
+print_header("$SiteName | Gatherling | Player Control Panel");
 ?>
 <div class="grid_10 suffix_1 prefix_1">
 <div id="gatherling_main" class="box">
@@ -41,7 +41,7 @@ if ($player == NULL) {
         $result = "Successfully verified your account with MTGO.";
         $success = true;
       } else {
-        $result = "Your challenge is wrong.  Get a new one by sending the message 'ua pdcmagic' to infobot on MTGO!";
+        $result = "Your challenge is wrong.  Get a new one by sending the message 'ua pauperkrew' to infobot on MTGO!";
       }
     }
   }
@@ -109,7 +109,7 @@ function print_changePassForm($player, $result) {
 function print_verifyMtgoForm($player, $result) {
   echo "<center><h3>Verifying your MTGO account</h3>
     Verify your MTGO account by following these simple steps:<br />
-    1. Chat 'ua pdcmagic' to infobot to get a verification code <br />
+    1. Chat 'ua pauperkrew' to infobot to get a verification code <br />
     2. Enter the verification code here to be verified <br />
     \n";
   echo "<center style=\"color: red; font-weight: bold;\">{$result}</center>\n";
