@@ -1,7 +1,7 @@
 <?php session_start();
 include 'lib.php';
 
-print_header("PauperKrew.com | Gatherling | Event Report");
+print_header("$SiteName | Gatherling | Event Report");
 
 ?> 
 <div class="grid_10 prefix_1 suffix_1">
