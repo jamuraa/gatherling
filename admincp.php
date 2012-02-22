@@ -10,7 +10,7 @@ if (!Player::isLoggedIn() || !Player::getSessionPlayer()->isSuper()) {
   redirect("Location: index.php");
 }
 
-print_header("PauperKrew.com | Gatherling | Admin Control Panel");
+print_header("$SiteName | Gatherling | Admin Control Panel");
 ?>
 
 <div class="grid_10 suffix_1 prefix_1">
