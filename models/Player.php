@@ -876,7 +876,7 @@ class Player {
       return true;
     } else {
       $error_log = "Player = '{$this->name}' Challenge = '{$challenge}' Verify = '{$verifyplayer}' DBChallenge = '{$db_challenge}'\n";
-      file_put_contents("/var/www/pdcmagic.com/gatherling/challenge.log", $error_log, FILE_APPEND);
+      file_put_contents("/var/www/$SiteName/gatherling/challenge.log", $error_log, FILE_APPEND);
       return false;
     }
   }
