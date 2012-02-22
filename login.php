@@ -1,6 +1,6 @@
 <?php include 'lib.php';
 $in = testLogin();
-print_header("PauperKrew.com | Gatherling | Login");
+print_header("$SiteName | Gatherling | Login");
 
 ?> 
 <div class="grid_10 suffix_1 prefix_1"> 
