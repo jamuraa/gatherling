@@ -1,7 +1,7 @@
 <?php session_start();
 include 'lib.php';
 
-print_header("PauperKrew.com | Gatherling | Player Profile");
+print_header("$SiteName | Gatherling | Player Profile");
 
 $playername = "";
 if(isset($_SESSION['username'])) {$playername = $_SESSION['username'];}
