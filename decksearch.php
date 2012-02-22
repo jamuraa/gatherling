@@ -1,7 +1,7 @@
 <?php session_start();
 include 'lib.php';
 
-print_header("PauperKrew.com | Gatherling | Basic Deck Search");
+print_header("$SiteName | Gatherling | Basic Deck Search");
 ?> 
 <div class="grid_10 suffix_1 prefix_1">
 <div id="gatherling_main" class="box">
@@ -82,7 +82,7 @@ function content() {
       }
       echo "</table>";
     }
-  } else { 
+  } else { /*
     echo "<form method=\"get\" action=\"{$_SERVER['REQUEST_URI']}\"><table class=\"form\">";
     echo "<tr><th>Deck name contains</th> <td>";
     echo "<input type=\"text\" name=\"deck\"></td></tr>";
@@ -100,7 +100,9 @@ function content() {
     while ($stmt->fetch()) { 
       echo "<tr><td><a href=\"deck.php?mode=view&id={$deckid}\">{$name}</a></td>";
       echo "<td>{$count} times</td></tr>";
-    } 
+    } */
+    echo "<center>\n";
+    echo "Currently deactivated for PK Standard 1.01 deck privacy.";
     echo "</table>";
   }
 }
