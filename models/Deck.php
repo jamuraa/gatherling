@@ -118,11 +118,12 @@ class Deck {
   } 
 
   function getColorImages() {
+    include 'config.php';
     $count = $this->getColorCounts();
     $str = ""; 
     foreach ($count as $color => $n) { 
       if ($n > 0) { 
-        $str = $str . "<img src=\"./imageset/mana$color.png\" />";
+        $str = $str . "<img src=\"{$Theme}imageset/mana$color.png\" />";
       } 
     }  
     return $str;
