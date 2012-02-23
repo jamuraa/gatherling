@@ -139,8 +139,9 @@ function showReport($event) {
 }
 
 function finalists($event) {
-	$nfinalists = nfinalists($event);
-	echo "<table style=\"border-width: 0px;\" width=350>\n";
+  include 'config.php';  
+  $nfinalists = nfinalists($event);
+  echo "<table style=\"border-width: 0px;\" width=350>\n";
   echo "<tr><td colspan=3 align=\"center\"><b>TOP $nfinalists</td></tr>\n";
   foreach ($event->getFinalists() as $finalist) { 
     $finaldeck = new Deck($finalist['deck']);
@@ -153,9 +154,9 @@ function finalists($event) {
 		$append = " " . $finalist['medal'];
 		if($finalist['medal'] == 't8' || $finalist['medal'] == 't4') {
 			$append = " " . strtoupper($finalist['medal']);}
-		$medalSTR = "<img src=\"./imageset/{$finalist['medal']}.png\">";
+		$medalSTR = "<img src=\"{$Theme}imageset/{$finalist['medal']}.png\">";
 		$medalSTR .= $append;
-		$deckSTR = "<img src=\"./imageset/rename/{$deckinfoarr[1]}.png\"> ";
+		$deckSTR = "<img src=\"{$Theme}imageset/rename/{$deckinfoarr[1]}.png\"> ";
 		$deckSTR .= $finaldeck->linkTo();
 		if($deckinfoarr[2] < 60) {$deckSTR .= $redstar;}
     if($deckinfoarr[2] < 6)  {$deckSTR .= $redstar;}
@@ -168,8 +169,9 @@ function finalists($event) {
 }
 
 function metastats($event) {
-	$archcnt = initArchetypeCount();
-	$colorcnt = array("w" => 0, "g" => 0, "u" => 0, "r" => 0, "b" => 0);
+  include 'config.php';
+  $archcnt = initArchetypeCount();
+  $colorcnt = array("w" => 0, "g" => 0, "u" => 0, "r" => 0, "b" => 0);
   $decks = $event->getDecks(); 
   $ndecks = count($decks);
   foreach ($decks as $deck) { 
@@ -193,11 +195,11 @@ function metastats($event) {
 		}
 	}
 	echo "<tr><td>&nbsp;</td></tr>";
-	echo "<tr><td align=\"center\"><img src=\"./imageset/manaw.png\"</td>\n";
-	echo "<td align=\"center\"><img src=\"./imageset/manag.png\"></td>\n";
-	echo "<td align=\"center\"><img src=\"./imageset/manau.png\"></td>\n";
-	echo "<td align=\"center\"><img src=\"./imageset/manar.png\"></td>\n";
-	echo "<td align=\"center\"><img src=\"./imageset/manab.png\"></td></tr>\n";
+	echo "<tr><td align=\"center\"><img src=\"{$Theme}imageset/manaw.png\"</td>\n";
+	echo "<td align=\"center\"><img src=\"{$Theme}imageset/manag.png\"></td>\n";
+	echo "<td align=\"center\"><img src=\"{$Theme}imageset/manau.png\"></td>\n";
+	echo "<td align=\"center\"><img src=\"{$Theme}imageset/manar.png\"></td>\n";
+	echo "<td align=\"center\"><img src=\"{$Theme}imageset/manab.png\"></td></tr>\n";
 	echo "<tr>";
 	foreach($colorcnt as $col => $cnt) {
     if ($col != "") {
@@ -214,6 +216,7 @@ function metastats($event) {
 }
 
 function fullmetagame($event) {
+  include 'config.php';
   $decks = $event->getDecks();
   $players = array();
   foreach ($decks as $deck) { 
@@ -261,23 +264,29 @@ function fullmetagame($event) {
 			$bg = rowColor();
 			$color = $row['colors'];
 			echo "<tr style=\"\"><td>";
-			echo "<img src=\"./imageset/mana$color.png\">&nbsp;</td>\n";
+			echo "<img src=\"{$Theme}imageset/mana$color.png\">&nbsp;</td>\n";
 			echo "<td colspan=4 align=\"left\"><i>{$row['srtordr']} Players ";
 			echo "</td></tr>\n";
 		}
 		echo "<tr style=\"><td></td>\n";
 		echo "<td align=\"left\">";
 		if ($row['medal'] != "z") {
-      echo "<img src=\"./imageset/{$row['medal']}.png\">&nbsp;";
+      echo "<img src=\"{$Theme}imageset/{$row['medal']}.png\">&nbsp;";
     }
     echo "</td>\n<td align=\"left\">";
-    echo "Player is currently anonymous to allow deck privacy.";
-    /* $play = new Player($row['player']);
-		echo $play->linkTo() . "</td>\n";
-		echo "<td align=\"left\">";
-		echo "<a href=\"deck.php?mode=view&id={$row['id']}\">";
-		echo "{$row['deckname']}</a></td>\n";
-		echo "<td align=\"right\">{$row['archetype']}</td></tr>\n";b*/
+    if ($event->finalized == '0')
+        {
+        echo "Player is currently anonymous for deck privacy.";
+        }
+     else
+        {
+        $play = new Player($row['player']);
+        echo $play->linkTo() . "</td>\n";
+	echo "<td align=\"left\">";
+	echo "<a href=\"deck.php?mode=view&id={$row['id']}\">";
+	echo "{$row['deckname']}</a></td>\n";
+	echo "<td align=\"right\">{$row['archetype']}</td></tr>\n";
+        }
   }
   $result->close();
 	echo "</table>\n";
@@ -324,12 +333,16 @@ function imageCell($event) {
 	echo "<div class=\"series-logo\"><img src=\"displaySeries.php?series=$event->series\"></div>";
 }
 
-function infoCell($event) {
-	if(!is_null($event->threadurl)) {
+function infoCell($event) 
+{
+if(!is_null($event->threadurl))
+    {
     echo "<a href=\"{$event->threadurl}\">{$event->name}</a><br>\n";
-  } else {
+    } 
+else 
+    {
     echo "{$event->name}<br />\n";
-  }
+    }
 	$date = date('j F Y', strtotime($event->start));
 	echo "$date<br />\n";
   echo "{$event->format} &middot\n";
@@ -366,10 +379,11 @@ function infoCell($event) {
 }
 
 function trophyCell($event) {
+  include 'config.php';
   if ($event->hastrophy) { 
     echo "<img src=\"displayTrophy.php?event={$event->name}\"><br />\n";
   } else { 
-    echo "<img src=\"./imageset/notrophy.png\"><br />\n";
+    echo "<img src=\"{$Theme}imageset/notrophy.png\"><br />\n";
   } 
   $deck = $event->getPlaceDeck('1st');
   $player = $event->getPlacePlayer('1st');
@@ -379,7 +393,7 @@ function trophyCell($event) {
     $playerwin = new Player($player);
     echo $playerwin->linkTo();
     $info = deckInfo($deck);
-    echo "<img src=\"./imageset/{$info[1]}.png\"> ";
+    echo "<img src=\"{$Theme}imageset/{$info[1]}.png\"> ";
     echo $deck->linkTo();
     echo "<br>\n";
   } 
