@@ -185,19 +185,30 @@ function print_allContainer() {
 
 function print_recentDeckTable() {
   global $player;
-  $event = $player->getLastEventPlayed();
-  $entry = new Entry($event->name, $player->name);
-  if ($entry->deck) {
-    $decks = $player->getRecentDecks(6);
-  } else {
-    $decks = $player->getRecentDecks(5);
-  }
 
   echo "<table>\n";
   echo "<tr><td colspan=2><b>RECENT DECKS</td>\n";
   echo "<td colspan=2 align=\"right\">";
   echo "<a href=\"player.php?mode=alldecks\">";
   echo "(see all)</a></td>\n";
+  
+  $event = $player->getLastEventPlayed();
+  if (is_null($event))
+  {
+    echo "<tr><td>No Decks Found!</td>\n";
+  }
+  else
+  {
+  $entry = new Entry($event->name, $player->name);
+  if ($entry->deck) 
+      {
+      $decks = $player->getRecentDecks(6);
+      } 
+  else 
+      {
+      $decks = $player->getRecentDecks(5);
+      }
+
   if (!$entry->deck) {
     $cell1 = medalImgStr($entry->medal);
     $cell4 = $entry->recordString();
@@ -213,6 +224,7 @@ function print_recentDeckTable() {
     echo "<td>" . $deck->linkTo() . "</td>\n";
     echo "<td><a href=\"{$deck->getEvent()->threadurl}\">{$deck->eventname}</a></td>\n";
     echo "<td align=\"right\">$cell4</td></tr>\n";
+  }
   }
   echo "</table>\n";
 }
