@@ -126,12 +126,12 @@ function deckForm($deck = NULL) {
   echo "<td>To enter your deck, please give it ";
   echo "a name and select an archetype from the drop-down menu below. If ";
   echo "you do not specify and archetype, your deck will be labeled as ";
-  echo "\"Unclassified\". To enter cards, save your deck a a .txt file using the ";
+  echo "\"Unclassified\". To enter cards, save your deck as a .txt file using the ";
   echo "official MTGO client, and then copy and paste the maindeck and ";
   echo "sideboard into the appropriate text boxes. ";
-  echo "<font color=\"#FF0000\">Do not use a format such as \"1x Card\". ";
+  echo "Do not use a format such as \"1x Card\". ";
   echo "The parser will not accept this structure. The correct pattern is ";
-  echo "\"1 Card\".</font></td></tr>\n";
+  echo "\"1 Card\".</td></tr>\n";
   echo "<tr><td><b>Recent Decks</b></td>\n<td>\n";
   echo "<select id=\"autoenter-deck\">\n";
   echo "<option value=\"0\">Select a recent deck to start from there</option>\n";
@@ -308,20 +308,21 @@ function commentsTable($deck) {
 }
 
 function deckInfoCell($deck) {
+  include 'config.php';
   $ncards = $deck->getCardCount();
   $event = $deck->getEvent();
   $day = date("F j, Y", strtotime($event->start));
   if($deck->medal == '1st') {
-    $mstr = "<img src=\"./imageset/1st.png\">&nbsp;";
+    $mstr = "<img src=\"$ThemeDir$Theme1st.png\">&nbsp;";
     $placing = $mstr . "1st by";
   } else if($deck->medal == '2nd') {
-    $mstr = "<img src=\"./imageset/2nd.png\">&nbsp;";
+    $mstr = "<img src=\"{$Theme}imageset/2nd.png\">&nbsp;";
     $placing = $mstr . "2nd by";
   } else if($deck->medal == 't4') {
-    $mstr = "<img src=\"./imageset/t4.png\">&nbsp;";
+    $mstr = "<img src=\"{$Theme}imageset/t4.png\">&nbsp;";
     $placing = $mstr . "Top 4 by";
   } else if($deck->medal == 't8') {
-    $mstr = "<img src=\"./imageset/t8.png\">&nbsp;";
+    $mstr = "<img src=\"{$Theme}imageset/t8.png\">&nbsp;";
     $placing = $mstr . "Top 8 by";
   } else {
     $placing = "Played by";
@@ -482,6 +483,7 @@ function maindeckTable($deck) {
 }
 
 function ccTable($deck) {
+  include 'config.php';
   $convertedcosts = $deck->getCastingCosts();
 
   echo "<table style=\"border-width: 0px;\">\n";
@@ -489,7 +491,7 @@ function ccTable($deck) {
   $total = 0; $cards = 0;
   foreach ($convertedcosts as $cost => $amt) {
     echo "<tr><td align=\"right\" width=75>";
-    echo "<img src=\"./imageset/mana{$cost}.png\">";
+    echo "<img src=\"{$Theme}imageset/mana{$cost}.png\">";
     echo " &nbsp;</td>\n";
     echo "<td width=75 align=\"left\">{$amt}</td></tr>\n";
     $total += $cost * $amt;
@@ -504,6 +506,7 @@ function ccTable($deck) {
 }
 
 function symbolTable($deck) {
+  include 'config.php';
   echo "<table style=\"border-width: 0px\">\n";
   echo "<tr><td align=\"center\" colspan=2 width=150><b>MANA SYMBOLS";
   echo "</td></tr>\n";
@@ -514,7 +517,7 @@ function symbolTable($deck) {
   foreach($cnts as $color => $num) {
     if($num > 0) {
     echo "<tr><td align=\"right\" width=75>";
-    echo "<img src=\"./imageset/mana{$color}.png\">";
+    echo "<img src=\"{$Theme}imageset/mana{$color}.png\">";
     echo "&nbsp;</td>\n";
     echo "<td align=\"left\">$num</td></tr>\n";
     $sum += $num;
