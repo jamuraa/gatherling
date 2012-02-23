@@ -13,5 +13,6 @@ $CONFIG['db_database'] = 'gatherling';
 
 # === Website PARAMATERS ===
 $SiteName = "website name";
+$Theme    = "./styles/themename/";
 
 # THAT'S ALL FOLKS!
