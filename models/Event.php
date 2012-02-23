@@ -291,7 +291,7 @@ class Event {
   }
 
   function getPlayerCount() {
-    $db = Database::getConnection();
+    $db = @Database::getConnection();
     $stmt = $db->prepare("SELECT count(*) FROM entries WHERE event = ?");
     $stmt->bind_param("s", $this->name);
     $stmt->execute();
@@ -570,7 +570,7 @@ class Event {
   }
 
   public static function count() {
-    $db = Database::getConnection();
+    $db = @Database::getConnection();
     $stmt = $db->prepare("SELECT count(name) FROM events");
     $stmt->execute();
     $stmt->bind_result($result);

@@ -1,16 +1,17 @@
 <?php session_start();
 include 'lib.php';
 
-$js = <<<'EOD'
+$js = <<<EOD
 
 function addPlayerRow(data) {
+  include 'config.php';
   if (!data.success) { return false; }
   var html = '<tr id="entry_row_' + data.player + '"><td>';
   if (data.verified) {
-    html += '<img src="/images/gatherling/verified.png" />';
+    html += '<img src="{$Theme}imageset/verified.png" />';
   }
   html += '</td><td>' + data.player + '</td>';
-  html += '<td align="center"><img src="/images/dot.gif" /></td>';
+  html += '<td align="center"><img src="{$Theme}imageset/dot.png" /></td>';
   html += '<td><a class="create_deck_link" href="deck.php?player=' + data.player + '&event=' + event_name + '&mode=create">[Create Deck]</a></td>';
   html += '<td align="center"><input type="checkbox" name="delentries[]" value="' + data.player + '" /></td></tr>';
   $('input[name=newentry]').val("");
@@ -45,7 +46,7 @@ $(document).ready(function() {
 });
 EOD;
 
-print_header("PDCMagic.com | Gatherling | Host Control Panel", $js);
+print_header("$SiteName | Gatherling | Host Control Panel", $js);
 ?>
 <div class="grid_10 suffix_1 prefix_1">
 <div id="gatherling_main" class="box">
@@ -210,7 +211,7 @@ function eventList($series = "", $season = "") {
 
   foreach ($results as $thisEvent) {
     $dateStr = $thisEvent['start'];
-    $dateArr = split(" ", $dateStr);
+    $dateArr = explode(" ", $dateStr);
     $date = $dateArr[0];
     echo "<tr><td>";
     echo "<a href=\"event.php?name={$thisEvent['name']}\">";
@@ -291,7 +292,7 @@ function eventForm($event = NULL, $forcenew = false) {
     $year = strftime('Y', time());
   }
   echo "<tr><th>Date & Time</th><td>";
-  numDropMenu("year", "- Year -", 2011, $year, 2005);
+  numDropMenu("year", "- Year -", 2012, $year, 2005);
   monthDropMenu($month);
   numDropMenu("day", "- Day- ", 31, $day, 1);
   timeDropMenu($hour, $minutes);
@@ -391,6 +392,7 @@ function eventForm($event = NULL, $forcenew = false) {
 }
 
 function playerList($event) {
+  include 'config.php';
   $entries = $event->getEntries();
   $numentries = count($entries);
 
@@ -418,12 +420,12 @@ function playerList($event) {
   foreach ($entries as $entry) {
     echo "<tr id=\"entry_row_{$entry->player->name}\"><td>";
     if ($entry->player->verified) {
-      echo "<img src=\"/images/gatherling/verified.png\" title=\"Player verified on MTGO\" />";
+      echo "<img src=\"{$Theme}imageset/verified.png\" title=\"Player verified on MTGO\" />";
     }
     echo "</td>";
     echo "<td>{$entry->player->name}</td>";
     if(strcmp("", $entry->medal) != 0) {
-      $img = "<img src=\"/images/{$entry->medal}.gif\" />";
+      $img = "<img src=\"{$Theme}imageset/{$entry->medal}.png\" />";
     }
     echo "<td align=\"center\">$img</td>";
     if ($entry->deck) {
@@ -455,6 +457,7 @@ function playerList($event) {
 }
 
 function pointsAdjustmentForm($event) {
+  include 'config.php';
   $entries = $event->getEntries();
 
   // Start a new form
@@ -468,13 +471,13 @@ function pointsAdjustmentForm($event) {
     $adjustment = $event->getSeasonPointAdjustment($name);
     echo "<tr> <td> {$name} </td>";
     if ($entry->medal != "") {
-      $img = "<img src=\"/images/{$entry->medal}.gif\">";
+      $img = "<img src=\"{$Theme}imageset/{$entry->medal}.png\">";
       echo "<td> {$img} </td>";
     } else {
       echo "<td> </td>";
     }
     if ($entry->deck != NULL) {
-      $img = "<img src=\"/images/gatherling/verified.png\" title=\"Player posted deck\" />";
+      $img = "<img src=\"{$Theme}imageset/verified.png\" title=\"Player posted deck\" />";
       echo "<td> {$img} </td>";
     } else {
       echo "<td> </td>";
@@ -560,6 +563,7 @@ function matchList($event) {
 }
 
 function medalList($event) {
+  include 'config.php';
   $def1 = "";
   $def2 = "";
   $def4 = array("", "");
@@ -594,25 +598,25 @@ function medalList($event) {
   echo "<tr><td align=\"center\"><b>Medal</td>";
   echo "<td align=\"center\"><b>Player</td></tr>";
   echo "<tr><td align=\"center\">";
-  echo "<img src=\"/images/1st.gif\"></td>";
+  echo "<img src=\"{$Theme}imageset/1st.png\"></td>";
   echo "<td align=\"center\">";
   playerDropMenu($event, "1", $def1);
   echo "</td></tr>";
   echo "<tr><td align=\"center\">";
-  echo "<img src=\"/images/2nd.gif\"></td>";
+  echo "<img src=\"{$Theme}imageset/2nd.png\"></td>";
   echo "<td align=\"center\">";
   playerDropMenu($event, "2", $def2);
   echo "</td></tr>";
   for($i = 3; $i < 5; $i++) {
     echo "<tr><td align=\"center\">";
-    echo "<img src=\"/images/t4.gif\"></td>";
+    echo "<img src=\"{$Theme}imageset/t4.png\"></td>";
     echo "<td align=\"center\">";
     playerDropMenu($event, "$i", $def4[$i-3]);
     echo "</td></tr>";
   }
   for($i = 5; $i < 9; $i++) {
     echo "<tr><td align=\"center\">";
-    echo "<img src=\"/images/t8.gif\"></td>";
+    echo "<img src=\"{$Theme}imageset/t8.png\"></td>";
     echo "<td align=\"center\">";
     playerDropMenu($event, "$i", $def8[$i-5]);
     echo "</td></tr>";
@@ -767,7 +771,7 @@ function insertTrophy() {
     #$db = Database::getConnection();
 
     include('config.php');
-    $db = new PDO('mysql:unix_socket=/var/run/mysqld/mysqld.sock;dbname=' . $CONFIG['db_database'], $CONFIG['db_username'], $CONFIG['db_password']);
+    $db = Database::getPDOConnection();
     $stmt = $db->prepare("DELETE FROM trophies WHERE event = ?");
     $stmt->bindParam(1, $event, PDO::PARAM_STR);
     $stmt->execute() or die($stmt->errorCode());
@@ -1219,7 +1223,8 @@ function dciInput() {
 
 function dciregister($data) {
   $event = new Event($_POST['name']);
-  $data = preg_replace("/\n/", "\n", $data);
+  $data = preg_replace("/
+\n/", "\n", $data);
   $lines = split("\n", $data);
   $ret = array();
   for($ndx = 0; $ndx < sizeof($lines); $ndx++) {
@@ -1234,7 +1239,8 @@ function dciregister($data) {
 
 function dciinputmatches($reg, $data) {
   $event = new Event($_POST['name']);
-  $data = preg_replace("/\n/", "\n", $data);
+  $data = preg_replace("/
+\n/", "\n", $data);
   $lines = split("\n", $data);
   for($table = 0; $table < sizeof($lines)/6; $table++) {
     $offset = $table * 6;
@@ -1258,7 +1264,8 @@ function dciinputmatches($reg, $data) {
 
 function dciinputplayoffs($reg, $data) {
   $event = new Event($_POST['name']);
-  $data = preg_replace("/\n/", "\n", $data);
+  $data = preg_replace("/
+\n/", "\n", $data);
   $lines = split("\n", $data);
   $ntables = $lines[0];
   $nrounds = log($ntables, 2);
@@ -1300,7 +1307,8 @@ function dci3Input() {
 function dci3register($data) {
   $event = new Event($_POST['name']);
   $result = array();
-  $data = preg_replace("/\n/", "\n", $data);
+  $data = preg_replace("/
+\n/", "\n", $data);
   $lines = split("\n", $data);
   foreach ($lines as $line) {
     $table = split("\t", $line);
@@ -1317,7 +1325,8 @@ function dci3register($data) {
 function dci3makematches($data, $regmap) {
   $event = new Event($_POST['name']);
   $result = array();
-  $data = preg_replace("/\n/", "\n", $data);
+  $data = preg_replace("/
+\n/", "\n", $data);
   $lines = split("\n", $data);
   $playernumber = 1;
   $lastroundnum = 0;

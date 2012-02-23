@@ -1,7 +1,7 @@
 <?php session_start();
 include 'lib.php';
 
-print_header("PDCMagic.com | Gatherling | Basic Deck Search");
+print_header("$SiteName | Gatherling | Basic Deck Search");
 ?> 
 <div class="grid_10 suffix_1 prefix_1">
 <div id="gatherling_main" class="box">
@@ -16,6 +16,7 @@ print_header("PDCMagic.com | Gatherling | Basic Deck Search");
 
 <?php // ------ Search Starts here ------
 function content() {
+  include 'config.php';
   if(!empty($_GET['deck']) || !empty($_GET['card'])) {
     $db = Database::getConnection(); 
     $decknamesearch = "%" . $db->escape_string($_GET['deck']) . "%";
@@ -64,7 +65,7 @@ function content() {
       echo "<tr><th>Deck Name</th><th>Played by</th><th>Event</th> </tr>";
       foreach ($deck_ids as $deck_id) {
         $deck = new Deck($deck_id);
-        echo "<tr><td><img src=\"/images/{$deck->medal}.gif\">\n";
+        echo "<tr><td><img src=\"{$Theme}imageset/{$deck->medal}.png\">\n";
         echo $deck->linkTo();
         echo "</td>";
         if ($deck->playername != NULL) {
@@ -100,8 +101,7 @@ function content() {
     while ($stmt->fetch()) { 
       echo "<tr><td><a href=\"deck.php?mode=view&id={$deckid}\">{$name}</a></td>";
       echo "<td>{$count} times</td></tr>";
-    } 
-    echo "</table>";
+    }
   }
 }
 ?>

@@ -1,7 +1,7 @@
 <?php
 
 class Deck {
-  public $id; 
+  public $id;
   public $name;
   public $archetype; 
   public $notes;
@@ -118,11 +118,12 @@ class Deck {
   } 
 
   function getColorImages() {
+    include 'config.php';
     $count = $this->getColorCounts();
     $str = ""; 
     foreach ($count as $color => $n) { 
       if ($n > 0) { 
-        $str = $str . "<img src=\"/images/mana$color.gif\" />";
+        $str = $str . "<img src=\"{$Theme}imageset/mana$color.png\" />";
       } 
     }  
     return $str;
@@ -434,7 +435,8 @@ class Deck {
   }
 
   static function uniqueCount() { 
-    $db = Database::getConnection(); 
+    $db = @Database::getConnection(); 
+#    $db = new Database 
     $stmt = $db->prepare("SELECT count(deck_hash) FROM decks GROUP BY deck_hash");
     $stmt->execute(); 
     $stmt->store_result();

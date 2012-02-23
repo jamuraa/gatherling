@@ -1,15 +1,13 @@
-
-
 table.scoreboard span { 
-  border-bottom: 1px dotted gray;
+  border-bottom: 1px dotted #E25912;
 } 
 
 table.scoreboard tr.odd { 
-  background-color: #ddd;
+  background-color: #353535;
 } 
 
 table.scoreboard tr.cutoff { 
-  border-bottom: 3px double black;
+  border-bottom: 3px double #E25912;
 } 
 
 table.scoreboard td, table.scoreboard th { 
@@ -23,13 +21,11 @@ table.scoreboard .playername {
 
 .series { 
   position: relative;
-  background: #ccc;
-  width: 700px; 
+  background: #262626;
+  width: 940px; 
   margin-left: auto; 
   margin-right: auto; 
-  border-radius: 10px; 
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
+  border-top: 1px solid #4F4F4F;
   min-height: 200px; 
   margin-bottom: 20px; 
 } 

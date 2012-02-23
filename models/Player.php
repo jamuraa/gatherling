@@ -876,7 +876,7 @@ class Player {
       return true;
     } else {
       $error_log = "Player = '{$this->name}' Challenge = '{$challenge}' Verify = '{$verifyplayer}' DBChallenge = '{$db_challenge}'\n";
-      file_put_contents("/var/www/pdcmagic.com/gatherling/challenge.log", $error_log, FILE_APPEND);
+      file_put_contents("/var/www/$SiteName/gatherling/challenge.log", $error_log, FILE_APPEND);
       return false;
     }
   }
@@ -899,9 +899,10 @@ class Player {
   }
 
   public function linkTo() {
+    include 'config.php';
     $result = "<a href=\"profile.php?player={$this->name}\">$this->name";
     if ($this->verified == 1) {
-      $result .= " <img src=\"/images/gatherling/verified.png\" width=\"12\" height=\"12\" />";
+      $result .= " <img src=\"{$Theme}imageset/verified.png\" width=\"12\" height=\"12\" />";
     }
     $result .= "</a>";
 
@@ -909,7 +910,7 @@ class Player {
   }
 
   public static function activeCount() {
-    $db = Database::getConnection();
+    $db = @Database::getConnection();
     $stmt = $db->prepare("SELECT count(name) FROM players where password is not null");
     $stmt->execute();
     $stmt->bind_result($result);
@@ -919,7 +920,7 @@ class Player {
   }
 
   public static function verifiedCount() {
-    $db = Database::getConnection();
+    $db = @Database::getConnection();
     $stmt = $db->prepare("SELECT count(name) FROM players where mtgo_confirmed = 1");
     $stmt->execute();
     $stmt->bind_result($result);

@@ -21,10 +21,10 @@ $challenge = substr($key, 0, 5);
 $player = Player::findByName($_GET['username']);
 
 if (!$player) { 
-  echo "<UaReply>You're not registered on PDCMagic!</UaReply>";
+  echo "<UaReply>You're not registered on $SiteName!</UaReply>";
 } 
 
 $player->setChallenge($challenge); 
 
-echo "<UaReply>Your verification code for PDCMagic is $challenge</UaReply>"; 
+echo "<UaReply>Your verification code for $SiteName is $challenge</UaReply>"; 
 

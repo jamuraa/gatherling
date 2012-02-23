@@ -2,7 +2,7 @@
 require_once 'lib.php';
 $player = Player::getSessionPlayer();
 
-print_header("PDCMagic.com | Gatherling | Player Control Panel");
+print_header("$SiteName | Gatherling | Player Control Panel");
 ?>
 <div class="grid_10 suffix_1 prefix_1">
 <div id="gatherling_main" class="box">
@@ -41,7 +41,7 @@ if ($player == NULL) {
         $result = "Successfully verified your account with MTGO.";
         $success = true;
       } else {
-        $result = "Your challenge is wrong.  Get a new one by sending the message 'ua pdcmagic' to infobot on MTGO!";
+        $result = "Your challenge is wrong.  Get a new one by sending the message 'ua pauperkrew' to infobot on MTGO!";
       }
     }
   }
@@ -109,7 +109,7 @@ function print_changePassForm($player, $result) {
 function print_verifyMtgoForm($player, $result) {
   echo "<center><h3>Verifying your MTGO account</h3>
     Verify your MTGO account by following these simple steps:<br />
-    1. Chat 'ua pdcmagic' to infobot to get a verification code <br />
+    1. Chat 'ua pauperkrew' to infobot to get a verification code <br />
     2. Enter the verification code here to be verified <br />
     \n";
   echo "<center style=\"color: red; font-weight: bold;\">{$result}</center>\n";
@@ -185,19 +185,30 @@ function print_allContainer() {
 
 function print_recentDeckTable() {
   global $player;
-  $event = $player->getLastEventPlayed();
-  $entry = new Entry($event->name, $player->name);
-  if ($entry->deck) {
-    $decks = $player->getRecentDecks(6);
-  } else {
-    $decks = $player->getRecentDecks(5);
-  }
 
   echo "<table>\n";
   echo "<tr><td colspan=2><b>RECENT DECKS</td>\n";
   echo "<td colspan=2 align=\"right\">";
   echo "<a href=\"player.php?mode=alldecks\">";
   echo "(see all)</a></td>\n";
+  
+  $event = $player->getLastEventPlayed();
+  if (is_null($event))
+  {
+    echo "<tr><td>No Decks Found!</td>\n";
+  }
+  else
+  {
+  $entry = new Entry($event->name, $player->name);
+  if ($entry->deck) 
+      {
+      $decks = $player->getRecentDecks(6);
+      } 
+  else 
+      {
+      $decks = $player->getRecentDecks(5);
+      }
+
   if (!$entry->deck) {
     $cell1 = medalImgStr($entry->medal);
     $cell4 = $entry->recordString();
@@ -213,6 +224,7 @@ function print_recentDeckTable() {
     echo "<td>" . $deck->linkTo() . "</td>\n";
     echo "<td><a href=\"{$deck->getEvent()->threadurl}\">{$deck->eventname}</a></td>\n";
     echo "<td align=\"right\">$cell4</td></tr>\n";
+  }
   }
   echo "</table>\n";
 }

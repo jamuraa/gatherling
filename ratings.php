@@ -1,7 +1,7 @@
 <?php session_start();
 include 'lib.php';
 
-print_header("PDCMagic.com | Gatherling | Ratings");
+print_header("$SiteName | Gatherling | Ratings");
 ?> 
 <div class="grid_10 suffix_1 prefix_1">
 <div id="gatherling_main" class="box">
