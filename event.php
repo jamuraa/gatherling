@@ -4,13 +4,14 @@ include 'lib.php';
 $js = <<<EOD
 
 function addPlayerRow(data) {
+  include 'config.php';
   if (!data.success) { return false; }
   var html = '<tr id="entry_row_' + data.player + '"><td>';
   if (data.verified) {
-    html += '<img src="./imageset/verified.png" />';
+    html += '<img src="{$Theme}imageset/verified.png" />';
   }
   html += '</td><td>' + data.player + '</td>';
-  html += '<td align="center"><img src="./imageset/dot.png" /></td>';
+  html += '<td align="center"><img src="{$Theme}imageset/dot.png" /></td>';
   html += '<td><a class="create_deck_link" href="deck.php?player=' + data.player + '&event=' + event_name + '&mode=create">[Create Deck]</a></td>';
   html += '<td align="center"><input type="checkbox" name="delentries[]" value="' + data.player + '" /></td></tr>';
   $('input[name=newentry]').val("");
@@ -391,6 +392,7 @@ function eventForm($event = NULL, $forcenew = false) {
 }
 
 function playerList($event) {
+  include 'config.php';
   $entries = $event->getEntries();
   $numentries = count($entries);
 
@@ -418,12 +420,12 @@ function playerList($event) {
   foreach ($entries as $entry) {
     echo "<tr id=\"entry_row_{$entry->player->name}\"><td>";
     if ($entry->player->verified) {
-      echo "<img src=\"./imageset/verified.png\" title=\"Player verified on MTGO\" />";
+      echo "<img src=\"{$Theme}imageset/verified.png\" title=\"Player verified on MTGO\" />";
     }
     echo "</td>";
     echo "<td>{$entry->player->name}</td>";
     if(strcmp("", $entry->medal) != 0) {
-      $img = "<img src=\"./imageset/{$entry->medal}.png\" />";
+      $img = "<img src=\"{$Theme}imageset/{$entry->medal}.png\" />";
     }
     echo "<td align=\"center\">$img</td>";
     if ($entry->deck) {
@@ -455,6 +457,7 @@ function playerList($event) {
 }
 
 function pointsAdjustmentForm($event) {
+  include 'config.php';
   $entries = $event->getEntries();
 
   // Start a new form
@@ -468,13 +471,13 @@ function pointsAdjustmentForm($event) {
     $adjustment = $event->getSeasonPointAdjustment($name);
     echo "<tr> <td> {$name} </td>";
     if ($entry->medal != "") {
-      $img = "<img src=\"./imageset/{$entry->medal}.png\">";
+      $img = "<img src=\"{$Theme}imageset/{$entry->medal}.png\">";
       echo "<td> {$img} </td>";
     } else {
       echo "<td> </td>";
     }
     if ($entry->deck != NULL) {
-      $img = "<img src=\"./imageset/verified.png\" title=\"Player posted deck\" />";
+      $img = "<img src=\"{$Theme}imageset/verified.png\" title=\"Player posted deck\" />";
       echo "<td> {$img} </td>";
     } else {
       echo "<td> </td>";
@@ -560,6 +563,7 @@ function matchList($event) {
 }
 
 function medalList($event) {
+  include 'config.php';
   $def1 = "";
   $def2 = "";
   $def4 = array("", "");
@@ -594,25 +598,25 @@ function medalList($event) {
   echo "<tr><td align=\"center\"><b>Medal</td>";
   echo "<td align=\"center\"><b>Player</td></tr>";
   echo "<tr><td align=\"center\">";
-  echo "<img src=\"./imageset/1st.png\"></td>";
+  echo "<img src=\"{$Theme}imageset/1st.png\"></td>";
   echo "<td align=\"center\">";
   playerDropMenu($event, "1", $def1);
   echo "</td></tr>";
   echo "<tr><td align=\"center\">";
-  echo "<img src=\"./imageset/2nd.png\"></td>";
+  echo "<img src=\"{$Theme}imageset/2nd.png\"></td>";
   echo "<td align=\"center\">";
   playerDropMenu($event, "2", $def2);
   echo "</td></tr>";
   for($i = 3; $i < 5; $i++) {
     echo "<tr><td align=\"center\">";
-    echo "<img src=\"./imageset/t4.png\"></td>";
+    echo "<img src=\"{$Theme}imageset/t4.png\"></td>";
     echo "<td align=\"center\">";
     playerDropMenu($event, "$i", $def4[$i-3]);
     echo "</td></tr>";
   }
   for($i = 5; $i < 9; $i++) {
     echo "<tr><td align=\"center\">";
-    echo "<img src=\"./imageset/t8.png\"></td>";
+    echo "<img src=\"{$Theme}imageset/t8.png\"></td>";
     echo "<td align=\"center\">";
     playerDropMenu($event, "$i", $def8[$i-5]);
     echo "</td></tr>";
