@@ -16,6 +16,7 @@ print_header("$SiteName | Gatherling | Basic Deck Search");
 
 <?php // ------ Search Starts here ------
 function content() {
+  include 'config.php';
   if(!empty($_GET['deck']) || !empty($_GET['card'])) {
     $db = Database::getConnection(); 
     $decknamesearch = "%" . $db->escape_string($_GET['deck']) . "%";
@@ -64,7 +65,7 @@ function content() {
       echo "<tr><th>Deck Name</th><th>Played by</th><th>Event</th> </tr>";
       foreach ($deck_ids as $deck_id) {
         $deck = new Deck($deck_id);
-        echo "<tr><td><img src=\"./imageset/{$deck->medal}.png\">\n";
+        echo "<tr><td><img src=\"{$Theme}imageset/{$deck->medal}.png\">\n";
         echo $deck->linkTo();
         echo "</td>";
         if ($deck->playername != NULL) {
@@ -82,7 +83,7 @@ function content() {
       }
       echo "</table>";
     }
-  } else { /*
+  } else {
     echo "<form method=\"get\" action=\"{$_SERVER['REQUEST_URI']}\"><table class=\"form\">";
     echo "<tr><th>Deck name contains</th> <td>";
     echo "<input type=\"text\" name=\"deck\"></td></tr>";
@@ -100,10 +101,7 @@ function content() {
     while ($stmt->fetch()) { 
       echo "<tr><td><a href=\"deck.php?mode=view&id={$deckid}\">{$name}</a></td>";
       echo "<td>{$count} times</td></tr>";
-    } */
-    echo "<center>\n";
-    echo "Currently deactivated for PK Standard 1.01 deck privacy.";
-    echo "</table>";
+    }
   }
 }
 ?>
