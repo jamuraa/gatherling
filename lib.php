@@ -1,5 +1,4 @@
 <?php
-
 require_once 'bootstrap.php';
 
 $HC = "#DDDDDD";
@@ -8,14 +7,11 @@ $R2 = "#FFFFFF";
 $CC = $R1;
 
 function print_header($title, $js = null, $extra_head_content = "") {
+  include 'config.php';
   echo "<html><head><meta http-equiv=\"X-UA-Compatible\" content=\"IE=8\" />";
   echo "<title>{$title}</title>";
   echo <<<EOT
-    <link rel="stylesheet" type="text/css" media="all" href="./css/reset.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="./css/text.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="./css/960.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="./css/pauperkrew.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="./css/gatherling.css" /> 
+    <link rel="stylesheet" type="text/css" media="all" href="{$Theme}theme/stylesheet.css" />
 EOT;
   if ($js) {
     echo "<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js\"></script>\n";
@@ -29,7 +25,7 @@ EOT;
   <body>
     <div id="maincontainer" class="container_12">
       <div id="headerimage" class="grid_12">
-        <img src="./imageset/Header.png"/>
+        <img src="{$Theme}imageset/Header.png"/>
       </div>
       <div id="mainmenu_submenu" class="grid_12">
         <ul>
@@ -134,8 +130,9 @@ function noHost() {
 }
 
 function medalImgStr($medal) {
+  include 'config.php';
   $ret = "<img style=\"border-width: 0px\" ";
-  $ret = $ret . "src=\"./imageset/" . $medal . ".png\">";
+  $ret = $ret . "src=\"{$Theme}imageset/" . $medal . ".png\">";
   return $ret;
 }
 
