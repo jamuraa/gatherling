@@ -155,7 +155,7 @@ function finalists($event) {
       $append = " " . strtoupper($finalist['medal']);}
     $medalSTR = "<img src=\"imageset/{$finalist['medal']}.png\">";
     $medalSTR .= $append;
-    $deckSTR = "<img src=\"imageset/rename/{$deckinfoarr[1]}.png\"> ";
+    $deckSTR = "<img src=\"imageset/colors/{$deckinfoarr[1]}.png\"> ";
     $deckSTR .= $finaldeck->linkTo();
     if($deckinfoarr[2] < 60) {$deckSTR .= $redstar;}
     if($deckinfoarr[2] < 6)  {$deckSTR .= $redstar;}
