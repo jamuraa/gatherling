@@ -101,6 +101,7 @@ function content() {
       echo "<tr><td><a href=\"deck.php?mode=view&id={$deckid}\">{$name}</a></td>";
       echo "<td>{$count} times</td></tr>";
     }
+    echo "</table>";
   }
 }
 ?>
