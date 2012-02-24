@@ -24,7 +24,7 @@ print_header("$SiteName | Gatherling | Admin Control Panel");
 
 <?php print_footer(); ?>
 
-<?php 
+<?php
 
 function do_page() {
   handleActions();

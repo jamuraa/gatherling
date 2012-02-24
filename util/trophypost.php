@@ -8,8 +8,8 @@ $result = mysql_query($query, $db) or die(mysql_error());
 
 $n = 0;
 while($row = mysql_fetch_assoc($result)) {
-	printf("[trophy]%s[/trophy]", $row['name']);
-	$n++;
-	if($n%3 == 0) {echo "\n";}
+  printf("[trophy]%s[/trophy]", $row['name']);
+  $n++;
+  if($n%3 == 0) {echo "\n";}
 }
 ?>

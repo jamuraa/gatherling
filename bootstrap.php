@@ -1,8 +1,8 @@
 <?php
 
-function __autoload($class_name) { 
-  require_once 'models/' . $class_name . '.php'; 
-} 
+function __autoload($class_name) {
+  require_once 'models/' . $class_name . '.php';
+}
 
 // Fix for MAGIC_QUOTES_GPC
 

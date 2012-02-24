@@ -23,129 +23,129 @@ calcRating("XPDC Season 1", $xpdcQuery);
 function calcRating($format, $query) {
   global $db;
   $db->query($query) or die($db->error);
-	$result = mysql_query($query, $db) or die(mysql_error());
-	while($row = $result->fetch_assoc()) {
-		$event = $row['name'];
-		$players = calcPostEventRatings($event, $format);
-		insertRatings($players, $format, $row['start']);
-	}
-	mysql_free_result($result);
+  $result = mysql_query($query, $db) or die(mysql_error());
+  while($row = $result->fetch_assoc()) {
+    $event = $row['name'];
+    $players = calcPostEventRatings($event, $format);
+    insertRatings($players, $format, $row['start']);
+  }
+  mysql_free_result($result);
 }
 
 function insertRatings($players, $format, $date) {
   global $db;
-	foreach($players as $player=>$data) {
-		$rating = $data['rating'];
+  foreach($players as $player=>$data) {
+    $rating = $data['rating'];
     $wins = $data['wins']; $losses = $data['losses'];
-    $stmt = $db->prepare("INSERT INTO ratings VALUES(?, ?, ?, ?, ?, ?)"); 
+    $stmt = $db->prepare("INSERT INTO ratings VALUES(?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("sdssdd", $player, $rating, $format, $date, $wins, $losses);
-    $stmt->execute() or die($stmt->error); 
+    $stmt->execute() or die($stmt->error);
     $stmt->close();
-	}
+  }
 }
 
 function calcPostEventRatings($event, $format) {
   global $db;
-	$players = getEntryRatings($event, $format);	
-	$matches = getMatches($event);
-	for($ndx = 0; $ndx < sizeof($matches); $ndx++) {
-		$aPts = 0.5; $bPts = 0.5;
-		if(strcmp($matches[$ndx]['result'], 'A') == 0) {
-			$aPts = 1.0; $bPts = 0.0;
-			$players[$matches[$ndx]['playera']]['wins']++;	
-			$players[$matches[$ndx]['playerb']]['losses']++;	
-		}
-		elseif(strcmp($matches[$ndx]['result'], 'B') == 0) {
-			$aPts = 0.0; $bPts = 1.0;
-			$players[$matches[$ndx]['playerb']]['wins']++;	
-			$players[$matches[$ndx]['playera']]['losses']++;	
-		}
-		$newA = newRating($players[$matches[$ndx]['playera']]['rating'],
-			$players[$matches[$ndx]['playerb']]['rating'], 
-			$aPts, $matches[$ndx]['kvalue']);
-		$newB = newRating($players[$matches[$ndx]['playerb']]['rating'],
-			$players[$matches[$ndx]['playera']]['rating'], 
-			$bPts, $matches[$ndx]['kvalue']);
+  $players = getEntryRatings($event, $format);
+  $matches = getMatches($event);
+  for($ndx = 0; $ndx < sizeof($matches); $ndx++) {
+    $aPts = 0.5; $bPts = 0.5;
+    if(strcmp($matches[$ndx]['result'], 'A') == 0) {
+      $aPts = 1.0; $bPts = 0.0;
+      $players[$matches[$ndx]['playera']]['wins']++;
+      $players[$matches[$ndx]['playerb']]['losses']++;
+    }
+    elseif(strcmp($matches[$ndx]['result'], 'B') == 0) {
+      $aPts = 0.0; $bPts = 1.0;
+      $players[$matches[$ndx]['playerb']]['wins']++;
+      $players[$matches[$ndx]['playera']]['losses']++;
+    }
+    $newA = newRating($players[$matches[$ndx]['playera']]['rating'],
+      $players[$matches[$ndx]['playerb']]['rating'],
+      $aPts, $matches[$ndx]['kvalue']);
+    $newB = newRating($players[$matches[$ndx]['playerb']]['rating'],
+      $players[$matches[$ndx]['playera']]['rating'],
+      $bPts, $matches[$ndx]['kvalue']);
 
-#		if(strcmp($format, "Other Formats") == 0) {
-#		if(strcasecmp($matches[$ndx]['playera'], 'kingritz') == 0) {
-#			printf("%s\n", $event);
-#			printf("%d -> %d\n", $players[$matches[$ndx]['playera']]['rating'], $newA);}
-#		if(strcasecmp($matches[$ndx]['playerb'], 'kingritz') == 0) {
-#			printf("%s\n", $event);
-#			printf("%d -> %d\n", $players[$matches[$ndx]['playerb']]['rating'], $newB);}
-#		}
+#    if(strcmp($format, "Other Formats") == 0) {
+#    if(strcasecmp($matches[$ndx]['playera'], 'kingritz') == 0) {
+#      printf("%s\n", $event);
+#      printf("%d -> %d\n", $players[$matches[$ndx]['playera']]['rating'], $newA);}
+#    if(strcasecmp($matches[$ndx]['playerb'], 'kingritz') == 0) {
+#      printf("%s\n", $event);
+#      printf("%d -> %d\n", $players[$matches[$ndx]['playerb']]['rating'], $newB);}
+#    }
 
-		$players[$matches[$ndx]['playera']]['rating'] = $newA;
-		$players[$matches[$ndx]['playerb']]['rating'] = $newB;
-	}
-	return $players;
+    $players[$matches[$ndx]['playera']]['rating'] = $newA;
+    $players[$matches[$ndx]['playerb']]['rating'] = $newB;
+  }
+  return $players;
 }
 
 function newRating($old, $opp, $pts, $k) {
-	$new = $old + ($k * ($pts - winProb($old, $opp)));
-	if($old < $new) {$new = ceil($new);}
-	elseif($old > $new) {$new = floor($new);}
-	return $new;
+  $new = $old + ($k * ($pts - winProb($old, $opp)));
+  if($old < $new) {$new = ceil($new);}
+  elseif($old > $new) {$new = floor($new);}
+  return $new;
 }
 
 function winProb($rating, $oppRating) {
-	return 1/(pow(10, ($oppRating - $rating)/400) + 1);
+  return 1/(pow(10, ($oppRating - $rating)/400) + 1);
 }
 
 function getMatches($event) {
   global $db;
-	$stmt = $db->prepare("SELECT LCASE(m.playera) AS playera, LCASE(m.playerb) AS playerb, m.result, e.kvalue
-		FROM matches AS m, subevents AS s, events AS e
-		WHERE m.subevent=s.id AND s.parent=e.name AND e.name = ?
+  $stmt = $db->prepare("SELECT LCASE(m.playera) AS playera, LCASE(m.playerb) AS playerb, m.result, e.kvalue
+    FROM matches AS m, subevents AS s, events AS e
+    WHERE m.subevent=s.id AND s.parent=e.name AND e.name = ?
     ORDER BY s.timing, m.round");
-  $stmt->bind_param("s", $event); 
+  $stmt->bind_param("s", $event);
   $stmt->execute();
   $stmt->bind_result($playera, $playerb, $result, $kvalue);
   $data = array();
-  while ($stmt->fetch()) { 
-    $data[] = array('playera' => $playera, 
-                    'playerb' => $playerb, 
+  while ($stmt->fetch()) {
+    $data[] = array('playera' => $playera,
+                    'playerb' => $playerb,
                     'result' => $result,
-                    'kvalue' => $kvalue); 
-  } 
+                    'kvalue' => $kvalue);
+  }
   $stmt->close();
-	return $data;
+  return $data;
 }
 
 function getEntryRatings($event, $format) {
   global $db;
-	$stmt = $db->prepare("SELECT LCASE(n.player) AS player, r.rating, q.qmax, r.wins, r.losses
-		FROM entries AS n 
-		LEFT OUTER JOIN ratings AS r ON r.player = n.player
-		LEFT OUTER JOIN 
-		(SELECT qr.player AS qplayer, MAX(qr.updated) AS qmax
-		 FROM ratings AS qr, events AS qe
-		 WHERE qr.updated<qe.start AND qe.name = ? AND qr.format = ?
-		 GROUP BY qr.player) AS q
-		ON q.qplayer=r.player
-		WHERE n.event = ? AND ((q.qmax=r.updated AND q.qplayer=r.player AND r.format = ?) 
-		     OR q.qmax IS NULL)
-		GROUP BY n.player ORDER BY n.player");
+  $stmt = $db->prepare("SELECT LCASE(n.player) AS player, r.rating, q.qmax, r.wins, r.losses
+    FROM entries AS n
+    LEFT OUTER JOIN ratings AS r ON r.player = n.player
+    LEFT OUTER JOIN
+    (SELECT qr.player AS qplayer, MAX(qr.updated) AS qmax
+     FROM ratings AS qr, events AS qe
+     WHERE qr.updated<qe.start AND qe.name = ? AND qr.format = ?
+     GROUP BY qr.player) AS q
+    ON q.qplayer=r.player
+    WHERE n.event = ? AND ((q.qmax=r.updated AND q.qplayer=r.player AND r.format = ?)
+         OR q.qmax IS NULL)
+    GROUP BY n.player ORDER BY n.player");
   $stmt->bind_param("ssss", $event, $format, $event, $format);
   $stmt->execute();
   $stmt->bind_result($player, $rating, $qmax, $wins, $losses);
-	$data = array();
-  while ($stmt->fetch()) { 
-		$datum = array();
-		if(!is_null($qmax)) {
-			$datum['rating'] = $rating;
-			$datum['wins'] = $wins;
-			$datum['losses'] = $losses;
-		} else {
-			$datum['rating'] = 1600;
-			$datum['wins'] = 0;
-			$datum['losses'] = 0;
-		}
-		$data[$player] = $datum;
-  }	
+  $data = array();
+  while ($stmt->fetch()) {
+    $datum = array();
+    if(!is_null($qmax)) {
+      $datum['rating'] = $rating;
+      $datum['wins'] = $wins;
+      $datum['losses'] = $losses;
+    } else {
+      $datum['rating'] = 1600;
+      $datum['wins'] = 0;
+      $datum['losses'] = 0;
+    }
+    $data[$player] = $datum;
+  }
   $stmt->close();
-	return $data;
+  return $data;
 }
 
 ?>

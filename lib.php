@@ -279,7 +279,7 @@ function json_headers() {
 function distance_of_time_in_words($from_time,$to_time = 0, $include_seconds = false) {
   $dm = $distance_in_minutes = abs(($from_time - $to_time))/60;
   $ds = $distance_in_seconds = abs(($from_time - $to_time));
-  
+
   switch ($distance_in_minutes) {
     case $dm > 0 && $dm < 1:
     if($include_seconds == false) {

@@ -1,12 +1,12 @@
-<?php 
+<?php
 
 class Database {
 
-  static function getConnection() { 
+  static function getConnection() {
     static $instance;
 
     if (!isset($instance)) {
-      global $CONFIG; 
+      global $CONFIG;
       $instance = new mysqli($CONFIG['db_hostname'], $CONFIG['db_username'],
                              $CONFIG['db_password'], $CONFIG['db_database']);
     }

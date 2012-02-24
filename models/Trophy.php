@@ -3,7 +3,7 @@
 class Trophy {
   public $event;
   public $image;
-  public $type; 
+  public $type;
   public $size;
-} 
+}
 

@@ -7,80 +7,80 @@ $pool = array();
 $packs = array("Tenth Edition", "Lorwyn", "Lorwyn", "Time Spiral", "Time Spiral", "Planar Chaos", "Future Sight");
 
 for($p = 0; $p < 7; $p++) {
-	$pack= genpack($packs[$p]);
-	for($n = 0; $n < 11; $n++) {
-		$pool[$pack[$n]]++;
-	}
+  $pack= genpack($packs[$p]);
+  for($n = 0; $n < 11; $n++) {
+    $pool[$pack[$n]]++;
+  }
 }
 
 foreach($pool as $card => $qty) {
-	echo "$qty $card\n";
+  echo "$qty $card\n";
 }
 
 
 function genpack($set) {
-	$pack = array();
-	$card = 0;
-	$ndx = -1;
-	$list = setList($set);
-	drShuffle($list);
-	while($card < 1) {
-		$ndx++;
-		if($list[$ndx]["isw"] == 1 && $list[$ndx]["name"] != "") {
-			$pack[$card] = $list[$ndx]["name"];
-			$card++;
-		}
-	} 
-	while($card < 2) {
+  $pack = array();
+  $card = 0;
+  $ndx = -1;
+  $list = setList($set);
+  drShuffle($list);
+  while($card < 1) {
+    $ndx++;
+    if($list[$ndx]["isw"] == 1 && $list[$ndx]["name"] != "") {
+      $pack[$card] = $list[$ndx]["name"];
+      $card++;
+    }
+  } 
+  while($card < 2) {
         $ndx++;
         if($list[$ndx]["isg"] == 1  && $list[$ndx]["name"] != "") {
             $pack[$card] = $list[$ndx]["name"];
             $card++;
         }
     }
-	while($card < 3) {
+  while($card < 3) {
         $ndx++;
         if($list[$ndx]["isu"] == 1 && $list[$ndx]["name"] != "") {
             $pack[$card] = $list[$ndx]["name"];
             $card++;
         }
     }
-	while($card < 4) {
+  while($card < 4) {
         $ndx++;
         if($list[$ndx]["isr"] == 1 && $list[$ndx]["name"] != "") {
             $pack[$card] = $list[$ndx]["name"];
             $card++;
         }
     }
-	while($card < 5) {
+  while($card < 5) {
         $ndx++;
         if($list[$ndx]["isb"] == 1 && $list[$ndx]["name"] != "") {
             $pack[$card] = $list[$ndx]["name"];
             $card++;
         }
     }
-	while($card < 11) {
-		if($list[$ndx]["name"] != "") {
-		$ndx ++;
-		$pack[$card] = $list[$ndx]["name"];
-		$card++;
-		}
-	}
-	return $pack;
+  while($card < 11) {
+    if($list[$ndx]["name"] != "") {
+    $ndx ++;
+    $pack[$card] = $list[$ndx]["name"];
+    $card++;
+    }
+  }
+  return $pack;
 }
 
 function setList($set) {
-	$db = dbcon();
-	$query = "SELECT name, isw, isg, isu, isr, isb 
-		FROM cards WHERE cardset=\"$set\"";
-	$result = mysql_query($query, $db);
-	$ret = array();
-	$n = 0;
-	while($row = mysql_fetch_assoc($result)) {
-		$ret[$n] = $row;
-		$n++;
-	}
-	return $ret;
+  $db = dbcon();
+  $query = "SELECT name, isw, isg, isu, isr, isb 
+    FROM cards WHERE cardset=\"$set\"";
+  $result = mysql_query($query, $db);
+  $ret = array();
+  $n = 0;
+  while($row = mysql_fetch_assoc($result)) {
+    $ret[$n] = $row;
+    $n++;
+  }
+  return $ret;
 }
 
 function drShuffle(&$arr) {

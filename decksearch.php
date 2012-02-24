@@ -17,14 +17,14 @@ print_header("$SiteName | Gatherling | Basic Deck Search");
 <?php // ------ Search Starts here ------
 function content() {
   if(!empty($_GET['deck']) || !empty($_GET['card'])) {
-    $db = Database::getConnection(); 
+    $db = Database::getConnection();
     $decknamesearch = "%" . $db->escape_string($_GET['deck']) . "%";
     $cardsearch_wild = "%" . $db->escape_string($_GET['card']) . "%";
     // TODO: I need a better way of doing this
     if (empty($_GET['card']) && !empty($_GET['deck'])) {
       $stmt = $db->prepare("SELECT id FROM decks WHERE name LIKE ? LIMIT 20");
       $stmt->bind_param("s", $decknamesearch);
-    } else if (!empty($_GET['card']) && !empty($_GET['deck'])) { 
+    } else if (!empty($_GET['card']) && !empty($_GET['deck'])) {
       $stmt = $db->prepare("SELECT id FROM decks WHERE name LIKE ? AND deck_contents_cache LIKE ? LIMIT 20");
       $stmt->bind_param("ss", $decknamesearch, $cardsearch);
     } else if (!empty($_GET['card']) && empty($_GET['deck'])) {
@@ -32,25 +32,25 @@ function content() {
       $stmt->bind_param("s", $cardsearch_wild);
     }
 
-    $stmt->execute(); 
+    $stmt->execute();
     $stmt->store_result();
     $stmt->bind_result($id);
 
     $search_desc = "";
     if (!empty($_GET['card'])) {
       $search_desc .= " with {$_GET['card']} in them";
-    } 
+    }
     if (!empty($_GET['deck'])) {
-      if (!empty($search_desc)) { 
-        $search_desc .= " AND "; 
+      if (!empty($search_desc)) {
+        $search_desc .= " AND ";
       }
-      $search_desc .= " with '{$_GET['deck']}' in the deck name"; 
-    } 
+      $search_desc .= " with '{$_GET['deck']}' in the deck name";
+    }
 
-    if ($stmt->num_rows() == 0) { 
+    if ($stmt->num_rows() == 0) {
       echo "<center>No decks {$search_desc}! Try again!</center>\n";
     } else {
-      if ($stmt->num_rows() == 20) { 
+      if ($stmt->num_rows() == 20) {
         echo "<center>More than 20 decks {$search_desc}</center>\n";
       } else {
         echo "<center>{$stmt->num_rows()} decks {$search_desc}</center>\n";
