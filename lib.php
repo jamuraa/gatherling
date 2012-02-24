@@ -14,7 +14,7 @@ echo <<<EOT
     <link rel="stylesheet" type="text/css" media="all" href="css/reset.css" />
     <link rel="stylesheet" type="text/css" media="all" href="css/text.css" />
     <link rel="stylesheet" type="text/css" media="all" href="css/960.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="/css/pdcmagic.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="css/pdcmagic.css" />
     <link rel="stylesheet" type="text/css" media="all" href="css/gatherling.css" />
 EOT;
   if ($js) {
@@ -33,15 +33,15 @@ EOT;
       </div>
       <div id="mainmenu_submenu" class="grid_12">
         <ul>
-          <li><a href="/gatherling/">Home</a></li>
+          <li><a href="index.php">Home</a></li>
           <li><a href="http://forums.pdcmagic.com/">Forums</a></li>
-          <li><a href="/gatherling/series.php">Events</a></li>
+          <li><a href="series.php">Events</a></li>
           <li class="current">
             <a href="index.php">
             Gatherling
             </a>
           </li>
-          <li><a href="/gatherling/ratings.php">Ratings</a></li>
+          <li><a href="ratings.php">Ratings</a></li>
           <li class="last"><a href="http://community.wizards.com/pauperonline/wiki/">Wiki</a></li>
         </ul>
       </div>
