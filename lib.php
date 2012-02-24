@@ -11,11 +11,11 @@ function print_header($title, $js = null, $extra_head_content = "") {
   echo "<html><head><meta http-equiv=\"X-UA-Compatible\" content=\"IE=8\" />";
   echo "<title>{$CONFIG['site_name']} | Gatherling | {$title}</title>";
 echo <<<EOT
-    <link rel="stylesheet" type="text/css" media="all" href="css/reset.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="css/text.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="css/960.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="/css/pdcmagic.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="css/gatherling.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="./css/reset.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="./css/text.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="./css/960.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="./css/pdcmagic.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="./css/gatherling.css" />
 EOT;
   if ($js) {
     echo "<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js\"></script>\n";
