@@ -35,13 +35,13 @@ EOT;
         <ul>
           <li><a href="/gatherling/">Home</a></li>
           <li><a href="http://forums.pdcmagic.com/">Forums</a></li>
-          <li><a href="/gatherling/series.php">Events</a></li>
+          <li><a href="series.php">Events</a></li>
           <li class="current">
             <a href="index.php">
             Gatherling
             </a>
           </li>
-          <li><a href="/gatherling/ratings.php">Ratings</a></li>
+          <li><a href="ratings.php">Ratings</a></li>
           <li class="last"><a href="http://community.wizards.com/pauperonline/wiki/">Wiki</a></li>
         </ul>
       </div>
