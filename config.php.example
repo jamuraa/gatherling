@@ -13,5 +13,6 @@ $CONFIG['db_database'] = 'gatherling';
 
 # === Website PARAMATERS ===
 $CONFIG['site_name'] = "website name";
+$CONFIG['calendar_description'] = "a description for the events calendar";
 
 # THAT'S ALL FOLKS!

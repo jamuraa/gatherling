@@ -8,8 +8,9 @@ print_header("Home");
 <div class="clear"></div>
 <p>Welcome to Gatherling!  This is an application where you can keep track of
 your decks in order to see what you played last tourney, last month, or even
-last year.  You can keep track of all of your decks which are played in PDCMagic.com
-tournaments here, and your ratings for Pauper Magic will also be calculated.</p>
+last year.  You can keep track of all of your decks which are played in 
+<?php echo $CONFIG['site_name']; ?>
+ tournaments here, and your ratings for Pauper Magic will also be calculated.</p>
 <p>
 <div class="alpha grid_5">
 <b>Some good starting points:</b>
