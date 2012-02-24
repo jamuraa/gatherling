@@ -121,7 +121,7 @@ class Match {
   } 
 
   static function count() { 
-    $db = @Database::getConnection(); 
+    $db = Database::getConnection(); 
     $stmt = $db->prepare("SELECT count(id) FROM matches");
     $stmt->execute(); 
     $stmt->bind_result($result);

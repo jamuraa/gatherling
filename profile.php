@@ -56,7 +56,6 @@ function profileTable($player) {
 }
 
 function infoTable($player) {
-  include 'config.php';
   $ndx = 0; $sum = 0; $favF = "";
   foreach ($player->getFormatsPlayedStats() as $tmprow) { 
 		$sum += $tmprow['cnt'];
@@ -83,7 +82,7 @@ function infoTable($player) {
 
   $line1 = strtoupper($player->name);
   if ($player->verified) { 
-    $line1 .= "  <img src=\"{$Theme}imageset/verified.png\" title=\"Verified their MTGO account\" />";
+    $line1 .= "  <img src=\"imageset/verified.png\" title=\"Verified their MTGO account\" />";
   }
 
   $matches = $player->getAllMatches(); 
@@ -188,16 +187,14 @@ function bestDecksTable($player) {
 }
 
 function medalCell($medal, $n) {
-        include 'config.php';
 	if(is_null($n)) {$n = 0;}
 	echo "<tr><td align=\"right\" width=130>";
-	echo "<img src=\"{$Theme}imageset/$medal.png\">&nbsp;</td>\n";
+	echo "<img src=\"imageset/$medal.png\">&nbsp;</td>\n";
 	echo  "<td>$n</td></tr>\n";
 }
 
 function inlineMedal($medal) {
-        include 'config.php';
-	echo "<img src=\"{$Theme}imageset/$medal.png\">&nbsp;";
+	echo "<img src=\"imageset/$medal.png\">&nbsp;";
 }
 
 function deckRecordString($deckname, $player) {

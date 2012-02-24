@@ -5,6 +5,6 @@ document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.
 <script type="text/javascript">
 try {
   var pageTracker = _gat._getTracker("UA-12850686-1");
-  pageTracker._setDomainName(".$SiteName");
+  pageTracker._setDomainName(".pdcmagic.com");
   pageTracker._trackPageview();
 } catch(err) {}</script>

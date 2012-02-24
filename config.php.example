@@ -12,7 +12,6 @@ $CONFIG['db_password'] = 'password';
 $CONFIG['db_database'] = 'gatherling';
 
 # === Website PARAMATERS ===
-$SiteName = "website name";
-$Theme    = "./styles/themename/";
+$CONFIG['site_name'] = "website name";
 
 # THAT'S ALL FOLKS!

@@ -2,21 +2,20 @@
 include 'lib.php';
 
 print_header("$SiteName | Gatherling | Basic Deck Search");
-?> 
+?>
 <div class="grid_10 suffix_1 prefix_1">
 <div id="gatherling_main" class="box">
 <div class="uppertitle"> Basic Deck Search </div>
 
 <?php content(); ?>
 
-</div> 
+</div>
 </div>
 
 <?php print_footer();?>
 
 <?php // ------ Search Starts here ------
 function content() {
-  include 'config.php';
   if(!empty($_GET['deck']) || !empty($_GET['card'])) {
     $db = Database::getConnection(); 
     $decknamesearch = "%" . $db->escape_string($_GET['deck']) . "%";
@@ -60,12 +59,12 @@ function content() {
       while($stmt->fetch()) {
         $deck_ids[] = $id;
       }
-      $stmt->close(); 
+      $stmt->close();
       echo "<table align=\"center\" style=\"border-width: 0px;\" cellpadding=3>";
       echo "<tr><th>Deck Name</th><th>Played by</th><th>Event</th> </tr>";
       foreach ($deck_ids as $deck_id) {
         $deck = new Deck($deck_id);
-        echo "<tr><td><img src=\"{$Theme}imageset/{$deck->medal}.png\">\n";
+        echo "<tr><td><img src=\"imageset/{$deck->medal}.png\">\n";
         echo $deck->linkTo();
         echo "</td>";
         if ($deck->playername != NULL) {
@@ -87,18 +86,18 @@ function content() {
     echo "<form method=\"get\" action=\"{$_SERVER['REQUEST_URI']}\"><table class=\"form\">";
     echo "<tr><th>Deck name contains</th> <td>";
     echo "<input type=\"text\" name=\"deck\"></td></tr>";
-    echo "<tr><th>Deck contains card</th><td>"; 
+    echo "<tr><th>Deck contains card</th><td>";
     echo "<input type=\"text\" name=\"card\"></td></tr>";
     echo "<tr><td colspan=2 class=\"buttons\">";
     echo "<input type=\"submit\" value=\"Gimme some decks!\"></td></tr>";
     echo "</table></form>";
     echo "<table><tr><th colspan=2><b>MOST PLAYED DECKS</b></th></tr>";
     echo "<tr><th>Deck Name</th><th>Played</th></tr>";
-    $db = Database::getConnection(); 
+    $db = Database::getConnection();
     $stmt = $db->prepare("SELECT count(d.deck_hash) as cnt, d.name, d.id FROM decks d, entries n where n.deck = d.id AND 5 < (SELECT count(*) from deckcontents where deck = d.id group by deck) group by d.deck_hash order by cnt desc limit 20");
-    $stmt->execute(); 
-    $stmt->bind_result($count, $name, $deckid); 
-    while ($stmt->fetch()) { 
+    $stmt->execute();
+    $stmt->bind_result($count, $name, $deckid);
+    while ($stmt->fetch()) {
       echo "<tr><td><a href=\"deck.php?mode=view&id={$deckid}\">{$name}</a></td>";
       echo "<td>{$count} times</td></tr>";
     }
