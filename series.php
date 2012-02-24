@@ -7,7 +7,7 @@ $formatforums = array('Standard' => 'http://forums.pdcmagic.com/viewforum.php?f=
   'Classic' => 'http://forums.pdcmagic.com/viewforum.php?f=6',
   'Zendikar Block' => 'http://forums.pdcmagic.com/viewforum.php?f=20');
 
-print_header("$SiteName | Gatherling | Event Information");
+print_header("Event Information");
 ?>
 
 <div class="grid_10 suffix_1 prefix_1">

@@ -1,6 +1,6 @@
 <?php include 'lib.php';
 
-print_header("$SiteName | Gatherling | Register");
+print_header("Register");
 ?>
 
 <div class="grid_10 suffix_1 prefix_1">

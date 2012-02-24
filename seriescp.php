@@ -5,7 +5,7 @@ include 'lib.php';
 $hasError = false;
 $errormsg = "";
 
-print_header("$SiteName | Gatherling | Series Control Panel");
+print_header("Series Control Panel");
 ?>
 
 <div class="grid_10 suffix_1 prefix_1">

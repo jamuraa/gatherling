@@ -45,7 +45,7 @@ $(document).ready(function() {
 });
 EOD;
 
-print_header("$SiteName | Gatherling | Host Control Panel", $js);
+print_header("Host Control Panel", $js);
 ?>
 <div class="grid_10 suffix_1 prefix_1">
 <div id="gatherling_main" class="box">

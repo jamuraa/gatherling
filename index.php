@@ -1,6 +1,6 @@
 <?php include 'lib.php';
 session_start();
-print_header("$SiteName | Gatherling | Home");
+print_header("Home");
 ?>
 <div class="grid_10 prefix_1 suffix_1">
 <div id="gatherling_main" class="box">

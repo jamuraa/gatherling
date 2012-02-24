@@ -1,7 +1,7 @@
 <?php session_start();
 include 'lib.php';
 
-print_header("$SiteName | Gatherling | Basic Deck Search");
+print_header("Basic Deck Search");
 ?>
 <div class="grid_10 suffix_1 prefix_1">
 <div id="gatherling_main" class="box">

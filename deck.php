@@ -35,7 +35,7 @@ EOD;
 
 $deckboxScript = "<script src=\"http://deckbox.org/javascripts/bin/tooltip.js\"></script>";
 
-print_header("$SiteName | Gatherling | Deck Database", $js, $deckboxScript);
+print_header("Deck Database", $js, $deckboxScript);
 
 ?>
 <div class="grid_10 suffix_1 prefix_1">

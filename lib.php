@@ -8,7 +8,7 @@ $CC = $R1;
 
 function print_header($title, $js = null, $extra_head_content = "") {
   echo "<html><head><meta http-equiv=\"X-UA-Compatible\" content=\"IE=8\" />";
-  echo "<title>{$title}</title>";
+  echo "<title>{$CONFIG['site_name']} | Gatherling | {$title}</title>";
 echo <<<EOT
     <link rel="stylesheet" type="text/css" media="all" href="css/reset.css" />
     <link rel="stylesheet" type="text/css" media="all" href="css/text.css" />

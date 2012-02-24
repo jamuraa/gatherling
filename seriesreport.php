@@ -2,7 +2,7 @@
 session_start();
 include 'lib.php';
 
-print_header("$SiteName | Gatherling | Season Report");
+print_header("Season Report");
 
 ?>
 
