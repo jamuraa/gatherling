@@ -310,17 +310,14 @@ function deckInfoCell($deck) {
   $ncards = $deck->getCardCount();
   $event = $deck->getEvent();
   $day = date("F j, Y", strtotime($event->start));
+  $mstr = image_tag($deck->medal . ".png") . "&nbsp;";
   if($deck->medal == '1st') {
-    $mstr = "<img src=\"imageset/1st.png\">&nbsp;";
     $placing = $mstr . "1st by";
   } else if($deck->medal == '2nd') {
-    $mstr = "<img src=\"imageset/2nd.png\">&nbsp;";
     $placing = $mstr . "2nd by";
   } else if($deck->medal == 't4') {
-    $mstr = "<img src=\"imageset/t4.png\">&nbsp;";
     $placing = $mstr . "Top 4 by";
   } else if($deck->medal == 't8') {
-    $mstr = "<img src=\"imageset/t8.png\">&nbsp;";
     $placing = $mstr . "Top 8 by";
   } else {
     $placing = "Played by";
@@ -485,7 +482,7 @@ function ccTable($deck) {
   $total = 0; $cards = 0;
   foreach ($convertedcosts as $cost => $amt) {
     echo "<tr><td align=\"right\" width=75>";
-    echo "<img src=\"imageset/mana{$cost}.png\">";
+    echo image_tag("mana{$cost}.png");
     echo " &nbsp;</td>\n";
     echo "<td width=75 align=\"left\">{$amt}</td></tr>\n";
     $total += $cost * $amt;
@@ -510,7 +507,7 @@ function symbolTable($deck) {
   foreach($cnts as $color => $num) {
     if($num > 0) {
     echo "<tr><td align=\"right\" width=75>";
-    echo "<img src=\"imageset/mana{$color}.png\">";
+    echo image_tag("mana{$color}.png");
     echo "&nbsp;</td>\n";
     echo "<td align=\"left\">$num</td></tr>\n";
     $sum += $num;

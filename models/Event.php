@@ -246,8 +246,7 @@ class Event {
 
   function getTrophyImageLink() {
     return "<a href=\"deck.php?mode=view&event={$this->name}\">\n"
-          ."<img style=\"border-width: 0px;\" src=\"displayTrophy.php?event={$this->name}\" />\n"
-          ."</a>\n";
+          . Event::trophy_image_tag($this->name) . "\n</a>\n";
   }
 
 
@@ -651,5 +650,9 @@ class Event {
     $stmt->execute();
     $stmt->close();
     return true;
+  }
+
+  public static function trophy_image_tag($eventname) {
+    return "<img style=\"border-width: 0px\" src=\"displayTrophy.php?event={$eventname}\" />";
   }
 }

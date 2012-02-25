@@ -64,7 +64,7 @@ function content() {
       echo "<tr><th>Deck Name</th><th>Played by</th><th>Event</th> </tr>";
       foreach ($deck_ids as $deck_id) {
         $deck = new Deck($deck_id);
-        echo "<tr><td><img src=\"imageset/{$deck->medal}.png\">\n";
+        echo "<tr><td>" . medalImgStr($deck->medal) . "\n";
         echo $deck->linkTo();
         echo "</td>";
         if ($deck->playername != NULL) {

@@ -122,7 +122,7 @@ class Deck {
     $str = "";
     foreach ($count as $color => $n) {
       if ($n > 0) {
-        $str = $str . "<img src=\"imageset/mana$color.png\" />";
+        $str = $str . image_tag("mana{$color}.png");
       }
     }
     return $str;

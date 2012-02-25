@@ -899,7 +899,7 @@ class Player {
   public function linkTo() {
     $result = "<a href=\"profile.php?player={$this->name}\">$this->name";
     if ($this->verified == 1) {
-      $result .= " <img src=\"imageset/verified.png\" width=\"12\" height=\"12\" />";
+      $result .= image_tag("verified.png", array("width" => "12", "height" => "12"));
     }
     $result .= "</a>";
 

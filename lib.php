@@ -29,7 +29,9 @@ EOT;
   <body>
     <div id="maincontainer" class="container_12">
       <div id="headerimage" class="grid_12">
-        <img src="imageset/header.jpg"/>
+EOT;
+  echo image_tag("header.jpg");
+  echo <<<EOT
       </div>
       <div id="mainmenu_submenu" class="grid_12">
         <ul>
@@ -131,15 +133,24 @@ function printCardLink($card) {
   echo " target=\"_blank\">{$card}</a>";
 }
 
+function image_tag($filename, $extra_attr = NULL) {
+  $tag = "<img ";
+  if (is_array($extra_attr)) {
+    foreach ($extra_attr as $key => $value) {
+      $tag .= "{$key}=\"{$value}\" ";
+    }
+  }
+  $tag .= "src=\"imageset/{$filename}\" />";
+  return $tag;
+}
+
 function noHost() {
   echo "<center>\n";
   echo "Only hosts and admins may access that page.</center>\n";
 }
 
 function medalImgStr($medal) {
-  $ret = "<img style=\"border-width: 0px\" ";
-  $ret = $ret . "src=\"imageset/" . $medal . ".png\">";
-  return $ret;
+  return image_tag("$medal.png", array("style" => "border-width: 0px"));
 }
 
 function seasonDropMenu($season, $useall = 0) {

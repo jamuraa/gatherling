@@ -31,7 +31,7 @@ foreach ($active_series as $series_name) {
     <?php echo $series->name ?>
   </div>
   <div class="series-logo">
-    <img src="displaySeries.php?series=<?php echo $series->name ?>" />
+    <?php echo Series::image_tag($series->name); ?>
   </div>
   <div class="series-stewards">
     Hosted by

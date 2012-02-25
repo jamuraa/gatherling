@@ -418,12 +418,13 @@ function playerList($event) {
   foreach ($entries as $entry) {
     echo "<tr id=\"entry_row_{$entry->player->name}\"><td>";
     if ($entry->player->verified) {
-      echo "<img src=\"imageset/verified.png\" title=\"Player verified on MTGO\" />";
+      echo image_tag("verified.png", array("title" => "Player verified on MTGO"));
     }
     echo "</td>";
     echo "<td>{$entry->player->name}</td>";
+    $img = "";
     if(strcmp("", $entry->medal) != 0) {
-      $img = "<img src=\"imageset/{$entry->medal}.png\" />";
+      $img = medalImgStr($entry->medal);
     }
     echo "<td align=\"center\">$img</td>";
     if ($entry->deck) {
@@ -468,14 +469,14 @@ function pointsAdjustmentForm($event) {
     $adjustment = $event->getSeasonPointAdjustment($name);
     echo "<tr> <td> {$name} </td>";
     if ($entry->medal != "") {
-      $img = "<img src=\"imageset/{$entry->medal}.png\">";
+      $img = medalImgStr($entry->medal);
       echo "<td> {$img} </td>";
     } else {
       echo "<td> </td>";
     }
     if ($entry->deck != NULL) {
-      $img = "<img src=\"imageset/verified.png\" title=\"Player posted deck\" />";
-      echo "<td> {$img} </td>";
+      $img = image_tag("verified.png", array("title" => "Player posted deck"));
+      echo "<td>{$img}</td>";
     } else {
       echo "<td> </td>";
     }
@@ -594,25 +595,25 @@ function medalList($event) {
   echo "<tr><td align=\"center\"><b>Medal</td>";
   echo "<td align=\"center\"><b>Player</td></tr>";
   echo "<tr><td align=\"center\">";
-  echo "<img src=\"imageset/1st.png\"></td>";
+  echo image_tag("1st.png") . "</td>";
   echo "<td align=\"center\">";
   playerDropMenu($event, "1", $def1);
   echo "</td></tr>";
   echo "<tr><td align=\"center\">";
-  echo "<img src=\"imageset/2nd.png\"></td>";
+  echo image_tag("2nd.png") ."</td>";
   echo "<td align=\"center\">";
   playerDropMenu($event, "2", $def2);
   echo "</td></tr>";
   for($i = 3; $i < 5; $i++) {
     echo "<tr><td align=\"center\">";
-    echo "<img src=\"imageset/t4.png\"></td>";
+    echo image_tag("t4.png") . "</td>";
     echo "<td align=\"center\">";
     playerDropMenu($event, "$i", $def4[$i-3]);
     echo "</td></tr>";
   }
   for($i = 5; $i < 9; $i++) {
     echo "<tr><td align=\"center\">";
-    echo "<img src=\"imageset/t8.png\"></td>";
+    echo image_tag("t8.png") . "</td>";
     echo "<td align=\"center\">";
     playerDropMenu($event, "$i", $def8[$i-5]);
     echo "</td></tr>";
@@ -744,7 +745,7 @@ function trophyField($event) {
   if($event->hastrophy) {
     echo "<tr><td>&nbsp;</td></tr>";
     echo "<tr><td colspan=\"2\" align=\"center\">";
-    echo "<img src=\"displayTrophy.php?event={$event->name}\"></td></tr>";
+    echo Event::trophy_image_tag($event->name) . "</td></tr>";
   }
   echo "<tr><th>Trophy Image</th><td>";
   echo "<input type=\"file\" id=\"trophy\" name=\"trophy\">&nbsp";

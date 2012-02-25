@@ -82,7 +82,7 @@ function infoTable($player) {
 
   $line1 = strtoupper($player->name);
   if ($player->verified) {
-    $line1 .= "  <img src=\"imageset/verified.png\" title=\"Verified their MTGO account\" />";
+    $line1 .= image_tag("verified.png", array("title" => "Verified their MTGO account"));
   }
 
   $matches = $player->getAllMatches();
@@ -150,8 +150,7 @@ function trophyTable($player) {
     foreach ($events as $eventname) {
       echo "<tr><td align=\"center\">";
       echo "<a href=\"deck.php?mode=view&event=$eventname\">";
-      echo "<img style=\"border-width: 0px;\" ";
-      echo "src=\"displayTrophy.php?event=$eventname\">";
+      echo Event::trophy_image_tag($eventname);
       echo "</a></td></tr>";
     }
   }
@@ -189,12 +188,12 @@ function bestDecksTable($player) {
 function medalCell($medal, $n) {
   if(is_null($n)) {$n = 0;}
   echo "<tr><td align=\"right\" width=130>";
-  echo "<img src=\"imageset/$medal.png\">&nbsp;</td>\n";
-  echo  "<td>$n</td></tr>\n";
+  echo medalImgStr($medal);
+  echo  "</td><td>$n</td></tr>\n";
 }
 
 function inlineMedal($medal) {
-  echo "<img src=\"imageset/$medal.png\">&nbsp;";
+  echo medalImgStr($medal) . "&nbsp;";
 }
 
 function deckRecordString($deckname, $player) {

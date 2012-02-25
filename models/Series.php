@@ -178,6 +178,10 @@ class Series {
     return $names;
   }
 
+  public static function image_tag($seriesname) {
+    return "<img src=\"displaySeries.php?series=$seriesname\" />";
+  }
+
   public function mostRecentEvent() {
     $result = db_query_single("SELECT events.name FROM events JOIN series ON series.name = events.series WHERE series.name = ? AND events.start < NOW() ORDER BY events.start DESC LIMIT 1", "s", $this->name);
     return new Event($result);
