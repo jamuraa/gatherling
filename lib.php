@@ -354,7 +354,8 @@ function distance_of_time_in_words($from_time,$to_time = 0, $include_seconds = f
 }
 
 function version_tagline() {
-  print "Gatherling version 2.1.0 (\"The program wasn't designed to alter the past. It was designed to affect the future.\")";
+  print "Gatherling version 2.1.1 (\"I am getting too old for this. I can only imagine how YOU feel.\")";
+  # print "Gatherling version 2.1.0 (\"The program wasn't designed to alter the past. It was designed to affect the future.\")";
   # print "Gatherling version 2.0.6 (\"We stole the Statue of Liberty! ...  The small one, from Las Vegas.\")";
   # print "Gatherling version 2.0.5 (\"No, that's perfectly normal paranoia. Everyone in the universe gets that.\")";
   # print "Gatherling version 2.0.4 (\"This is no time to talk about time. We don't have the time!\")";

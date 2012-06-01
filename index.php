@@ -70,6 +70,16 @@ if (!is_null($event)) { ?>
 <div class="uppertitle alpha omega grid_10"> Latest Gatherling News </div>
 <div class="clear"></div>
  <p>
+  <b> 2012-05-31 </b> -
+  It's an update!  This time it is mostly bugfixes, but maybe there will be some time in the future to
+  make some more improvements.  We've gotten a bunch of help from the community (thanks Dabil) to make
+  some cleanup happen under the hood.
+  <ul>
+    <li> Players with no tournament entries can now login and work fine </li>
+    <li> Lots of under-the-hood stuff made better </li>
+  </ul>
+ </p>
+ <p>
   <b> 2011-10-10 </b> -
   If you thought that the last time between updates was long, I have news for you.  At any rate, I've been given some time to get some stuff done again and I have been able to fix some bugs and provide some new functionality for everyone.
   <ul>
@@ -79,17 +89,6 @@ if (!is_null($event)) { ?>
     <li> You can't make a deck without a name anymore. </li>
     <li> A bunch of backend bugfixes and improvements. </li>
    </ul>
- </p>
- <p>
-  <b> 2010-07-30 </b> -
-  Wow, long time with no update.  Backend improvements mostly, and bugfixes for everyone.
-  <ul>
-    <li> Super new players now can actually do stuff before they have a match. </li>
-    <li> Standard events show up with a format correctly now on the events page. </li>
-    <li> Events page is standard throughout the site pointing to gatherling now. </li>
-    <li> Should be many less issues with players and capitalization of names. </li>
-    <li> "Rogue" as a decktype has been renamed to "Unclassified" to more accurately reflect reality. </li>
-  </ul>
  </p>
 <br />
 <div class="clear"></div>
