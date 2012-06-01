@@ -14,7 +14,7 @@
 <?php
 function futureTable() {
   $db = Database::getConnection();
-  $result = $db->query("SELECT UNIX_TIMESTAMP(DATE_SUB(start, INTERVAL 30 MINUTE)) AS d, 
+  $result = $db->query("SELECT UNIX_TIMESTAMP(DATE_SUB(start, INTERVAL 30 MINUTE)) AS d,
     format, series, name, threadurl FROM events
     WHERE start>NOW() ORDER BY start ASC LIMIT 5");
   $result or die($db->error);
@@ -41,14 +41,14 @@ function futureTable() {
 
 function recentTable() {
   $db = Database::getConnection();
-  $result = $db->query("SELECT b.event, b.player, d.name 
-    FROM entries b, decks d, events e 
+  $result = $db->query("SELECT b.event, b.player, d.name
+    FROM entries b, decks d, events e
     WHERE b.medal='1st' AND d.id=b.deck AND e.name=b.event
     ORDER BY e.start DESC LIMIT 3");
   $result or die($db->error);
   echo "<table align=\"center\" width=\"90%\">\n";
   while($row = $result->fetch_assoc()) {
-    $query = "SELECT COUNT(*) AS c FROM trophies 
+    $query = "SELECT COUNT(*) AS c FROM trophies
       WHERE event=\"{$row['event']}\"";
     $res2 = $db->query($query) or die($db->error);
     $row2 = $res2->fetch_assoc();

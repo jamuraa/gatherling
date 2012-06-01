@@ -2,7 +2,7 @@
 require_once 'lib.php';
 $player = Player::getSessionPlayer();
 
-print_header("PDCMagic.com | Gatherling | Player Control Panel");
+print_header("Player Control Panel");
 ?>
 <div class="grid_10 suffix_1 prefix_1">
 <div id="gatherling_main" class="box">
@@ -185,34 +185,40 @@ function print_allContainer() {
 
 function print_recentDeckTable() {
   global $player;
-  $event = $player->getLastEventPlayed();
-  $entry = new Entry($event->name, $player->name);
-  if ($entry->deck) {
-    $decks = $player->getRecentDecks(6);
-  } else {
-    $decks = $player->getRecentDecks(5);
-  }
 
   echo "<table>\n";
   echo "<tr><td colspan=2><b>RECENT DECKS</td>\n";
   echo "<td colspan=2 align=\"right\">";
   echo "<a href=\"player.php?mode=alldecks\">";
   echo "(see all)</a></td>\n";
-  if (!$entry->deck) {
-    $cell1 = medalImgStr($entry->medal);
-    $cell4 = $entry->recordString();
-    echo "<tr><td>$cell1</td>\n";
-    echo "<td align=\"left\">" . $entry->createDeckLink() . "</td>";
-    echo "<td><a href=\"{$event->threadurl}\">{$event->name}</a></td>\n";
-    echo "<td align=\"right\">$cell4</td></tr>\n";
-  }
-  foreach ($decks as $deck) {
-    $cell1 = medalImgStr($deck->medal);
-    $cell4 = $deck->recordString();
-    echo "<tr><td>$cell1</td>\n";
-    echo "<td>" . $deck->linkTo() . "</td>\n";
-    echo "<td><a href=\"{$deck->getEvent()->threadurl}\">{$deck->eventname}</a></td>\n";
-    echo "<td align=\"right\">$cell4</td></tr>\n";
+
+  $event = $player->getLastEventPlayed();
+  if (is_null($event)) {
+    echo "<tr><td>No Decks Found!</td>\n";
+  } else {
+    $entry = new Entry($event->name, $player->name);
+    if ($entry->deck) {
+      $decks = $player->getRecentDecks(6);
+    } else {
+      $decks = $player->getRecentDecks(5);
+    }
+
+    if (!$entry->deck) {
+      $cell1 = medalImgStr($entry->medal);
+      $cell4 = $entry->recordString();
+      echo "<tr><td>$cell1</td>\n";
+      echo "<td align=\"left\">" . $entry->createDeckLink() . "</td>";
+      echo "<td><a href=\"{$event->threadurl}\">{$event->name}</a></td>\n";
+      echo "<td align=\"right\">$cell4</td></tr>\n";
+    }
+    foreach ($decks as $deck) {
+      $cell1 = medalImgStr($deck->medal);
+      $cell4 = $deck->recordString();
+      echo "<tr><td>$cell1</td>\n";
+      echo "<td>" . $deck->linkTo() . "</td>\n";
+      echo "<td><a href=\"{$deck->getEvent()->threadurl}\">{$deck->eventname}</a></td>\n";
+      echo "<td align=\"right\">$cell4</td></tr>\n";
+    }
   }
   echo "</table>\n";
 }
@@ -221,7 +227,7 @@ function print_preRegistration() {
   global $player;
   $events = Event::getNextPreRegister();
   echo "<table><tr><td colspan=\"3\"><b>PREREGISTER FOR EVENTS</b></td></tr>";
-  if (count($events) == 0) { 
+  if (count($events) == 0) {
     echo "<tr><td colspan=\"3\"> No Upcoming Events! </td> </tr>";
   }
   foreach ($events as $event) {

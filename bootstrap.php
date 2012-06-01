@@ -1,11 +1,10 @@
 <?php
 
-function __autoload($class_name) { 
-  require_once 'models/' . $class_name . '.php'; 
-} 
+function __autoload($class_name) {
+  require_once 'models/' . $class_name . '.php';
+}
 
 // Fix for MAGIC_QUOTES_GPC
-
 if (version_compare(phpversion(), 6) === -1) {
   if (get_magic_quotes_gpc()) {
     function stripinputslashes(&$input) {

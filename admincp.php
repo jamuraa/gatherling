@@ -10,7 +10,7 @@ if (!Player::isLoggedIn() || !Player::getSessionPlayer()->isSuper()) {
   redirect("Location: index.php");
 }
 
-print_header("PDCMagic.com | Gatherling | Admin Control Panel");
+print_header("Admin Control Panel");
 ?>
 
 <div class="grid_10 suffix_1 prefix_1">
@@ -24,7 +24,7 @@ print_header("PDCMagic.com | Gatherling | Admin Control Panel");
 
 <?php print_footer(); ?>
 
-<?php 
+<?php
 
 function do_page() {
   handleActions();
@@ -40,7 +40,7 @@ function printError() {
   }
 }
 
-function printChangePasswordForm($series) {
+function printChangePasswordForm() {
   echo "<form action=\"admincp.php\" method=\"post\">";
   echo "<h3> <center>Change User Password</center> </h3>";
   echo "<table class=\"form\" style=\"border-width: 0px\" align=\"center\">";

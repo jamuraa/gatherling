@@ -1,16 +1,16 @@
 <?php session_start();
 include 'lib.php';
 
-$js = <<<'EOD'
+$js = <<<EOD
 
 function addPlayerRow(data) {
   if (!data.success) { return false; }
   var html = '<tr id="entry_row_' + data.player + '"><td>';
   if (data.verified) {
-    html += '<img src="/images/gatherling/verified.png" />';
+    html += '<img src="imageset/verified.png" />';
   }
   html += '</td><td>' + data.player + '</td>';
-  html += '<td align="center"><img src="/images/dot.gif" /></td>';
+  html += '<td align="center"><img src="imageset/dot.png" /></td>';
   html += '<td><a class="create_deck_link" href="deck.php?player=' + data.player + '&event=' + event_name + '&mode=create">[Create Deck]</a></td>';
   html += '<td align="center"><input type="checkbox" name="delentries[]" value="' + data.player + '" /></td></tr>';
   $('input[name=newentry]').val("");
@@ -45,7 +45,7 @@ $(document).ready(function() {
 });
 EOD;
 
-print_header("PDCMagic.com | Gatherling | Host Control Panel", $js);
+print_header("Host Control Panel", $js);
 ?>
 <div class="grid_10 suffix_1 prefix_1">
 <div id="gatherling_main" class="box">
@@ -210,7 +210,7 @@ function eventList($series = "", $season = "") {
 
   foreach ($results as $thisEvent) {
     $dateStr = $thisEvent['start'];
-    $dateArr = split(" ", $dateStr);
+    $dateArr = explode(" ", $dateStr);
     $date = $dateArr[0];
     echo "<tr><td>";
     echo "<a href=\"event.php?name={$thisEvent['name']}\">";
@@ -418,12 +418,13 @@ function playerList($event) {
   foreach ($entries as $entry) {
     echo "<tr id=\"entry_row_{$entry->player->name}\"><td>";
     if ($entry->player->verified) {
-      echo "<img src=\"/images/gatherling/verified.png\" title=\"Player verified on MTGO\" />";
+      echo image_tag("verified.png", array("title" => "Player verified on MTGO"));
     }
     echo "</td>";
     echo "<td>{$entry->player->name}</td>";
+    $img = "";
     if(strcmp("", $entry->medal) != 0) {
-      $img = "<img src=\"/images/{$entry->medal}.gif\" />";
+      $img = medalImgStr($entry->medal);
     }
     echo "<td align=\"center\">$img</td>";
     if ($entry->deck) {
@@ -468,14 +469,14 @@ function pointsAdjustmentForm($event) {
     $adjustment = $event->getSeasonPointAdjustment($name);
     echo "<tr> <td> {$name} </td>";
     if ($entry->medal != "") {
-      $img = "<img src=\"/images/{$entry->medal}.gif\">";
+      $img = medalImgStr($entry->medal);
       echo "<td> {$img} </td>";
     } else {
       echo "<td> </td>";
     }
     if ($entry->deck != NULL) {
-      $img = "<img src=\"/images/gatherling/verified.png\" title=\"Player posted deck\" />";
-      echo "<td> {$img} </td>";
+      $img = image_tag("verified.png", array("title" => "Player posted deck"));
+      echo "<td>{$img}</td>";
     } else {
       echo "<td> </td>";
     }
@@ -509,7 +510,7 @@ function matchList($event) {
   echo "<i>* denotes a playoff/finals match.</td></tr>";
   echo "<input type=\"hidden\" name=\"view\" value=\"match\">";
   echo "<tr><td>&nbsp;</td></tr>";
-  if(count($matches) > 0) {
+  if (count($matches) > 0) {
     echo "<tr><td align=\"center\"><b>Round</td><td><b>Player A</td>";
     echo "<td><b>Player B</td>";
     echo "<td><b>Winner</td><td align=\"center\"><b>Delete</td></tr>";
@@ -594,25 +595,25 @@ function medalList($event) {
   echo "<tr><td align=\"center\"><b>Medal</td>";
   echo "<td align=\"center\"><b>Player</td></tr>";
   echo "<tr><td align=\"center\">";
-  echo "<img src=\"/images/1st.gif\"></td>";
+  echo image_tag("1st.png") . "</td>";
   echo "<td align=\"center\">";
   playerDropMenu($event, "1", $def1);
   echo "</td></tr>";
   echo "<tr><td align=\"center\">";
-  echo "<img src=\"/images/2nd.gif\"></td>";
+  echo image_tag("2nd.png") ."</td>";
   echo "<td align=\"center\">";
   playerDropMenu($event, "2", $def2);
   echo "</td></tr>";
   for($i = 3; $i < 5; $i++) {
     echo "<tr><td align=\"center\">";
-    echo "<img src=\"/images/t4.gif\"></td>";
+    echo image_tag("t4.png") . "</td>";
     echo "<td align=\"center\">";
     playerDropMenu($event, "$i", $def4[$i-3]);
     echo "</td></tr>";
   }
   for($i = 5; $i < 9; $i++) {
     echo "<tr><td align=\"center\">";
-    echo "<img src=\"/images/t8.gif\"></td>";
+    echo image_tag("t8.png") . "</td>";
     echo "<td align=\"center\">";
     playerDropMenu($event, "$i", $def8[$i-5]);
     echo "</td></tr>";
@@ -744,7 +745,7 @@ function trophyField($event) {
   if($event->hastrophy) {
     echo "<tr><td>&nbsp;</td></tr>";
     echo "<tr><td colspan=\"2\" align=\"center\">";
-    echo "<img src=\"displayTrophy.php?event={$event->name}\"></td></tr>";
+    echo Event::trophy_image_tag($event->name) . "</td></tr>";
   }
   echo "<tr><th>Trophy Image</th><td>";
   echo "<input type=\"file\" id=\"trophy\" name=\"trophy\">&nbsp";
@@ -763,15 +764,11 @@ function insertTrophy() {
     $type = $file['type'];
 
     $f = fopen($tmp, 'rb');
-    #$content = fread($f, filesize($tmp));
-    #$db = Database::getConnection();
 
-    include('config.php');
-    $db = new PDO('mysql:unix_socket=/var/run/mysqld/mysqld.sock;dbname=' . $CONFIG['db_database'], $CONFIG['db_username'], $CONFIG['db_password']);
+    $db = Database::getPDOConnection();
     $stmt = $db->prepare("DELETE FROM trophies WHERE event = ?");
     $stmt->bindParam(1, $event, PDO::PARAM_STR);
     $stmt->execute() or die($stmt->errorCode());
-    #$stmt->close();
 
     $stmt = $db->prepare("INSERT INTO trophies(event, size, type, image)
       VALUES(?, ?, ?, ?)");
@@ -779,12 +776,9 @@ function insertTrophy() {
     $stmt->bindParam(2, $size, PDO::PARAM_INT);
     $stmt->bindParam(3, $type, PDO::PARAM_STR);
     $stmt->bindParam(4, $f, PDO::PARAM_LOB);
-    #$stmt->bind_param("sdsb", $event, $size, $type, $null);
-    #$stmt->send_long_data(3, $content);
     $stmt->execute() or die($stmt->errorCode());
     fclose($f);
-    #$stmt->close();
-    
+
     return true;
   }
 }

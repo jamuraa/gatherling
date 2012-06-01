@@ -1,7 +1,7 @@
 <?php session_start();
 require_once 'lib.php';
 
-$js = <<<'EOD'
+$js = <<<EOD
 
 function deckAjaxResult(data) {
   if (data.id != 0) {
@@ -35,7 +35,7 @@ EOD;
 
 $deckboxScript = "<script src=\"http://deckbox.org/javascripts/bin/tooltip.js\"></script>";
 
-print_header("PDCMagic.com | Gatherling | Deck Database", $js, $deckboxScript);
+print_header("Deck Database", $js, $deckboxScript);
 
 ?>
 <div class="grid_10 suffix_1 prefix_1">
@@ -123,15 +123,14 @@ function deckForm($deck = NULL) {
   echo "<form action=\"deck.php\" method=\"post\">\n";
   echo "<table align=\"center\" style=\"border-width: 0px;\">\n";
   echo "<tr><td valign=\"top\"><b>Directions:</td>\n";
-  echo "<td style=\"color: #000000\">To enter your deck, please give it ";
+  echo "<td>To enter your deck, please give it ";
   echo "a name and select an archetype from the drop-down menu below. If ";
   echo "you do not specify and archetype, your deck will be labeled as ";
-  echo "\"Unclassified\". To enter cards, save your deck a a .txt file using the ";
+  echo "\"Unclassified\". To enter cards, save your deck as a .txt file using the ";
   echo "official MTGO client, and then copy and paste the maindeck and ";
   echo "sideboard into the appropriate text boxes. ";
-  echo "<font color=\"#FF0000\">Do not use a format such as \"1x Card\". ";
-  echo "The parser will not accept this structure. The correct pattern is ";
-  echo "\"1 Card\".</font></td></tr>\n";
+  echo "The correct pattern is ";
+  echo "\"1 Card Name\".</td></tr>\n";
   echo "<tr><td><b>Recent Decks</b></td>\n<td>\n";
   echo "<select id=\"autoenter-deck\">\n";
   echo "<option value=\"0\">Select a recent deck to start from there</option>\n";
@@ -221,7 +220,7 @@ function updateDeck($deck) {
 }
 
 function parseCards($text) {
-  $lines = split("\n", $text);
+  $lines = explode("\n", $text);
   $badcards = array();
   $cardarr = array();
   for ($ndx = 0; $ndx < sizeof($lines); $ndx++) {
@@ -311,17 +310,14 @@ function deckInfoCell($deck) {
   $ncards = $deck->getCardCount();
   $event = $deck->getEvent();
   $day = date("F j, Y", strtotime($event->start));
+  $mstr = image_tag($deck->medal . ".png") . "&nbsp;";
   if($deck->medal == '1st') {
-    $mstr = "<img src=\"/images/1st.gif\">&nbsp;";
     $placing = $mstr . "1st by";
   } else if($deck->medal == '2nd') {
-    $mstr = "<img src=\"/images/2nd.gif\">&nbsp;";
     $placing = $mstr . "2nd by";
   } else if($deck->medal == 't4') {
-    $mstr = "<img src=\"/images/t4.gif\">&nbsp;";
     $placing = $mstr . "Top 4 by";
   } else if($deck->medal == 't8') {
-    $mstr = "<img src=\"/images/t8.gif\">&nbsp;";
     $placing = $mstr . "Top 8 by";
   } else {
     $placing = "Played by";
@@ -415,9 +411,6 @@ function matchupTable($deck) {
 
   echo "<table style=\"border-width: 0px\" cellpadding=1 align=\"right\">\n";
   echo "<tr><td colspan=4 align=\"left\"><b>MATCHUPS</td></tr>\n";
-#  echo "<tr><td><b>Round</td><td><b>Result</td><td><b>Opponent</td>";
-#  echo "<td><b>Deck</td></tr>\n";
-  #  echo "<tr><td><b>MATCHUPS</td></tr>\n";
   if (count($matches) == 0) {
     echo "<tr><td colspan=4><i>No matches were found for this deck</td></tr>";
   }
@@ -489,7 +482,7 @@ function ccTable($deck) {
   $total = 0; $cards = 0;
   foreach ($convertedcosts as $cost => $amt) {
     echo "<tr><td align=\"right\" width=75>";
-    echo "<img src=\"/images/mana{$cost}.gif\">";
+    echo image_tag("mana{$cost}.png");
     echo " &nbsp;</td>\n";
     echo "<td width=75 align=\"left\">{$amt}</td></tr>\n";
     $total += $cost * $amt;
@@ -514,7 +507,7 @@ function symbolTable($deck) {
   foreach($cnts as $color => $num) {
     if($num > 0) {
     echo "<tr><td align=\"right\" width=75>";
-    echo "<img src=\"/images/mana{$color}.gif\">";
+    echo image_tag("mana{$color}.png");
     echo "&nbsp;</td>\n";
     echo "<td align=\"left\">$num</td></tr>\n";
     $sum += $num;

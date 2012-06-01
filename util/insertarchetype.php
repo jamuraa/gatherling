@@ -10,13 +10,13 @@ $lines = split("", $contents);
 $query = "DELETE FROM typeinfo WHERE decktype=\"$arch\"";
 mysql_query($query) or die(mysql_error());
 for($i = 0; $i < sizeof($lines); $i++) {
-	$tok = split("\t", $lines[$i]);
-	$name = $tok[0]; $str = chop($tok[1]);
-	
-	$query = "INSERT INTO typeinfo(decktype, strength, card)
-		SELECT \"$arch\", \"$str\", id FROM cards WHERE name=\"$name\"";
-	mysql_query($query, $db) or die(mysql_error());
-	if(mysql_affected_rows() == 0) {
-		printf("%s<br>", $lines[$i]);
-	}
+  $tok = split("\t", $lines[$i]);
+  $name = $tok[0]; $str = chop($tok[1]);
+
+  $query = "INSERT INTO typeinfo(decktype, strength, card)
+    SELECT \"$arch\", \"$str\", id FROM cards WHERE name=\"$name\"";
+  mysql_query($query, $db) or die(mysql_error());
+  if(mysql_affected_rows() == 0) {
+    printf("%s<br>", $lines[$i]);
+  }
 }

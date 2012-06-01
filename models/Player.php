@@ -875,8 +875,6 @@ class Player {
     if ((strcasecmp($verifyplayer,$this->name) == 0) && (strcasecmp($db_challenge,$challenge) == 0)) {
       return true;
     } else {
-      $error_log = "Player = '{$this->name}' Challenge = '{$challenge}' Verify = '{$verifyplayer}' DBChallenge = '{$db_challenge}'\n";
-      file_put_contents("/var/www/pdcmagic.com/gatherling/challenge.log", $error_log, FILE_APPEND);
       return false;
     }
   }
@@ -901,7 +899,7 @@ class Player {
   public function linkTo() {
     $result = "<a href=\"profile.php?player={$this->name}\">$this->name";
     if ($this->verified == 1) {
-      $result .= " <img src=\"/images/gatherling/verified.png\" width=\"12\" height=\"12\" />";
+      $result .= image_tag("verified.png", array("width" => "12", "height" => "12"));
     }
     $result .= "</a>";
 
