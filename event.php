@@ -291,7 +291,7 @@ function eventForm($event = NULL, $forcenew = false) {
     $year = strftime('Y', time());
   }
   echo "<tr><th>Date & Time</th><td>";
-  numDropMenu("year", "- Year -", 2011, $year, 2005);
+  numDropMenu("year", "- Year -", 2012, $year, 2005);
   monthDropMenu($month);
   numDropMenu("day", "- Day- ", 31, $day, 1);
   timeDropMenu($hour, $minutes);
