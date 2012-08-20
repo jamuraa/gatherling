@@ -74,7 +74,7 @@ function content() {
           echo "<td>???</td>";
         }
         if ($deck->eventname != NULL) {
-          echo "<td>{$deck->eventname}</td>";
+          echo "<td><a href=\"eventreport.php?event={$deck->eventname}\">{$deck->eventname}</a></td>";
         } else {
           echo "<td>???</td>";
         }
@@ -101,6 +101,7 @@ function content() {
       echo "<tr><td><a href=\"deck.php?mode=view&id={$deckid}\">{$name}</a></td>";
       echo "<td>{$count} times</td></tr>";
     }
+
     echo "</table>";
   }
 }

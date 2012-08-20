@@ -58,7 +58,7 @@ function eventList($series = "", $season = "") {
   }
 
   echo "<form action=\"eventreport.php\" method=\"post\">";
-  echo "<table style=\"border-width: 0px\" align=\"center\">";
+  echo "<table id=\"EventReport\">";
   echo "<tr><td colspan=\"2\" align=\"center\"><b>Filters</td></tr>";
   echo "<tr><td>&nbsp;</td></tr>";
   echo "<tr><td>Format</td><td>";
@@ -121,27 +121,28 @@ function eventList($series = "", $season = "") {
 }
 
 function showReport($event) {
-  echo "<table style=\"border-width: 0px;\" width=600>\n";
-  echo "<tr><td valign=\"top\">";
-    imageCell($event);
-  echo "</td><td valign=\"top\">";
-    infoCell($event);
-  echo "</td><td align=\"center\" valign=\"top\" width=220>";
-    trophyCell($event);
-    echo "</td></tr></table>";
-    echo "<table style=\"border-width: 0px;\" width=600>\n<tr><td>";
-    finalists($event);
-    echo "</td><td align=\"right\">";
-    metastats($event);
-    echo "</td></tr></table>\n";
-    echo "<br><br>";
-    fullmetagame($event);
+  echo "<div id=\"EventReport\">";
+  echo "<table width=900>\n";
+  echo "<tr><td width=300 valign=\"top\">";
+  imageCell($event);
+  echo "</td><td width=300 valign=\"top\">";
+  infoCell($event);
+  echo "</td><td  width=300 valign=\"top\">";
+  trophyCell($event);
+  echo "</td></tr></table>";
+  echo "<table style=\"border-width: 0px;\" width=600>\n<tr><td>";
+  finalists($event);
+  echo "</td><td align=\"right\">";
+  metastats($event);
+  echo "</td></tr></table>\n</div>";
+  echo "<br /><br />";
+  fullmetagame($event);
 }
 
 function finalists($event) {
-  $nfinalists = nfinalists($event);
-  echo "<table style=\"border-width: 0px;\" width=350>\n";
-  echo "<tr><td colspan=3 align=\"center\"><b>TOP $nfinalists</td></tr>\n";
+  $nfinalists = sizeof($event->getFinalists());
+  echo "<table>\n";
+  echo "<tr><td colspan=3 align=\"center\"><b>TOP {$nfinalists}</td></tr>\n";
   foreach ($event->getFinalists() as $finalist) {
     $finaldeck = new Deck($finalist['deck']);
     if ($finaldeck->new) {
@@ -152,16 +153,18 @@ function finalists($event) {
     $redstar = "<font color=\"#FF0000\">*</font>";
     $append = " " . $finalist['medal'];
     if($finalist['medal'] == 't8' || $finalist['medal'] == 't4') {
-      $append = " " . strtoupper($finalist['medal']);}
+      $append = " " . strtoupper($finalist['medal']);
+    }
     $medalSTR = medalImgStr($finalist['medal']);
     $medalSTR .= $append;
-    $deckSTR = image_tag("colors/{$deckinfoarr[1]}.png");
-    $deckSTR .= $finaldeck->linkTo();
+
+    $manaSTR = image_tag("colors/{$deckinfoarr[1]}.png", array("alt" => "Deck Colors"));
+    $deckSTR = $finaldeck->linkTo();
     if($deckinfoarr[2] < 60) {$deckSTR .= $redstar;}
     if($deckinfoarr[2] < 6)  {$deckSTR .= $redstar;}
     $thisplayer = new Player($finalist['player']);
     $playerSTR = "by {$thisplayer->linkTo()}";
-    echo "<tr><td>$medalSTR</td>\n<td>$deckSTR</td>\n";
+    echo "<tr><td>$medalSTR</td>\n<td>$manaSTR</td><td>$deckSTR</td>\n";
     echo "<td align=\"right\">$playerSTR</td></tr>\n";
   }
   echo "</table>";
@@ -198,7 +201,8 @@ function metastats($event) {
   echo "<td align=\"center\">" . image_tag("manau.png") . "</td>\n";
   echo "<td align=\"center\">" . image_tag("manar.png") . "</td>\n";
   echo "<td align=\"center\">" . image_tag("manab.png") . "</td>\n";
-  echo "</tr><tr>";
+  echo "</tr>";
+  echo "<tr>";
   foreach($colorcnt as $col => $cnt) {
     if ($col != "") {
       if ($ndecks > 0) {
@@ -218,8 +222,8 @@ function fullmetagame($event) {
   $players = array();
   foreach ($decks as $deck) {
     $info = array("player" => $deck->playername, "deckname" => $deck->name,
-      "archetype" => $deck->archetype, "medal" => $deck->medal,
-      "id" => $deck->id);
+                  "archetype" => $deck->archetype, "medal" => $deck->medal,
+                  "id" => $deck->id);
     $arr = deckInfo($deck);
     $info["colors"] = $arr[1];
     if($info['medal'] == "dot") {$info['medal'] = "z";}
@@ -253,30 +257,35 @@ function fullmetagame($event) {
     FROM meta ORDER BY srtordr DESC, colors, medal, player");
   $color = "orange";
   echo "<table style=\"border-width: 0px;\" align=\"center\">";
-  $hg = headerColor();
-  echo "<tr style=\"background-color: $hg\">";
+  echo "<tr>";
   echo "<td colspan=5 align=\"center\"><b>Metagame Breakdown</td></tr>\n";
   while($row = $result->fetch_assoc()) {
     if($row['colors'] != $color) {
-      $bg = rowColor();
       $color = $row['colors'];
-      echo "<tr style=\"background-color: $bg\"><td>";
+      echo "<tr><td>";
       echo image_tag("colors/{$color}.png") . "&nbsp;</td>\n";
       echo "<td colspan=4 align=\"left\"><i>{$row['srtordr']} Players ";
       echo "</td></tr>\n";
     }
-    echo "<tr style=\"background-color: $bg\"><td></td>\n";
+    echo "<tr><td></td>\n";
     echo "<td align=\"left\">";
-    if ($row['medal'] != "z") {
-      echo medalImgStr($row['medal']) . "&nbsp;";
-    }
     echo "</td>\n<td align=\"left\">";
-    $play = new Player($row['player']);
-    echo $play->linkTo() . "</td>\n";
-    echo "<td align=\"left\">";
-    echo "<a href=\"deck.php?mode=view&id={$row['id']}\">";
-    echo "{$row['deckname']}</a></td>\n";
-    echo "<td align=\"right\">{$row['archetype']}</td></tr>\n";
+    if ($event->finalized == '0') {
+      echo "Player is anonymous for deck privacy until event is finalized.";
+    } else {
+      // puts medal next to name of person who won it
+      if ($row['medal'] != "z") {
+        echo medalImgStr($row['medal']) . "&nbsp;";
+      }
+      $play = new Player($row['player']);
+      $entry = new Entry($event->name, $play->name);
+      echo $play->linkTo() . "</td>\n";
+      echo "<td align=\left\">{$entry->recordString()}</td>";
+      echo "<td align=\"left\">";
+      echo "<a href=\"deck.php?mode=view&id={$row['id']}\">";
+      echo "{$row['deckname']}</a></td>\n";
+      echo "<td align=\"right\">{$row['archetype']}</td></tr>\n";
+    }
   }
   $result->close();
   echo "</table>\n";
@@ -299,15 +308,6 @@ function deckInfo($deck) {
   return $ret;
 }
 
-# Returns the number of finalists for an event based on the timing=2 subevent
-function nfinalists($event) {
-  foreach ($event->getSubevents() as $subevent) {
-    if ($subevent->timing == 2) {
-      return pow(2, $subevent->rounds);
-    }
-  }
-}
-
 function initArchetypeCount() {
   $ret = array();
   $db = Database::getConnection();
@@ -320,15 +320,16 @@ function initArchetypeCount() {
 }
 
 function imageCell($event) {
-  echo "<div class=\"series-logo\">". Series::image_tag($event->series) . "</div>";
+  echo "<div class=\"series-logo\"><img src=\"displaySeries.php?series=$event->series\" alt=\"Series Logo\" /></div>";
 }
 
 function infoCell($event) {
   if(!is_null($event->threadurl)) {
-    echo "<a href=\"{$event->threadurl}\">{$event->name}</a><br>\n";
+    echo "<a href=\"{$event->threadurl}\">{$event->name}</a><br />\n";
   } else {
     echo "{$event->name}<br />\n";
   }
+
   $date = date('j F Y', strtotime($event->start));
   echo "$date<br />\n";
   echo "{$event->format} &middot\n";
@@ -359,7 +360,7 @@ function infoCell($event) {
   $host = new Player($event->host);
   echo "Hosted by {$host->linkTo()}<br />";
   if (!is_null($event->reporturl)) {
-    echo "<a href=\"{$event->reporturl}\">Event Report</a><br>\n";
+    echo "<a href=\"{$event->reporturl}\">Event Report</a><br />\n";
   }
   echo "<a href=\"seriesreport.php?series={$event->series}&season={$event->season}\">Season Leaderboard</a>";
 }
@@ -380,7 +381,7 @@ function trophyCell($event) {
     $info = deckInfo($deck);
     echo image_tag("colors/{$info[1]}.png");
     echo $deck->linkTo();
-    echo "<br>\n";
+    echo "<br />\n";
   }
 }
 ?>

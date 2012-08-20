@@ -1,16 +1,19 @@
 <?php session_start();
 include 'lib.php';
 
+$verified_url = theme_file("images/verified.png");
+$dot_url = theme_file("images/dot.png");
+
 $js = <<<EOD
 
 function addPlayerRow(data) {
   if (!data.success) { return false; }
   var html = '<tr id="entry_row_' + data.player + '"><td>';
   if (data.verified) {
-    html += '<img src="imageset/verified.png" />';
+    html += '<img src="$verified_url" alt="Verified" />';
   }
   html += '</td><td>' + data.player + '</td>';
-  html += '<td align="center"><img src="imageset/dot.png" /></td>';
+  html += '<td align="center"><img src="$dot_url" alt="dot" /></td>';
   html += '<td><a class="create_deck_link" href="deck.php?player=' + data.player + '&event=' + event_name + '&mode=create">[Create Deck]</a></td>';
   html += '<td align="center"><input type="checkbox" name="delentries[]" value="' + data.player + '" /></td></tr>';
   $('input[name=newentry]').val("");
@@ -45,7 +48,7 @@ $(document).ready(function() {
 });
 EOD;
 
-print_header("Host Control Panel", $js);
+print_header("Event Host Control Panel", $js);
 ?>
 <div class="grid_10 suffix_1 prefix_1">
 <div id="gatherling_main" class="box">
@@ -64,6 +67,20 @@ else {linkToLogin();}
 <?php
 function content() {
   $event = NULL;
+  // Prevent surplufous warnings.   TODO: fix the code so we don't try to access these if unset.
+  if(!isset($_GET['action'])) {$_GET['action'] = '';}
+  if(!isset($_POST['mode'])) {$_POST['mode'] = '';}
+  if(!isset($_GET['mode'])) {$_GET['mode'] = '';}
+  if(!isset($_GET['series'])) {$_GET['series'] = '';}
+  if(!isset($_GET['season'])) {$_GET['season'] = '';}
+
+  if (strcmp($_GET['action'], "undrop") == 0) {
+    $player = new Standings ($_GET['event'],$_GET['player']);
+    $player->active = 1;
+    $player->save();
+  }
+
+
   if(isset($_GET['name'])) {
     $event = new Event($_GET['name']);
     eventForm($event);
@@ -75,7 +92,7 @@ function content() {
       authFailed();
     }
   } elseif (strcmp($_GET['mode'], "Create New Event") == 0) {
-    if(Player::getSessionPlayer()->isSteward()) {
+    if (Player::getSessionPlayer()->isSteward()) {
       eventForm();
     } else {
       authFailed();
@@ -89,6 +106,8 @@ function content() {
     $newevent->start = strftime("%Y-%m-%d %H:00:00", strtotime($oldevent->start) + (86400 * 7));
     $newevent->kvalue = $oldevent->kvalue;
     $newevent->finalized = 0;
+    $newevent->player_reportable = $oldevent->player_reportable;
+    $newevent->prereg_allowed = $oldevent->prereg_allowed;
 
     $newevent->series = $oldevent->series;
     $newevent->host = $oldevent->host;
@@ -102,9 +121,45 @@ function content() {
     $newevent->name = sprintf("%s %d.%02d",$newevent->series, $newevent->season, $newevent->number);
 
     eventForm($newevent, true);
+
   } elseif (isset($_POST['name'])) {
     $event = new Event($_POST['name']);
-    if (!$event->authCheck($_SESSION['username'])) {
+
+    if (strcmp($_POST['mode'], "Start Event") == 0) {
+      //echo "**********start event**************";
+      //*activate event and pair first round
+      // echo "********".$event->name;
+      $event->active = 1;
+      $event->save();
+      $entries = $event->getEntries();
+      Standings::startEvent($entries, $event->name);
+      $event->pairCurrentRound();
+    }
+
+    if (strcmp($_POST['mode'], "Recalculate Standings") == 0) {
+      // fix this hardcoded structure later
+      $event->recalculateScores("Swiss");
+      Standings::updateStandings($event->name, $event->mainid, 1);
+    }
+
+    if (strcmp($_POST['mode'], "Reset Event") == 0) {
+      $event->resetEvent();
+    }
+
+    if (strcmp($_POST['mode'], "Delete Current Matches and Re-Pair Round") == 0) {
+      $event->repairRound();
+    }
+
+    if (strcmp($_POST['mode'], "Reactivate Event") == 0) {
+      $event->repairRound();
+    }
+
+    if (strcmp($_POST['mode'], "Set Current Round to") == 0) {
+      $event->repairRound();
+    }
+
+    // bug fix for series stewards not having access to update series  
+    if (!(Player::getSessionPlayer()->isSteward())) {
       authFailed();
     } else {
       if (strcmp($_POST['mode'], "Parse DCI Files") == 0) {
@@ -205,7 +260,6 @@ function eventList($series = "", $season = "") {
   echo "<tr><td><b>Event</td><td><b>Format</td>";
   echo "<td align=\"center\"><b>Players</td>";
   echo "<td><b>Host(s)</td>";
-  #echo "<td><b>Date</td>";
   echo "<td align=\"center\"><b>Finalized</td></tr>";
 
   foreach ($results as $thisEvent) {
@@ -278,17 +332,20 @@ function eventForm($event = NULL, $forcenew = false) {
       echo $nextevent->makeLink("Next &raquo;");
     }
     echo "</td></tr>";
-  }
-  else {
+  } else {
     echo "<tr><th>Event Name</th>";
     echo "<td><input type=\"radio\" name=\"naming\" value=\"auto\" checked>";
     echo "Automatically name this event based on Series, Season, and Number.";
-    echo "<br><input type=\"radio\" name=\"naming\" value=\"custom\">";
+    echo "<br /><input type=\"radio\" name=\"naming\" value=\"custom\">";
     echo "Use a custom name: ";
     echo "<input type=\"text\" name=\"name\" value=\"{$event->name}\" ";
     echo "size=\"40\">";
     echo "</td></tr>";
     $year = strftime('Y', time());
+    $month = strftime('B', time());
+    $day = strftime('Y', time());
+    $hour = strftime('H', time());
+    $minutes = strftime('M', time());
   }
   echo "<tr><th>Date & Time</th><td>";
   numDropMenu("year", "- Year -", 2012, $year, 2005);
@@ -305,7 +362,7 @@ function eventForm($event = NULL, $forcenew = false) {
   seasonDropMenu($event->season);
   echo "</td></tr>";
   echo "<tr><th>Number</th><td>";
-  numDropMenu("number", "- Event Number -", 35, $event->number, 0, "Custom");
+  numDropMenu("number", "- Event Number -", 100, $event->number, 0, "Custom");
   echo "</td><tr>";
   echo "<tr><th>Format</th><td>";
   formatDropMenu($event->format);
@@ -337,6 +394,16 @@ function eventForm($event = NULL, $forcenew = false) {
   echo " rounds of ";
   structDropMenu("finalstruct", $event->finalstruct);
   echo "</td></tr>";
+  echo "<tr><th>Allow Pre-Registration</th>";
+  echo "<td><input type=\"checkbox\" name=\"prereg_allowed\" value=\"1\" ";
+  if ($event->prereg_allowed == 1) {echo "checked=\"yes\" ";}
+  echo "/></td></tr>";
+
+  echo "<tr><th>Allow Players to Report Results</th>";
+  echo "<td><input type=\"checkbox\" name=\"player_reportable\" value=\"1\" ";
+  if ($event->player_reportable == 1) {echo "checked=\"yes\" ";}
+  echo "/></td></tr>";
+
   if($edit == 0) {
     echo "<tr><td>&nbsp;</td></tr>";
     echo "<tr><td colspan=\"2\" class=\"buttons\">";
@@ -347,10 +414,6 @@ function eventForm($event = NULL, $forcenew = false) {
     echo "<tr><th>Finalize Event</th>";
     echo "<td><input type=\"checkbox\" name=\"finalized\" value=\"1\" ";
     if($event->finalized == 1) {echo "checked=\"yes\" ";}
-    echo "/></td></tr>";
-    echo "<tr><th>Allow Pre-Registration</th>";
-    echo "<td><input type=\"checkbox\" name=\"prereg_allowed\" value=\"1\" ";
-    if($event->prereg_allowed == 1) {echo "checked=\"yes\" ";}
     echo "/></td></tr>";
     trophyField($event);
     echo "<tr><td>&nbsp;</td></tr>";
@@ -376,6 +439,8 @@ function eventForm($event = NULL, $forcenew = false) {
       playerList($event);
     } elseif (strcmp($view, "match") == 0) {
       matchList($event);
+    } elseif (strcmp($view,"standings") == 0) {
+      standingsList($event);
     } elseif (strcmp($view, "medal") == 0) {
       medalList($event);
     } elseif (strcmp($view, "autoinput") == 0) {
@@ -393,8 +458,6 @@ function eventForm($event = NULL, $forcenew = false) {
 function playerList($event) {
   $entries = $event->getEntries();
   $numentries = count($entries);
-
-  // Start a new form
   echo "<form action=\"event.php\" method=\"post\">";
   echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
   echo "<table style=\"border-width: 0px\" align=\"center\">";
@@ -408,21 +471,36 @@ function playerList($event) {
   }
   echo "<tr><td>&nbsp;</td><tr>";
   echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
-  if($numentries > 0) {
-    echo "<tr><th></th><th style=\"text-align: left\">Player</th><th>Medal</th>";
-    echo "<th style=\"text-align: left\">Deck</th><th>Delete</th></tr>";
+  if ($numentries > 0) {
+    echo "<tr>";
+    if ($event->active == 1){
+      echo "<th>Drop</th>";
+    }
+    echo "<th style=\"text-align: left\">Player</th><th>Medal</th>";
+    echo "<th style=\"text-align: center\">Deck</th><th>Delete</th></tr>";
   } else {
     echo "<tr><td align=\"center\" colspan=\"5\"><i>";
     echo "No players are currently registered for this event.</i></td></tr>";
   }
+
   foreach ($entries as $entry) {
-    echo "<tr id=\"entry_row_{$entry->player->name}\"><td>";
-    if ($entry->player->verified) {
-      echo image_tag("verified.png", array("title" => "Player verified on MTGO"));
+    echo "<tr id=\"entry_row_{$entry->player->name}\">";
+    // Show drop box if event is active.
+    if ($event->active == 1){
+      if (Standings::playerActive($event->name,$entry->player->name)) {
+        echo "<td align=\"center\">";
+        echo "<input type=\"checkbox\" name=\"dropplayer[]\" ";
+        echo "value=\"{$entry->player->name}\"></td>";
+      } else {
+        echo "<td>Dropped <a href=\"event.php?player=".$entry->player->name."&event=".$event->name."&action=undrop&name=".$event->name."\">(undrop)</a></td>"; // else echo a symbol to represent player has dropped
+      }
     }
+    echo "<td>";
+    if ($entry->player->verified) {
+      echo image_tag("verified.png", array("alt" => "Verified", "title" => "Player Verified on MTGO"))
+    }
+    echo "{$entry->player->name}";
     echo "</td>";
-    echo "<td>{$entry->player->name}</td>";
-    $img = "";
     if(strcmp("", $entry->medal) != 0) {
       $img = medalImgStr($entry->medal);
     }
@@ -453,6 +531,69 @@ function playerList($event) {
   echo "</table>";
   echo "</td></tr>";
   echo "</table>";
+
+  //***
+if ($event->active == 0){
+    echo "<table style=\"border-width: 0px\" align=\"center\">";
+    echo "<tr><td>";
+    echo "<tr><td colspan=\"2\" align=\"center\">";
+    echo "<form action=\"event.php\" method=\"post\">";
+    echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
+    echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
+    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Start Event\" />";
+    echo "</tr></td>";
+    echo "</table>";
+
+    echo "<center> <b> Players added after the event has started will receive 0 points for any rounds already started and be paired when the next round begins</center></b>";
+    echo "<table style=\"border-width: 0px\" align=\"center\">";
+    echo "<tr><td>";
+    echo "<tr><td colspan=\"2\" align=\"center\">";
+    echo "<form action=\"event.php\" method=\"post\">";
+    echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
+    echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
+    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Recalculate Standings\" />";
+    echo "</tr></td>";
+    echo "</table>";
+  } else {
+    echo "<center> <b> Players added after the event has started will receive 0 points for any rounds already started and be paired when the next round begins</center></b>";
+    echo "<table style=\"border-width: 0px\" align=\"center\">";
+    echo "<tr><td>";
+    echo "<tr><td colspan=\"2\" align=\"center\">";
+    echo "<form action=\"event.php\" method=\"post\">";
+    echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
+    echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
+    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Recalculate Standings\" />";
+    echo "</tr></td>";
+    echo "</table>";
+
+    echo "<table style=\"border-width: 0px\" align=\"center\">";
+    echo "<tr><td>";
+    echo "<tr><td colspan=\"2\" align=\"center\">";
+    echo "<form action=\"event.php\" method=\"post\">";
+    echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
+    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Reset Event\" />";
+    echo "</tr></td>";
+    echo "</table>";
+
+    echo "<table style=\"border-width: 0px\" align=\"center\">";
+    echo "<tr><td>";
+    echo "<tr><td colspan=\"2\" align=\"center\">";
+    echo "<form action=\"event.php\" method=\"post\">";
+    echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
+    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Delete Current Matches and Re-Pair Round\" />";
+    echo "</tr></td>";
+    echo "</table>";
+
+    echo "<table style=\"border-width: 0px\" align=\"center\">";
+    echo "<tr><td>";
+    echo "<tr><td colspan=\"2\" align=\"center\">";
+    echo "<form action=\"event.php\" method=\"post\">";
+    echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
+    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Reactivate Event\" />";
+    echo "</tr></td>";
+    echo "</table>";
+
+  }
 }
 
 function pointsAdjustmentForm($event) {
@@ -469,14 +610,14 @@ function pointsAdjustmentForm($event) {
     $adjustment = $event->getSeasonPointAdjustment($name);
     echo "<tr> <td> {$name} </td>";
     if ($entry->medal != "") {
-      $img = medalImgStr($entry->medal);
+      $img = "<img src=\"{$Theme}imageset/{$entry->medal}.png\" alt=\"Medal\" />";
       echo "<td> {$img} </td>";
     } else {
       echo "<td> </td>";
     }
     if ($entry->deck != NULL) {
-      $img = image_tag("verified.png", array("title" => "Player posted deck"));
-      echo "<td>{$img}</td>";
+      $img = image_tag("verified.png", array("alt" => "Verified", "title" => "Player posted deck"));
+      echo "<td> {$img} </td>";
     } else {
       echo "<td> </td>";
     }
@@ -496,6 +637,8 @@ function pointsAdjustmentForm($event) {
 
 function matchList($event) {
   $matches = $event->getMatches();
+  // Prevent warnings in php output.  TODO: make this not needed.
+  if (!isset($_POST['newmatchround'])) {$_POST['newmatchround'] = '';}
 
   // Start a new form
   echo "<form action=\"event.php\" method=\"post\" ";
@@ -504,16 +647,20 @@ function matchList($event) {
   echo "<table style=\"border-width: 0px\" align=\"center\">";
   echo "<tr><td align=\"center\" colspan=\"2\">";
   echo "<table align=\"center\" style=\"border-width: 0px;\">";
-  echo "<tr><td align=\"center\" colspan=\"5\">";
+  echo "<tr><td align=\"center\" colspan=\"7\">";
   echo "<b>Match List</td></tr>";
-  echo "<tr><td align=\"center\" colspan=\"5\">";
+  echo "<tr><td align=\"center\" colspan=\"7\">";
   echo "<i>* denotes a playoff/finals match.</td></tr>";
+  echo "<tr><td align=\"center\" colspan=\"7\">";
+  echo "<i>To drop a player while entering match results, select the check box next to the players name.</i></td></tr>";
   echo "<input type=\"hidden\" name=\"view\" value=\"match\">";
   echo "<tr><td>&nbsp;</td></tr>";
   if (count($matches) > 0) {
     echo "<tr><td align=\"center\"><b>Round</td><td><b>Player A</td>";
     echo "<td><b>Player B</td>";
-    echo "<td><b>Winner</td><td align=\"center\"><b>Delete</td></tr>";
+    echo "<td><b>Winner</b></td>";
+    echo "<td><b>Player A Wins</b></td>";
+    echo "<td><b>Player B Wins</b></td><td align=\"center\"><b>Delete</td></tr>";
   }
   else {
     echo "<tr><td align=\"center\" colspan=\"5\"><i>";
@@ -530,34 +677,115 @@ function matchList($event) {
       $match->round + $rndadd : $match->round;
     $printplr = $match->getWinner();
     if (is_null($printplr)) {
-      $printplr = "* Draw *";
+      $printplr = 'Database Error';
     }
-
+    // TODO: will need to add some code here for byes.
     $star = ($match->timing > 1) ? "*" : "";
     echo "<tr><td align=\"center\">$printrnd$star</td>";
-    echo "<td>{$match->playera}</td>";
-    echo "<td>{$match->playerb}</td><td>$printplr</td>";
+    if (strcasecmp($match->verification, 'verified') != 0 && $event->finalized == 0) {
+      echo "<input type=\"hidden\" name=\"eventname\" value=\"{$event->name}\">";
+
+      echo "<td><input type=\"checkbox\" name=\"dropplayerA[]\" value=\"{$match->playera}\">";
+      if (($match->getPlayerWins($match->playera) > 0) || ($match->getPlayerLosses($match->playera) > 0)) {
+        if ($match->getPlayerWins($match->playera) > $match->getPlayerLosses($match->playera)) {
+          $matchresult = "Win"
+        } else {
+          $matchresult = "Loss";
+        }
+        echo "<a class=\"{$match->verification}\" title=\"{$matchresult} {$match->getPlayerWins($match->playera)} - {$match->getPlayerLosses($match->playera)}\">{$match->playera}</a></td>";
+      } else {
+        echo "{$match->playera}</td>";
+      }
+
+      echo "<td><input type=\"checkbox\" name=\"dropplayerB[]\" value=\"{$match->playerb}\">";
+      if (($match->getPlayerWins($match->playerb) > 0) || ($match->getPlayerLosses($match->playerb) > 0)) {
+        if ($match->getPlayerWins($match->playerb) > $match->getPlayerLosses($match->playerb)) {
+          $matchresult = "Win"
+        } else {
+          $matchresult = "Loss";
+        }
+        echo "<a class=\"{$match->verification}\" title=\"{$matchresult} {$match->getPlayerWins($match->playerb)} - {$match->getPlayerLosses($match->playerb)}\">{$match->playerb}</a></td>";
+      } else {
+        echo "{$match->playerb}</td>";
+      }
+
+      echo "<input type=\"hidden\" name=\"hostupdatesmatches[]\" value=\"{$match->id}\">";
+      echo "<td>";
+      // matchresult is used to identify Draws
+      echo "<select name=\"matchresult[]\" width=\"150\" STYLE=\"width: 150px\">";
+      echo "<option value=\"\">- Winner -</option>";
+      echo "<option value=\"A\">{$match->playera}</option>";
+      echo "<option value=\"B\">{$match->playerb}</option>";
+      echo "<option value=\"D\">Draw</option>";
+      echo "</select>";
+      echo "<td align=\"center\">"; 
+      playerAWinsDropMenu("playerAwins[]");
+      echo "</td>";
+      echo "<td align=\"center\">"; 
+      playerBWinsDropMenu("playerBwins[]");
+      echo "</td>";
+    } else {
+      echo "<td><a class=\"{$match->verification}\">{$match->playera}</a></td>";
+      if ($match->playera == $match->playerb) {
+        echo "<td>No Opponent</td>";
+      } else {
+        echo "<td><a class=\"{$match->verification}\">{$match->playerb}</a></td>";
+      }
+      if ($match->round == $event->current_round) {
+        if ($printplr == 'Match in Progress') {
+          echo "<td>Completed</td>";
+        } else {
+          echo "<td>$printplr</td>";
+        }
+      } else {
+        echo "<td>$printplr</td>";
+      }
+      echo "<td>{$match->getPlayerWins($match->playera)}</td>";
+      echo "<td>{$match->getPlayerWins($match->playerb)}</td>";
+    }
     echo "<td align=\"center\">";
     echo "<input type=\"checkbox\" name=\"matchdelete[]\" ";
     echo "value=\"{$match->id}\"></td></tr>";
   }
   echo "<tr><td>&nbsp;</td></tr>";
-  echo "<tr><td align=\"center\" colspan=\"5\">";
-  echo "<b>Add a Match</b></td></tr>";
-  echo "<tr><td align=\"center\" colspan=\"5\">";
-  roundDropMenu($event, $_POST['newmatchround']);
-  playerDropMenu($event, "A");
-  playerDropMenu($event, "B");
-  resultDropMenu();
-  echo "</td></tr>";
+  if ($event->active) {
+    echo "<tr><td align=\"center\" colspan=\"7\"><b>Add Pairing</b></td></tr>";
+    echo "<input type=\"hidden\" name=\"newmatchround\" value=\"{$event->current_round}\">"; 
+    echo "<input type=\"hidden\" name=\"newmatchresult\" value=\"P\">"; 
+    echo "<tr><td align=\"center\" colspan=\"7\">";
+    playerDropMenu($event, "A");
+    echo " vs ";
+    playerDropMenu($event, "B");
+    echo "</td></tr>";
+    echo "<tr><td>&nbsp;</td></tr>";
+    echo "<tr><td align=\"center\" colspan=\"7\"><b>Award Bye</b></td></tr>";
+    echo "<tr><td align=\"center\" colspan=\"7\">";
+    playerByeMenu($event);
+    echo "</td></tr>";
+  } else {
+    echo "<tr><td align=\"center\" colspan=\"7\">";
+    echo "<b>Add a Match</b></td></tr>";
+    echo "<tr><td align=\"center\" colspan=\"7\">";
+    roundDropMenu($event, $_POST['newmatchround']);
+    playerDropMenu($event, "A");
+    playerDropMenu($event, "B");
+    resultDropMenu();
+    playerAWinsDropMenu();
+    playerBWinsDropMenu();
+    echo "</td></tr>";
+  }
   echo "<tr><td>&nbsp;</td></tr>";
-  echo "<tr><td align=\"center\" colspan=\"5\">";
+  echo "<tr><td align=\"center\" colspan=\"7\">";
   echo "<input type=\"submit\" name=\"mode\" ";
   echo "value=\"Update Match Listing\"></td></tr>";
   echo "</table>";
   echo "</form>";
   echo "</td></tr>";
   echo "</table>";
+}
+
+function standingsList($event) {
+  Standings::printEventStandings($event->name,$_SESSION['username']);
 }
 
 function medalList($event) {
@@ -676,12 +904,13 @@ function noEvent($event) {
 function insertEvent() {
   $event = new Event("");
   $event->start = "{$_POST['year']}-{$_POST['month']}-{$_POST['day']} {$_POST['hour']}:00";
+
   if (strcmp($_POST['naming'], "auto") == 0) {
-    $event->name = sprintf("%s %d.%02d",$_POST['series'], $_POST['season'],
-      $_POST['number']);
+    $event->name = sprintf("%s %d.%02d",$_POST['series'], $_POST['season'],$_POST['number']);
   } else {
     $event->name = $_POST['name'];
   }
+
   $event->format = $_POST['format'];
   $event->host = $_POST['host'];
   $event->cohost = $_POST['cohost'];
@@ -692,6 +921,18 @@ function insertEvent() {
   $event->threadurl = $_POST['threadurl'];
   $event->metaurl = $_POST['metaurl'];
   $event->reporturl = $_POST['reporturl'];
+
+  if (!isset($_POST['prereg_allowed'])) {
+    $event->prereg_allowed = 0;
+  } else {
+    $event->prereg_allowed = $_POST['prereg_allowed'];
+  }
+
+  if (!isset($_POST['player_reportable'])) {
+    $event->player_reportable = 0;
+  } else {
+    $event->player_reportable = $_POST['player_reportable'];
+  }
 
   if($_POST['mainrounds'] == "") {$_POST['mainrounds'] = 3;}
   if($_POST['mainstruct'] == "") {$_POST['mainstruct'] = "Swiss";}
@@ -716,6 +957,7 @@ function updateEvent() {
   $event->start = "{$_POST['year']}-{$_POST['month']}-{$_POST['day']} {$_POST['hour']}:00:00";
   $event->finalized = $_POST['finalized'] == 1 ? 1 : 0;
   $event->prereg_allowed = $_POST['prereg_allowed'] == 1 ? 1 : 0;
+  $event->player_reportable = $_POST['player_reportable'] == 1 ? 1 : 0;
 
   $event->format = $_POST['format'];
   $event->host = $_POST['host'];
@@ -745,7 +987,7 @@ function trophyField($event) {
   if($event->hastrophy) {
     echo "<tr><td>&nbsp;</td></tr>";
     echo "<tr><td colspan=\"2\" align=\"center\">";
-    echo Event::trophy_image_tag($event->name) . "</td></tr>";
+    echo "<img src=\"displayTrophy.php?event={$event->name}\" alt=\"Trophy\" /></td></tr>";
   }
   echo "<tr><th>Trophy Image</th><td>";
   echo "<input type=\"file\" id=\"trophy\" name=\"trophy\">&nbsp";
@@ -794,6 +1036,22 @@ function medalDropMenu() {
   echo "</select>";
 }
 
+function playerByeMenu($event, $def="\n") {
+  $playernames = $event->getPlayers();
+  echo "<select name=\"newbyeplayer\">";
+  if(strcmp("\n", $def) == 0) {
+    echo "<option value=\"\">- Bye Player -</option>";
+  } else {
+    echo "<option value=\"\">- None -</option>";
+  }
+  foreach ($playernames as $player) {
+    $selstr = (strcmp($player, $def) == 0) ? "selected" : "";
+    echo "<option value=\"{$player}\" $selstr>";
+    echo "{$player}</option>";
+  }
+  echo "</select>";
+}
+
 function playerDropMenu($event, $letter, $def="\n") {
   $playernames = $event->getPlayers();
   echo "<select name=\"newmatchplayer$letter\">";
@@ -824,12 +1082,32 @@ function roundDropMenu($event, $selected) {
   echo "</select>";
 }
 
-function resultDropMenu() {
-  echo "<select name=\"newmatchresult\">";
+function resultDropMenu($name = "newmatchresult") {
+  echo "<select name=\"{$name}\">";
   echo "<option value=\"\">- Winner -</option>";
+  echo "<option value=\"P\">In Progress</option>";
   echo "<option value=\"A\">Player A</option>";
   echo "<option value=\"B\">Player B</option>";
   echo "<option value=\"D\">Draw</option>";
+  echo "<option value=\"BYE\">BYE</option>";
+  echo "</select>";
+}
+
+function playerAWinsDropMenu($name = "newmatchplayerAwins") {
+  echo "<select name=\"{$name}\">";
+  echo "<option value=\"\">- Player A Wins -</option>";
+  echo "<option value=\"2\">2 Wins</option>";
+  echo "<option value=\"1\">1 Wins</option>";
+  echo "<option value=\"0\">0 Wins</option>";
+  echo "</select>";
+}
+
+function playerBWinsDropMenu($name = "newmatchplayerBwins") {
+  echo "<select name=\"{$name}\">";
+  echo "<option value=\"\">- Player B Wins -</option>";
+  echo "<option value=\"2\">2 Wins</option>";
+  echo "<option value=\"1\">1 Wins</option>";
+  echo "<option value=\"0\">0 Wins</option>";
   echo "</select>";
 }
 
@@ -838,6 +1116,7 @@ function controlPanel($event, $cur = "") {
   echo "<tr><td colspan=\"2\" align=\"center\">";
   echo "<a href=\"event.php?name=$name&view=reg\">Registration</a>";
   echo " | <a href=\"event.php?name=$name&view=match\">Match Listing</a>";
+  echo " | <a href=\"event.php?name=$name&view=standings\">Standings</a>";
   echo " | <a href=\"event.php?name=$name&view=medal\">Medals</a>";
   echo " | <a href=\"event.php?name=$name&view=autoinput\">Auto-Input</a>";
   echo " | <a href=\"event.php?name=$name&view=fileinput\">DCI-R File Input</a>";
@@ -847,27 +1126,92 @@ function controlPanel($event, $cur = "") {
 
 function updateReg() {
   $event = new Event($_POST['name']);
-  for($ndx = 0; $ndx < sizeof($_POST['delentries']); $ndx++) {
-    $event->removeEntry($_POST['delentries'][$ndx]);
+  if (isset($_POST['delentries'])) {
+    for($ndx = 0; $ndx < sizeof($_POST['delentries']); $ndx++) {
+      $event->removeEntry($_POST['delentries'][$ndx]);
+    }
+  }
+  if(isset($_POST['dropplayer'])) {
+    for($ndx = 0; $ndx < sizeof($_POST['dropplayer']); $ndx++) {
+      Standings::dropPlayer($_POST['name'], $_POST['dropplayer'][$ndx]);
+    }
   }
   $event->addPlayer($_POST['newentry']);
 }
 
 function updateMatches() {
-  for($ndx = 0; $ndx < sizeof($_POST['matchdelete']); $ndx++) {
-    Match::destroy($_POST['matchdelete'][$ndx]);
+  if(isset($_POST['matchdelete'])) {
+    for($ndx = 0; $ndx < sizeof($_POST['matchdelete']); $ndx++) {
+      Match::destroy($_POST['matchdelete'][$ndx]); 
+      // and then call function to rebuild the standings 
+    }
   }
 
-  $pA = $_POST['newmatchplayerA'];
-  $pB = $_POST['newmatchplayerB'];
-  $res = $_POST['newmatchresult'];
-  $rnd = $_POST['newmatchround'];
+  if (isset($_POST['dropplayerA'])) {
+    for ($ndx = 0; $ndx < sizeof($_POST['dropplayerA']); $ndx++) {
+      Standings::dropPlayer ($_POST['eventname'], $_POST['dropplayerA'][$ndx]);
+    }
+  }
 
-  if(strcmp($pA, "") != 0 && strcmp("$pB", "") != 0
-    && strcmp($res, "") != 0 && strcmp($rnd, "") != 0) {
+  if (isset($_POST['dropplayerB'])) {
+    for($ndx = 0; $ndx < sizeof($_POST['dropplayerB']); $ndx++) {
+      Standings::dropPlayer ($_POST['eventname'], $_POST['dropplayerB'][$ndx]);
+    }
+  }
 
+  if(isset($_POST['hostupdatesmatches'])) {
+    for ($ndx = 0; $ndx < sizeof($_POST['hostupdatesmatches']); $ndx++) {
+      $resultForA="notset";
+      $resultForB="notset";
+
+      if ($_POST['playerAwins'][$ndx] == 2 && $_POST['playerBwins'][$ndx] == 0) {
+        $resultForA = "W20";
+        $resultForB = "L20";
+      }
+      if ($_POST['playerAwins'][$ndx] == 2 && $_POST['playerBwins'][$ndx] == 1) {
+        $resultForA = "W21";
+        $resultForB = "L21";
+      }
+      if ($_POST['playerAwins'][$ndx] == 0 && $_POST['playerBwins'][$ndx] == 2) {
+        $resultForA = "L20";
+        $resultForB = "W20";
+      }
+      if ($_POST['playerAwins'][$ndx] == 1 && $_POST['playerBwins'][$ndx] == 2) {
+        $resultForA = "L21";
+        $resultForB = "W21";
+      }
+      if ($_POST['matchresult'][$ndx] == 'Draw') {
+        // todo: need to figure out how to enter a draw
+      }
+
+      if ((strcasecmp($resultForA, 'notset') != 0) && (strcasecmp($resultForB, 'notset') != 0)) {
+        Match::saveReport($resultForA,$_POST['hostupdatesmatches'][$ndx], 'a');
+        Match::saveReport($resultForB,$_POST['hostupdatesmatches'][$ndx], 'b');
+      }
+    }
+  }
+
+  if (isset($_POST['newmatchplayerA'])) {$pA = $_POST['newmatchplayerA'];} else {$pA = "";}
+  if (isset($_POST['newmatchplayerB'])) {$pB = $_POST['newmatchplayerB'];} else {$pB = "";}
+  if (isset($_POST['newmatchresult'])) {$res = $_POST['newmatchresult'];} else {$res = "";}
+  if (isset($_POST['newmatchround'])) {$rnd = $_POST['newmatchround'];} else {$rnd = "";}
+  if (isset($_POST['newmatchplayerAwins'])) {$pAWins = $_POST['newmatchplayerAwins'];} else {$pAWins = "";}
+  if (isset($_POST['newmatchplayerBwins'])) {$pBWins = $_POST['newmatchplayerBwins'];} else {$pBWins = "";}
+
+  if (strcmp($pA, "") != 0 && strcmp("$pB", "") != 0 && strcmp($res, "") != 0 && strcmp($rnd, "") != 0) {
+    if ($res == "P") {
+      $event = new Event($_POST['name']);
+      $event->addPairing($pA, $pB, $rnd, $res);
+    } else {
+      $event = new Event($_POST['name']);
+      $event->addMatch($pA, $pB, $rnd, $res, $pAWins, $pBWins);
+    }
+  }
+
+  if (isset($_POST['newbyeplayer'])) {
+    $p = $_POST['newbyeplayer'];
     $event = new Event($_POST['name']);
-    $event->addMatch($pA, $pB, $rnd, $res);
+    $event->addMatch($p, $p, $rnd, 'BYE');
   }
 }
 
@@ -1029,7 +1373,7 @@ function autoInput() {
       $event->addPlayer($playerA);
       $event->addPlayer($playerB);
 
-      $event->addMatch($playerA, $playerB, $rnd+1, $winner);
+      $event->addMatch($playerA, $playerB, $rnd+1, $winner, 0, 0);
     }
   }
   $finals = array();
@@ -1055,7 +1399,7 @@ function autoInput() {
       $res = "D";
       if(strcmp($winner, $playerA) == 0) {$res = "A";}
       if(strcmp($winner, $playerB) == 0) {$res = "B";}
-      $event->addMatch($playerA, $playerB, $ndx + 1 + $event->mainrounds, $res);
+      $event->addMatch($playerA, $playerB, $ndx + 1 + $event->mainrounds, $res, 0, 0);
       $loser = (strcmp($winner, $playerA) == 0) ? $playerB : $playerA;
       if ($ndx == sizeof($finals) - 1) {
         $win = $winner;
@@ -1072,7 +1416,7 @@ function autoInput() {
 
 function extractPairings($text) {
   $pairings = array();
-  $lines = split("\n", $text);
+  $lines = explode("\n", $text);
   $loc = 0;
   for($ndx = 0; $ndx < sizeof($lines); $ndx++) {
     if(preg_match("/^\s*[0-9]+\s+([0-9]+\s+)?([0-9a-z_.\- ]+),.*\s+[0-9]+\s+([0-9a-z_.\- ]+),/i",
@@ -1085,7 +1429,7 @@ function extractPairings($text) {
 }
 
 function extractBye($text) {
-  $lines = split("\n", $text);
+  $lines = explode("\n", $text);
   $loc = 0;
   for($ndx = 0; $ndx < sizeof($lines); $ndx++) {
     if(preg_match("/^\s*[0-9]+\s+([0-9]+\s+)?([0-9a-z_.\- ]+),.*\s+\* BYE \*/i",
@@ -1096,11 +1440,9 @@ function extractBye($text) {
   return NULL;
 }
 
-
-
 function extractStandings($text) {
   $standings = array();
-  $lines = split("\n", $text);
+  $lines = explode("\n", $text);
   for($ndx = 0; $ndx < sizeof($lines); $ndx++) {
     if(preg_match("/^\s*[0-9]+\s+([0-9]+\s+)?([0-9a-z_.\- ]+),.*\s+([0-9]+)\s+/i",
     $lines[$ndx], $m)) {
@@ -1112,7 +1454,7 @@ function extractStandings($text) {
 
 function standFromPairs($text) {
   $standings = array();
-  $lines = split("\n", $text);
+  $lines = explode("\n", $text);
   for($ndx = 0; $ndx < sizeof($lines); $ndx++) {
     if(preg_match("/^\s*[0-9]+\s+([0-9]+\s+)?([0-9a-z_.\- ]+),.*\s+([0-9]+)-([0-9]+)\s+[0-9]+\s+([0-9a-z_.\- ]+),/i", $lines[$ndx], $m)) {
       $standings[$m[2]] = $m[3];
@@ -1124,7 +1466,7 @@ function standFromPairs($text) {
 
 function extractFinals($text) {
   $finals = array();
-  $lines = split("\n", $text);
+  $lines = explode("\n", $text);
   $loc = 0;
   for($ndx = 0; $ndx < sizeof($lines); $ndx++) {
     if(preg_match("/[\t ]+([0-9a-z_.\- ]+),/i", $lines[$ndx], $m)) {
@@ -1148,7 +1490,7 @@ function authFailed() {
   echo "You are not permitted to make that change. Please contact the ";
   echo "event host to modify this event. If you <b>are</b> the event host, ";
   echo "or feel that you should have privilege to modify this event, you ";
-  echo "should contact jamuraa via the forums.<br><br>";
+  echo "should contact Dabil via the Pauper Krew forums.<br /><br />";
 }
 
 function fileInputForm($event) {
@@ -1169,7 +1511,6 @@ function fileInputForm($event) {
   echo "<input type=\"submit\" name=\"mode\" value=\"Parse DCI Files\">\n";
   echo "</form>\n";
   echo "</td></tr></table>\n";
-
 }
 
 function file3InputForm($event) {
@@ -1213,13 +1554,20 @@ function dciInput() {
 
 function dciregister($data) {
   $event = new Event($_POST['name']);
-  $data = preg_replace("/\n/", "\n", $data);
-  $lines = split("\n", $data);
+  echo "Registering DCI-R players for {$event->name}.<br />";
+  $data = preg_replace("/
+\n/", "\n", $data);
+  $lines = explode("\n", $data);
   $ret = array();
-  for($ndx = 0; $ndx < sizeof($lines); $ndx++) {
-    $tokens = split(",", $lines[$ndx]);
-    if(preg_match("/\"(.*)\"/", $tokens[3], $matches)) {
-      $event->addPlayer($matches[1]);
+  for ($ndx = 0; $ndx < sizeof($lines); $ndx++) {
+    $tokens = explode(",", $lines[$ndx]);
+    if (preg_match("/\"(.*)\"/", $tokens[3], $matches)) {
+      $didadd = $event->addPlayer($matches[1]); 
+      if ($didadd) {
+        echo "Adding player: {$matches[1]}.<br />";
+      } else {
+        echo "{$matches[1]} could not be added.<br />";
+      }
       $ret[] = $matches[1];
     }
   }
@@ -1228,23 +1576,41 @@ function dciregister($data) {
 
 function dciinputmatches($reg, $data) {
   $event = new Event($_POST['name']);
-  $data = preg_replace("/\n/", "\n", $data);
-  $lines = split("\n", $data);
+  echo "Adding matches to {$event->name}.<br />";
+  $data = preg_replace("/
+\n/", "\n", $data);
+  $lines = explode("\n", $data);
   for($table = 0; $table < sizeof($lines)/6; $table++) {
     $offset = $table * 6;
-    $nos = split(",", $lines[$offset]);
-    $pas = split(",", $lines[$offset + 1]);
-    $pbs = split(",", $lines[$offset + 2]);
-    $aws = split(",", $lines[$offset + 3]);
-    $bws = split(",", $lines[$offset + 4]);
-    for($rnd = 1; $rnd <= sizeof($nos); $rnd++) {
-      if($nos[$rnd - 1] != 0) {
-        $pa = $reg[$pas[$rnd - 1] - 1];
-        $pb = $reg[$pbs[$rnd - 1] - 1];
-        $res = 'D';
-        if($aws[$rnd - 1] > $bws[$rnd - 1]) {$res = 'A';}
-        if($bws[$rnd - 1] > $aws[$rnd - 1]) {$res = 'B';}
-        $event->addMatch($pa, $pb, $rnd, $res);
+    $numberofrounds = explode(",", $lines[$offset]);
+    $playeraresults = explode(",", $lines[$offset + 1]);
+    $playerbresults = explode(",", $lines[$offset + 2]);
+    $playerawins = explode(",", $lines[$offset + 3]);
+    $playerbwins = explode(",", $lines[$offset + 4]);
+    for ($round = 1; $round <= sizeof($numberofrounds); $round++) {
+      if ($numberofrounds[$round - 1] != 0) { 
+        // find by name returns player object! not just a name!
+        $playera = Player::findByName($reg[$playeraresults[$round - 1] - 1]);
+        $playerb = Player::findByName($reg[$playerbresults[$round - 1] - 1]);
+        // may want to write a custom function later that just returns name
+        // should probably do a check to for NULL here for to see if player object
+        // was in fact returned for playera and playerb, just in case the dciregister
+        // function above failed to register
+        $result = 'D';
+        // TODO: need to do a check for a bye here
+        if ($playerawins[$round - 1] > $playerbwins[$round - 1]) {$result = 'A';} // player A wins
+        if ($playerbwins[$round - 1] > $playerawins[$round - 1]) {$result = 'B';} // player B wins
+        echo "{$playera->name} vs {$playerb->name} in Round: {$round} and ";
+        if ($result == 'A') {
+          echo "{$playera->name} wins {$playerawins[$round - 1]} - {$playeralosses[$round - 1]}<br />";
+        }
+        if ($result == 'B') {
+          echo "{$playerb->name} wins {$playerbwins[$round - 1]} - {$playerblosses[$round - 1]}<br />";
+        }
+        if ($result == 'D') {
+          echo " match is a draw<br />";
+        }
+        $event->addMatch($playera->name, $playerb->name, $round, $result, $playerawins[$round - 1], $playerbwins[$round - 1]);
       }
     }
   }
@@ -1252,8 +1618,9 @@ function dciinputmatches($reg, $data) {
 
 function dciinputplayoffs($reg, $data) {
   $event = new Event($_POST['name']);
-  $data = preg_replace("/\n/", "\n", $data);
-  $lines = split("\n", $data);
+  $data = preg_replace("/
+\n/", "\n", $data);
+  $lines = explode("\n", $data);
   $ntables = $lines[0];
   $nrounds = log($ntables, 2);
   for($rnd = 1; $rnd <= $nrounds; $rnd++) {
@@ -1269,7 +1636,7 @@ function dciinputplayoffs($reg, $data) {
       $res = 'D';
       if($winner == $playera) {$res = 'A';}
       if($winner == $playerb) {$res = 'B';}
-      $event->addMatch($pa, $pb, $rnd + $event->mainrounds, $res);
+      $event->addMatch($pa, $pb, $rnd + $event->mainrounds, $res, 0, 0);
     }
   }
   $event->assignTropiesFromMatches();
@@ -1294,10 +1661,11 @@ function dci3Input() {
 function dci3register($data) {
   $event = new Event($_POST['name']);
   $result = array();
-  $data = preg_replace("/\n/", "\n", $data);
-  $lines = split("\n", $data);
+  $data = preg_replace("/
+\n/", "\n", $data);
+  $lines = explode("\n", $data);
   foreach ($lines as $line) {
-    $table = split("\t", $line);
+    $table = explode("\t", $line);
     if (count($table) > 5) {
       $playernumber = $table[0];
       $playername = $table[5];
@@ -1311,13 +1679,14 @@ function dci3register($data) {
 function dci3makematches($data, $regmap) {
   $event = new Event($_POST['name']);
   $result = array();
-  $data = preg_replace("/\n/", "\n", $data);
-  $lines = split("\n", $data);
+  $data = preg_replace("/
+\n/", "\n", $data);
+  $lines = explode("\n", $data);
   $playernumber = 1;
   $lastroundnum = 0;
   $alreadyin = array();
   foreach ($lines as $line) {
-    $table = split(",", $line);
+    $table = explode(",", $line);
     var_dump($table);
     $roundnum = $table[0];
     $opponentnum = $table[1];
@@ -1333,7 +1702,7 @@ function dci3makematches($data, $regmap) {
       } elseif ($win == 0) {
         $res = 'B';
       }
-      $event->addMatch($regmap[$playernumber], $regmap[$opponentnum], $roundnum, $res);
+      $event->addMatch($regmap[$playernumber], $regmap[$opponentnum], $roundnum, $res, 0, 0);
       $alreadyin["{$playernumber}-{$opponentnum}-{$roundnum}"] = 1;
     }
     $lastroundnum = $roundnum;

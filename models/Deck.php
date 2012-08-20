@@ -232,14 +232,16 @@ class Deck {
   }
 
   function canEdit($username) {
-    if (strcasecmp($username, $this->playername) == 0) {
-      return true;
-    }
     $player = new Player($username);
     if ($player->isSuper()) {
       return true;
     }
     $event = $this->getEvent();
+    if ($event->isFinalized()) {
+      return false;
+    } else if (strcasecmp($username, $this->playername) == 0) {
+      return true;
+    }
     return $event->isHost($username) || $event->isSteward($username);
   }
 
@@ -294,7 +296,7 @@ class Deck {
       if ($stmt->affected_rows != 1) {
         $db->rollback();
         $db->autocommit(TRUE);
-        throw new Exception("Can't find entry for {$this->playername} in {$this->eventname}");
+        throw new Exception('Entry for '. $this->playername .' in '. $this->eventname .' not found');
       }
     } else {
       $stmt = $db->prepare("UPDATE decks SET archetype = ?, name = ?,
@@ -323,6 +325,8 @@ class Deck {
       $card = stripslashes($card);
       $cardar = $this->getCard($card);
       if (is_null($cardar)) {
+        $this->notes .= "\nCould not find maindeck card: {$card}\n";
+
         if (!isset($this->unparsed_cards[$card])) {
           $this->unparsed_cards[$card] = 0;
         }
@@ -335,6 +339,7 @@ class Deck {
       $newmaindeck[$cardar['name']] = $amt;
     }
 
+
     $this->maindeck_cards = $newmaindeck;
 
     $newsideboard = array();
@@ -342,6 +347,8 @@ class Deck {
       $card = stripslashes($card);
       $cardar = $this->getCard($card);
       if (is_null($cardar)) {
+        $this->notes .= "\nCould not find sideboard card: {$card}\n";
+
         if (!isset($this->unparsed_side[$card])) {
           $this->unparsed_side[$card] = 0;
         }
@@ -355,6 +362,17 @@ class Deck {
     }
 
     $this->sideboard_cards = $newsideboard;
+
+    $stmt = $db->prepare("UPDATE decks SET notes = ? WHERE id = ?");
+    if (!$stmt) {
+      echo $db->error;
+    }
+    $stmt->bind_param("sd", $this->notes, $this->id);
+    if (!$stmt->execute()) {
+      $db->rollback();
+      $db->autocommit(TRUE);
+      throw new Exception('Can\'t update deck '. $this->id);
+    }
 
     $this->deck_contents_cache = implode('|', array_merge(array_keys($this->maindeck_cards),
                                                           array_keys($this->sideboard_cards)));
@@ -434,7 +452,7 @@ class Deck {
   }
 
   static function uniqueCount() {
-    $db = Database::getConnection();
+    $db = @Database::getConnection();
     $stmt = $db->prepare("SELECT count(deck_hash) FROM decks GROUP BY deck_hash");
     $stmt->execute();
     $stmt->store_result();

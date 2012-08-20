@@ -31,6 +31,7 @@ Please <a href="register.php">Click Here</a> if you need to register.
 
 </body>
 </html>
+
 <?php
 function print_loginFailed() {
   echo "<span class=\"error\"><center>Incorrect username or password. Please try again.\n";
