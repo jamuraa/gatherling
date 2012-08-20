@@ -6,19 +6,26 @@ $R1 = "#EEEEEE";
 $R2 = "#FFFFFF";
 $CC = $R1;
 
+/** Gets the correct name, relative to the gatherling root dir, for a file in the theme.
+ *  Allows for overrides, falls back to default/
+ */
+function theme_file($name) {
+  global $CONFIG;
+  $theme_dir = "styles/{$CONFIG['style']}/";
+  $default_dir = "styles/default/";
+  if (file_exists($theme_dir . $name)) {
+    return $theme_dir . $name;
+  }
+  return $default_dir . $name;
+}
+
 function print_header($title, $js = null, $extra_head_content = "") {
   global $CONFIG;
   echo "<html><head><meta http-equiv=\"X-UA-Compatible\" content=\"IE=8\" />";
   echo "<title>{$CONFIG['site_name']} | Gatherling | {$title}</title>";
-echo <<<EOT
-    <link rel="stylesheet" type="text/css" media="all" href="css/reset.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="css/text.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="css/960.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="css/pdcmagic.css" />
-    <link rel="stylesheet" type="text/css" media="all" href="css/gatherling.css" />
-EOT;
+  echo "<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"". theme_file("css/stylesheet.css") . "\" />";
+  echo "<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js\"></script>\n";
   if ($js) {
-    echo "<script type=\"text/javascript\" src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js\"></script>\n";
     echo "<script type=\"text/javascript\">";
     echo $js;
     echo "</script>";
@@ -30,7 +37,7 @@ EOT;
     <div id="maincontainer" class="container_12">
       <div id="headerimage" class="grid_12">
 EOT;
-  echo image_tag("header.jpg");
+  echo image_tag("header.png");
   echo <<<EOT
       </div>
       <div id="mainmenu_submenu" class="grid_12">
@@ -140,7 +147,7 @@ function image_tag($filename, $extra_attr = NULL) {
       $tag .= "{$key}=\"{$value}\" ";
     }
   }
-  $tag .= "src=\"imageset/{$filename}\" />";
+  $tag .= "src=\"" . theme_file("images/{$filename}") . "\" />";
   return $tag;
 }
 

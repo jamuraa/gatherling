@@ -1,0 +1,13 @@
+/* Gatherling Style Sheet
+   --------------------------------------------------------------
+   Style name: PDC Magic
+   Based on style: PDCMagic.com website
+   Author:  Michael Jansen
+   --------------------------------------------------------------
+*/
+
+@import url("reset.css");
+@import url("text.css");
+@import url("960.css");
+@import url("pdcmagic.css");
+@import url("gatherling.css");

@@ -25,3 +25,9 @@ if (version_compare(phpversion(), 6) === -1) {
 }
 
 require_once 'config.php';
+
+// Force time to be US/Eastern
+putenv("TZ=US/Eastern");
+// Session timer set to 1 hour:
+ini_set('session.gc_maxlifetime', 1 * 60 * 60);
+

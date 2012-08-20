@@ -15,13 +15,15 @@ $deck = new Deck($id);
 $content = "";
 
 foreach ($deck->maindeck_cards as $card => $qty) {
-  $content .= $qty . " " . $card . "\n";
+  // Æ to AE litigation
+  $card = preg_replace("/\306/", "AE", $card);
+  $content .= $qty . " " . $card . "\r\n";
 }
 
-$content .= "\nSideboard\n";
+$content .= "\r\nSideboard\r\n";
 
 foreach ($deck->sideboard_cards as $card => $qty) {
-  $content .= $qty . " " . $card . "\n";
+  $content .= $qty . " " . $card . "\r\n";
 }
 
 $filename = preg_replace("/ /", "_", $deck->name) . ".txt";

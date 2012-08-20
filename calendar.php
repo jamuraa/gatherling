@@ -4,7 +4,7 @@ header("Content-Type: text/calendar");
 
 print "BEGIN:VCALENDAR\r\n";
 print "VERSION:2.0\r\n";
-print "PRODID:-//pdcmagic/gatherling//EN\r\n";
+print "PRODID:-//{$CONFIG['site_name']}/gatherling//EN\r\n";
 print "X-WR-CALNAME;VALUE=TEXT:{$CONFIG['site_name']} Tournament Schedule\r\n";
 print "X-WR-CALDESC;VALUE=TEXT:{$CONFIG['calendar_description']}\r\n";
 print "X-WR-RELCALID:480fC555:F784:4C19:9D38:A65F931880AB\r\n";

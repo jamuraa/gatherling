@@ -24,11 +24,12 @@ print_header("Admin Control Panel");
 
 <?php print_footer(); ?>
 
-<?php
+<?php 
 
 function do_page() {
   handleActions();
   printError();
+  printAddCardSet();
   printChangePasswordForm();
 }
 
@@ -40,9 +41,27 @@ function printError() {
   }
 }
 
+function printAddCardSet() {
+    $year;
+    $month;
+    $day;
+
+    echo "<form action=\"./util/insertcardset.php\" method=\"post\ enctype=\"multipart/form-data\">";
+    echo "<h3><center>Install New Cardset</center></h3>";
+    echo "<table class=\"form\" style=\"border-width: 0px\" align=\"center\">";
+    echo "<tr><th>Cardset Name</th>";
+    echo "<td><input type=\"text\" name=\"cardsetname\" />";
+    echo "<tr><th>Release Date</th>";
+    echo "<td><input type=\"text\" name=\"realeasedate\" />";
+    echo "<tr><th>Cardset Text Spoiler</th>";
+    echo "<td><input type=\"file\" name=\"cardset\" /> ";
+    echo "<input type=\"submit\" name=\"action\" value=\"Install Cardset\" /></td></tr>";
+    echo "</table></form>";
+}
+
 function printChangePasswordForm() {
   echo "<form action=\"admincp.php\" method=\"post\">";
-  echo "<h3> <center>Change User Password</center> </h3>";
+  echo "<h3><center>Change User Password</center></h3>";
   echo "<table class=\"form\" style=\"border-width: 0px\" align=\"center\">";
   print_text_input("Username", "username");
   print_text_input("New Password", "new_password");

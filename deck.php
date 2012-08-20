@@ -64,24 +64,30 @@ if (strcmp($_GET['mode'], "view") == 0) {
   if (!isset($_POST['event'])) {
     $_POST['event'] = $_GET['event'];
   }
-  if (checkDeckAuth($_POST['event'], $deck_player, $deck)) {
-    if (strcmp($_POST['mode'], "Create Deck") == 0) {
+
+  // part of the reg-decklist feature. both "register" and "addregdeck" switches
+  if (strcmp($_GET['mode'], "register") == 0) {
+      deckRegisterForm();
+  } else if (strcmp($_GET['mode'], "addregdeck") == 0) {
       $deck = insertDeck();
-      if (count($deck->errors) == 0) {
-        deckProfile($deck);
+  } else if (checkDeckAuth($_POST['event'], $deck_player, $deck)) {
+      if (strcmp($_POST['mode'], "Create Deck") == 0) {
+        $deck = insertDeck();
+        if (count($deck->errors) == 0) {
+          deckProfile($deck);
+        }
+      } elseif (strcmp($_POST['mode'], "Update Deck") == 0) {
+        $deck = updateDeck($deck);
+        if (count($deck->errors) == 0) {
+          deckProfile($deck);
+        }
+      } elseif (strcmp($_POST['mode'], "Edit Deck") == 0) {
+        deckForm($deck);
+      } elseif (strcmp($_GET['mode'], "create") == 0) {
+        deckForm();
       }
-    } elseif (strcmp($_POST['mode'], "Update Deck") == 0) {
-      $deck = updateDeck($deck);
-      if (count($deck->errors) == 0) {
-        deckProfile($deck);
-      }
-    } elseif (strcmp($_POST['mode'], "Edit Deck") == 0) {
-      deckForm($deck);
-    } elseif (strcmp($_GET['mode'], "create") == 0) {
-      deckForm();
     }
   }
-}
 
 ?>
 </div> <!-- gatherling_main box -->
@@ -129,17 +135,18 @@ function deckForm($deck = NULL) {
   echo "\"Unclassified\". To enter cards, save your deck as a .txt file using the ";
   echo "official MTGO client, and then copy and paste the maindeck and ";
   echo "sideboard into the appropriate text boxes. ";
-  echo "The correct pattern is ";
-  echo "\"1 Card Name\".</td></tr>\n";
+  echo "The correcr pattern is \"1 Card Name\".</td></tr>\n";
   echo "<tr><td><b>Recent Decks</b></td>\n<td>\n";
   echo "<select id=\"autoenter-deck\">\n";
   echo "<option value=\"0\">Select a recent deck to start from there</option>\n";
   $deckplayer = new Player($player);
-  if (count($deck->errors) == 0 && count($deck->maindeck_cards) == 0) {
-    $recentdecks = $deckplayer->getRecentDecks();
-    foreach ($recentdecks as $adeck) {
-      echo "<option value=\"{$adeck->id}\">{$adeck->name}</option>\n";
-    }
+  if (!is_null($deck)) {
+      if (count($deck->errors) == 0 && count($deck->maindeck_cards) == 0) {
+          $recentdecks = $deckplayer->getRecentDecks();
+          foreach ($recentdecks as $adeck) {
+              echo "<option value=\"{$adeck->id}\">{$adeck->name}</option>\n";
+              }
+      }
   }
 
   echo "</select></td></tr>";
@@ -169,6 +176,57 @@ function deckForm($deck = NULL) {
   echo "<tr><td>&nbsp;</td></tr>\n";
   echo "<tr><td colspan=\"2\" align=\"center\">\n";
   echo "<input type=\"submit\" name=\"mode\" value=\"$mode\">\n";
+  echo "<input type=\"hidden\" name=\"player\" value=\"$player\">";
+  echo "<input type=\"hidden\" name=\"event\" value=\"$event\">";
+  echo "</td></tr></table></form>\n";
+}
+
+// deckRegisterForm is part of the reg-decklist feature
+function deckRegisterForm($deck = NULL) {
+
+  $player = (isset($_POST['player'])) ? $_POST['player'] : $_GET['player'];
+  $event = (isset($_POST['player'])) ? $_POST['event'] : $_GET['event'];
+  $vals = array('contents' => '', 'sideboard' => '');
+
+  echo "<form action=\"deck.php?mode=addregdeck\" method=\"post\">\n";
+  echo "<table align=\"center\" style=\"border-width: 0px;\">\n";
+  echo "<tr><td valign=\"top\"><b>Directions:</td>\n";
+  echo "<td>To enter your deck, please give it ";
+  echo "a name and select an archetype from the drop-down menu below. If ";
+  echo "you do not specify and archetype, your deck will be labeled as ";
+  echo "\"Unclassified\". To enter cards, save your deck as a .txt file using the ";
+  echo "official MTGO client, and then copy and paste the maindeck and ";
+  echo "sideboard into the appropriate text boxes. ";
+  echo "Do not use a format such as \"1x Card\". ";
+  echo "The parser will not accept this structure. The correct pattern is ";
+  echo "\"1 Card\".</td></tr>\n";
+  echo "<tr><td><b>Recent Decks</b></td>\n<td>\n";
+  echo "<select id=\"autoenter-deck\">\n";
+  echo "<option value=\"0\">Select a recent deck to start from there</option>\n";
+  $deckplayer = new Player($player);
+  $recentdecks = $deckplayer->getRecentDecks();
+  foreach ($recentdecks as $adeck) {
+      echo "<option value=\"{$adeck->id}\">{$adeck->name}</option>\n";
+  }
+  echo "</select></td></tr>";
+  echo "<tr><td><b>Name</td>\n<td>";
+  echo "<input id=\"deck-name\" type=\"text\" name=\"name\" value=\"{$vals['name']}\" ";
+  echo "size=\"40\"></td></tr>\n";
+  echo "<tr><td><b>Archetype</td>\n<td>";
+  archetypeDropMenu($vals['archetype']);
+  echo "</td></tr>\n";
+  echo "<tr><td valign=\"top\"><b>Main Deck</td>\n<td>";
+  echo "<textarea id=\"deck-contents\" rows=\"20\" cols=\"60\" name=\"contents\">";
+  echo "{$vals['contents']}</textarea></td></tr>\n";
+  echo "<tr><td valign=\"top\"><b>Sideboard</td>\n<td>";
+  echo "<textarea id=\"deck-sideboard\" rows=\"10\" cols=\"60\" name=\"sideboard\">";
+  echo "{$vals['sideboard']}</textarea></td></tr>\n";
+  echo "<tr><td valign=\"top\"><b>Comments</td>\n<td>";
+  echo "<textarea rows=\"10\" cols=\"60\" name=\"notes\">";
+  echo "{$vals['desc']}</textarea></td></tr>\n";
+  echo "<tr><td>&nbsp;</td></tr>\n";
+  echo "<tr><td colspan=\"2\" align=\"center\">\n";
+  echo "<input type=\"submit\" name=\"mode\" value=\"Create Deck\">\n";
   echo "<input type=\"hidden\" name=\"player\" value=\"$player\">";
   echo "<input type=\"hidden\" name=\"event\" value=\"$event\">";
   echo "</td></tr></table></form>\n";
@@ -228,8 +286,10 @@ function parseCards($text) {
     if (preg_match("/[ \t]*([0-9]+)x?[ \t]+(.*)/i", $chopped, $m)) {
       $qty = $m[1];
       $card = chop($m[2]);
-      // AE ligature.
+      // Wonky character fixes.  TODO: separate this out into Card::normalize_name or something
+      $card = preg_replace("/Æ/", "AE", $card);
       $card = preg_replace("/\306/", "AE", $card);
+      $card = preg_replace("/ö/", "o", $card);
       $card = strtolower($card);
       if(isset($cardarr[$card])) {
         $cardarr[$card] += $qty;
@@ -307,6 +367,7 @@ function commentsTable($deck) {
 }
 
 function deckInfoCell($deck) {
+  include 'config.php';
   $ncards = $deck->getCardCount();
   $event = $deck->getEvent();
   $day = date("F j, Y", strtotime($event->start));
@@ -414,12 +475,22 @@ function matchupTable($deck) {
   if (count($matches) == 0) {
     echo "<tr><td colspan=4><i>No matches were found for this deck</td></tr>";
   }
-  foreach ($matches as $match) {
+  
+  $event = new Event($deck->eventname);
+
+  if ($event->finalized == '0') {
+    echo "<tr><td>Matchups are anonymous for deck privacy until event is finalized.</td><tr>";
+  } else {
+
+    foreach ($matches as $match) {
     $rnd = 'R' . $match->round;
     if($match->timing > 1 && $match->type == 'Single Elimination') {
       $rnd = 'T' . pow(2, $match->rounds - $match->round + 1);}
     $color = "#FF9900";
     $res = "Draw";
+    if($match->playerMatchInProgress($deck->playername)) {
+      $res = "In Progress";
+    }
     if($match->playerWon($deck->playername)) {
       $color = "#009900";
       $res = "Win";
@@ -428,20 +499,34 @@ function matchupTable($deck) {
       $color = "#FF0000";
       $res = "Loss";
     }
-    $resStr = "<b><font color=\"$color\">$res</font></b>";
-    $opp = new Player($match->otherPlayer($deck->playername));
-    $deckcell = "No Deck Found";
-    $oppdeck = $opp->getDeckEvent($deck->eventname);
-    if($oppdeck != NULL) {
-      $deckcell = $oppdeck->linkTo();
+    if($match->playerBye ($deck->playername)) {
+        $res = "Bye";
+    }
+    $resStr = "<b><font color=\"color\">$res</font></b>";
+    if ($res != 'Bye'){
+      $opp = new Player($match->otherPlayer($deck->playername));
+      $deckcell = "No Deck Found";
+      $oppdeck = $opp->getDeckEvent($deck->eventname);
+      if ($oppdeck != NULL) {
+        $deckcell = $oppdeck->linkTo();
+      }
+      echo "<tr><td align=\"right\">$rnd:&nbsp;</td>\n";
+      echo "<td align=\"left\"><b><font color=\"$color\">$res</font>:&nbsp;</td>\n";
+      echo "<td width=30>{$match->getPlayerWins($deck->playername)} - {$match->getPlayerLosses($deck->playername)}</td>";
+      echo "<td>vs.&nbsp;</td>\n";
+      echo "<td align=\"left\">" . $opp->linkTo() . "&nbsp;</td>\n";
+      echo "<td align=\"right\">$deckcell&nbsp;</td></tr>\n";
+    } else {
+       echo "<tr><td align=\"right\">$rnd:&nbsp;</td>\n";
+       echo "<td align=\"left\"><b>$res:&nbsp;</td>\n";
+       echo "<td width=30> Bye </td>";
+       echo "<td>vs.&nbsp;</td>\n";
+       echo "<td align=\"left\"> No Opponent&nbsp;</td>\n";
+       echo "<td align=\"right\">No Deck Found&nbsp;</td></tr>\n";
     }
 
-    echo "<tr><td align=\"right\">$rnd:&nbsp;</td>\n";
-    echo "<td align=\"left\"><b><font color=\"$color\">$res</font>&nbsp;</td>\n";
-    echo "<td>vs.&nbsp;</td>\n";
-    echo "<td align=\"left\">" . $opp->linkTo() . "&nbsp;</td>\n";
-    echo "<td align=\"right\">$deckcell&nbsp;</td></tr>\n";
   }
+}
   echo "<tr><td>&nbsp;</td></tr>";
   echo "</table>\n";
 }
@@ -497,6 +582,7 @@ function ccTable($deck) {
 }
 
 function symbolTable($deck) {
+  include 'config.php';
   echo "<table style=\"border-width: 0px\">\n";
   echo "<tr><td align=\"center\" colspan=2 width=150><b>MANA SYMBOLS";
   echo "</td></tr>\n";
@@ -506,11 +592,11 @@ function symbolTable($deck) {
   $sum = 0;
   foreach($cnts as $color => $num) {
     if($num > 0) {
-    echo "<tr><td align=\"right\" width=75>";
-    echo image_tag("mana{$color}.png");
-    echo "&nbsp;</td>\n";
-    echo "<td align=\"left\">$num</td></tr>\n";
-    $sum += $num;
+      echo "<tr><td align=\"right\" width=75>";
+      echo image_tag("mana{$color}.png");
+      echo "&nbsp;</td>\n";
+      echo "<td align=\"left\">$num</td></tr>\n";
+      $sum += $num;
     }
   }
   echo "<tr><td align=\"right\"><i>Total:&nbsp;</td>\n";
