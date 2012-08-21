@@ -17,7 +17,6 @@ class Standings
   public $matched;
   public $new;
 
-
   function __construct($eventname, $playername) {
     // Check to see if we are doing event standings of player standings
     if ($playername == "0") {

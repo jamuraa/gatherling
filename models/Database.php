@@ -25,4 +25,14 @@ class Database {
 
     return $pdo_instance;
   }
-} 
+
+  static function single_result($sql) {
+    $db = @Database::getConnection();
+    $stmt = $db->prepare($sql);
+    $stmt->execute();
+    $stmt->bind_result($result);
+    $stmt->fetch();
+    $stmt->close();
+    return $result;
+  }
+}

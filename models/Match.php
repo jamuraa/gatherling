@@ -240,13 +240,7 @@ class Match {
 
   // Returns a count of how many matches there are total.
   static function count() {
-    $db = @Database::getConnection();
-    $stmt = $db->prepare("SELECT count(id) FROM matches");
-    $stmt->execute();
-    $stmt->bind_result($result);
-    $stmt->fetch();
-    $stmt->close();
-    return $result;
+    return Database::single_result("SELECT count(id) FROM matches");
   }
 
   // Saves a report from a player on their match results.

@@ -654,42 +654,20 @@ class Event {
   }
 
   public static function count() {
-    $db = @Database::getConnection();
-    $stmt = $db->prepare("SELECT count(name) FROM events");
-    $stmt->execute();
-    $stmt->bind_result($result);
-    $stmt->fetch();
-    $stmt->close();
-    return $result;
+    return Database::single_result("SELECT count(name) FROM events");
   }
 
   public static function largestEventNum() {
-    $db = @Database::getConnection();
-    $stmt = $db->prepare("SELECT max(number) FROM events where number != 128"); // 128 is "special"
-    $stmt->execute();
-    $stmt->bind_result($result);
-    $stmt->fetch();
-    $stmt->close();
-    return $result;
+    return Database::single_result("SELECT max(number) FROM events where number != 128"); // 128 is "special"
   }
 
   public static function getOldest() {
-    $db = Database::getConnection();
-    $stmt = $db->prepare("SELECT name FROM events ORDER BY start LIMIT 1");
-    $stmt->execute();
-    $stmt->bind_result($eventname);
-    $stmt->fetch();
-    $stmt->close();
+    $eventname = Database::single_result("SELECT name FROM events ORDER BY start LIMIT 1");
     return new Event($eventname);
   }
 
   public static function getNewest() {
-    $db = Database::getConnection();
-    $stmt = $db->prepare("SELECT name FROM events ORDER BY start DESC LIMIT 1");
-    $stmt->execute();
-    $stmt->bind_result($eventname);
-    $stmt->fetch();
-    $stmt->close();
+    $eventname = Database::single_result("SELECT name FROM events ORDER BY start DESC LIMIT 1");
     return new Event($eventname);
   }
 

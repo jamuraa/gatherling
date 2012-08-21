@@ -936,23 +936,11 @@ class Player {
   }
 
   public static function activeCount() {
-    $db = Database::getConnection();
-    $stmt = $db->prepare("SELECT count(name) FROM players where password is not null");
-    $stmt->execute();
-    $stmt->bind_result($result);
-    $stmt->fetch();
-    $stmt->close();
-    return $result;
+    return Database::single_result("SELECT count(name) FROM players where password is not null");
   }
 
   public static function verifiedCount() {
-    $db = Database::getConnection();
-    $stmt = $db->prepare("SELECT count(name) FROM players where mtgo_confirmed = 1");
-    $stmt->execute();
-    $stmt->bind_result($result);
-    $stmt->fetch();
-    $stmt->close();
-    return $result;
+    return Database::single_result("SELECT count(name) FROM players where mtgo_confirmed = 1");
   }
 }
 

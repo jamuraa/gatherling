@@ -456,6 +456,7 @@ class Deck {
     $stmt = $db->prepare("SELECT count(deck_hash) FROM decks GROUP BY deck_hash");
     $stmt->execute();
     $stmt->store_result();
+    /// SLIGHTLY different than singular
     $uniquecount = $stmt->num_rows;
     $stmt->close();
     return $uniquecount;
