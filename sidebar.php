@@ -1,24 +1,24 @@
 <?php include_once 'lib.php' ?>
-<div id="rightcolumn">
-<div class="innertube" align=center><br>
+<div class="box">
 <h4>UPCOMING EVENTS</h4>
-<a href="http://forums.gleemax.com/forumdisplay.php?f=590" target="_blank">Player-Run Events at Gleemax</a><BR><br>
+<a href="http://forums.gleemax.com/forumdisplay.php?f=590" target="_blank">Player-Run Events in the Magic Community</a><br /><br />
 <?php futureTable();?>
-<br>
+</div>
+<div class="box">
 <h4>RECENT WINNERS</h4>
-<a href="/gatherling/eventreport.php">Gatherling Metagame Reports</a><BR><br>
 <?php recentTable();?>
 </div>
+<div class="box">
+<h4>MORE RECENT WINNERS</h4>
+<a href="./eventreport.php">Gatherling Metagame Reports</a><br /><br />
 </div>
-
 <?php
 function futureTable() {
   $db = Database::getConnection();
   $result = $db->query("SELECT UNIX_TIMESTAMP(DATE_SUB(start, INTERVAL 30 MINUTE)) AS d,
     format, series, name, threadurl FROM events
-    WHERE start>NOW() ORDER BY start ASC LIMIT 5");
+    WHERE start > NOW() ORDER BY start ASC LIMIT 10");
   $result or die($db->error);
-  echo "<table align=\"center\" width=\"90%\">\n";
   while($row = $result->fetch_assoc()) {
     $dateStr = date('D j M', $row['d']);
     $timeStr = date("g:i A", $row['d']);
@@ -27,14 +27,15 @@ function futureTable() {
     $threadurl = $row['threadurl'];
     $format = $row['format'];
     $col2 = $name;
+    echo "<table class=\"center\">\n";
     if(strcmp($threadurl, "") != 0) {
       $col2 = "<a href=\"$threadurl\">" . $name . "</a>";}
-    echo "<tr><td>$dateStr</td>\n";
-    echo "<td>$col2<br>$format</td>\n";
-    echo "<td>$timeStr</td><tr>\n";
+    echo "<tr><td width=60>$dateStr</td>\n";
+    echo "<td width=100>$col2<br />$format</td>\n";
+    echo "<td width=50>$timeStr</td></tr></table>\n";
   }
-  echo "<tr><td colspan=\"3\" align=\"center\"><i>";
-  echo "All times are EST.</td></tr>\n";
+  echo "<table class=\"center\">\n";
+  echo "<tr><td colspan=\"3\" align=\"center\"><i>All times are EST.</i></td></tr>\n";
   echo "</table>";
   $result->close();
 }
@@ -44,29 +45,26 @@ function recentTable() {
   $result = $db->query("SELECT b.event, b.player, d.name
     FROM entries b, decks d, events e
     WHERE b.medal='1st' AND d.id=b.deck AND e.name=b.event
-    ORDER BY e.start DESC LIMIT 3");
+    ORDER BY e.start DESC LIMIT 10");
   $result or die($db->error);
-  echo "<table align=\"center\" width=\"90%\">\n";
   while($row = $result->fetch_assoc()) {
     $query = "SELECT COUNT(*) AS c FROM trophies
       WHERE event=\"{$row['event']}\"";
     $res2 = $db->query($query) or die($db->error);
     $row2 = $res2->fetch_assoc();
+    echo "<div class=\"newtrophies\">";
+    echo "<table class=\"center\">\n";
     if($row2['c'] > 0) {
       echo "<tr><td colspan=\"3\" align=\"center\">";
-      echo "<a href=\"/gatherling/deck.php?mode=view&";
-      echo "event={$row['event']}\">";
-      echo "<img src=\"/gatherling/displayTrophy.php?";
-      echo "event={$row['event']}\" style=\"border-width: 0px;\"></a>";
-      echo "</td></tr>\n";
+      echo "<a class=\"borderless\" href=\"./eventreport.php?event={$row['event']}\">";
+      echo "<img src=\"./displayTrophy.php?event={$row['event']}\" alt=\"Event Trophy\" style=\"border-width: 0px;\" />";
+      echo "</a></td></tr>\n";
     }
-    echo "<tr><td><b><a href=\"/gatherling/profile.php?player=";
-    echo "{$row['player']}\">{$row['player']}</a></td>";
-    echo "<td><i><a href=\"/gatherling/deck.php?";
-    echo "mode=view&event={$row['event']}\">{$row['name']}</a></td>";
-    echo "<td><a href=\"/gatherling/eventreport.php?event={$row['event']}\">{$row['event']}</a></td></tr>\n";
+    echo "<tr><td align=\"center\" width=\"160\"><b><a href=\"./profile.php?player={$row['player']}\">{$row['player']}</a></b></td>";
+    echo "<td align=\"center\" width=\"160\"><i><a href=\"./deck.php?mode=view&event={$row['event']}\">{$row['name']}</a></i></td></tr>";
+    echo "</table>";
+    echo "</div>";
   }
-  echo "</table>";
   $result->close();
 }
 ?>

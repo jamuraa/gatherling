@@ -734,6 +734,10 @@ class Event {
     return true;
   }
 
+  public static function trophy_image_tag($eventname) {
+    return "<img style=\"border-width: 0px\" src=\"displayTrophy.php?event={$eventname}\" />";
+  }
+
   // All this should probably go somewhere else
   // Pairs the round which is currently running.
   // This should probably be in Standings?

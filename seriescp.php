@@ -113,6 +113,13 @@ function printSeriesForm($series) {
   $time_parts = explode(":", $series->start_time);
   timeDropMenu($time_parts[0], $time_parts[1]);
   echo "</td> </tr>";
+  # Pre-registration on by default?
+  echo "<tr><th>Pre-Registration Default</th>";
+  echo "<td><input type=\"checkbox\" value=\"1\" name=\"preregdefault\" ";
+  if($series->prereg_default == 1) {
+      echo "checked ";
+  }
+  echo "/></td></tr>";
 
   # Submit button
   echo "<tr><td colspan=\"2\" class=\"buttons\">";
@@ -217,7 +224,11 @@ function printRecentEventsTable($series) {
   }
   foreach ($recentEvents as $event) {
     echo "<tr> <td> <a href=\"event.php?name={$event->name}\">{$event->name}</a> </td> ";
-    $timefmted = strftime("%b %e", strtotime($event->start));
+    $format = '%b %e';
+    if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') {
+        $format = preg_replace('#(?<!%)((?:%%)*)%e#', '\1%#d', $format);
+    }
+    $timefmted = strftime($format,strtotime($event->start));
     echo "<td> {$timefmted} </td> <td style=\"text-align: center;\"> {$event->getPlayerCount()} </td>";
     echo "<td> {$event->host}";
     if ($event->cohost != "") {
@@ -226,7 +237,6 @@ function printRecentEventsTable($series) {
     echo "</tr>";
   }
   echo "</table>";
-
 }
 
 function handleActions() {
@@ -247,11 +257,18 @@ function handleActions() {
     $newactive = $_POST['isactive'];
     $newtime = $_POST['hour'];
     $newday = $_POST['start_day'];
+
+    $prereg = 0;
+    if (isset($_POST['preregdefault'])) {
+      $prereg = $_POST['preregdefault'];
+    }
+
     $series = new Series($seriesname);
     if ($series->authCheck(Player::loginName())) {
       $series->active = $newactive;
       $series->start_time = $newtime . ":00:00";
       $series->start_day = $newday;
+      $series->prereg_default = $prereg;
       $series->save();
     }
   } else if ($_POST['action'] == "Change Logo") {

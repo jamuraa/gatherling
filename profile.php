@@ -40,7 +40,7 @@ function content() {
         echo " logging in.\n";
         echo "</center>\n";
     }
-  echo "<br><br>\n";
+  echo "<br /><br />\n";
 }
 
 function profileTable($player) {
@@ -189,7 +189,7 @@ function medalCell($medal, $n) {
   if(is_null($n)) {$n = 0;}
   echo "<tr><td align=\"right\" width=130>";
   echo medalImgStr($medal);
-  echo  "</td><td>$n</td></tr>\n";
+  echo  "<td>$n</td></tr>\n";
 }
 
 function inlineMedal($medal) {
