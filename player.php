@@ -142,9 +142,9 @@ function print_submit_resultForm($player, $match_id) {
   echo "<td></td> </tr>\n";
   echo "<tr><th><input type='radio' name='report' value='W21' />I won the match 2-1</th>\n";
   echo "<td></td> </tr>\n";
-  echo "<tr><th><input type='radio' name='report' value='L20' />I lost the match 2-0</th>\n";
+  echo "<tr><th><input type='radio' name='report' value='L20' />I lost the match 0-2</th>\n";
   echo "<td> </td> </tr>\n";
-  echo "<tr><th><input type='radio' name='report' value='L21' />I lost the match 2-1</th>\n";
+  echo "<tr><th><input type='radio' name='report' value='L21' />I lost the match 1-2</th>\n";
   echo "<td> </td> </tr>\n";
   echo "<tr> <td colspan=\"2\" class=\"buttons\">\n";
   echo "<input name=\"submit\" type=\"submit\" value=\"Submit Match Report\" />\n";
@@ -166,10 +166,10 @@ function print_verify_resultForm($report, $match_id, $player) {
       echo "I won the match 2-1";
       break;
     case "L20":
-      echo "I lost the match 2-0";
+      echo "I lost the match 0-2";
       break;
     case "L21":
-      echo "I lost the match 2-1";
+      echo "I lost the match 1-2";
       break;
   }
   echo "</center></h4></p>";

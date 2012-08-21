@@ -346,116 +346,114 @@ class Match {
     return $result;
   }
 
-    // Goes through all matches in this round and updates the "Standing" objects with new scores.
-    public function updateScores($structure) {
-      //echo $this->playera_wins . $this->playera_losses;
-      $thisevent= Event::getEventBySubevent($this->subevent);
-      $playera_standing = new Standings($thisevent->name, $this->playera);
-      $playerb_standing = new Standings($thisevent->name, $this->playerb);
-      if ($this->result == 'BYE'){
-        $playerb_standing->score += 3;
-        $playerb_standing->byes++;
-        $playerb_standing->save();
-      } else {
-        if ($this->playera_wins > $this->playerb_wins){
-          if ($structure == "Single Elimination"){
-            $playerb_standing->active = 0;
-          } else {
-            $playera_standing->score += 3;
-          }
-          $this->result = 'A';
-        } else {
-          if ($structure == "Single Elimination"){
-            $playera_standing->active = 0;
-          } else {
-            $playerb_standing->score += 3;
-          }
-          $this->result = 'B';
-        }
-      }
-      if (strcmp($playera_standing->player, $playerb_standing->player) != 0){
-        $playera_standing->matches_played++;
-        $playera_standing->games_played += ($this->playera_wins + $this->playera_losses);
-        $playera_standing->games_won += $this->playera_wins;
-        //echo "****playeragameswon".$playera_standing->games_won;
-        $playerb_standing->matches_played++;
-        $playerb_standing->games_played += $this->playera_wins + $this->playera_losses;
-        $playerb_standing->games_won += $this->playerb_wins;
-        $playera_standing->save();
-        $playerb_standing->save();
-      }
-      $this->finalize_match($this->result, $this->id);
-    }
-
-    // temp, will fix later
-    // Don't lknow what this does, but it looks a lot like the above.
-    public function fixScores($structure) {
-      // Goes through all matches in this round and updates scores
-      //echo $this->playera_wins . $this->playera_losses;
-      $thisevent = Event::getEventBySubevent($this->subevent);
-      $playera_standing = new Standings($thisevent->name, $this->playera);
-      $playerb_standing = new Standings($thisevent->name, $this->playerb);
+  // Goes through all matches in this round and updates the "Standing" objects with new scores.
+  public function updateScores($structure) {
+    $thisevent= Event::getEventBySubevent($this->subevent);
+    $playera_standing = new Standings($thisevent->name, $this->playera);
+    $playerb_standing = new Standings($thisevent->name, $this->playerb);
+    if ($this->result == 'BYE'){
+      $playerb_standing->score += 3;
+      $playerb_standing->byes++;
+      $playerb_standing->save();
+    } else {
       if ($this->playera_wins > $this->playerb_wins){
-        $playera_standing->score += 3;
-        $playera_standing->matches_won += 1;
         if ($structure == "Single Elimination"){
           $playerb_standing->active = 0;
+        } else if ($structure == "Swiss") {
+          $playera_standing->score += 3;
         }
         $this->result = 'A';
       } else {
-        $playerb_standing->score += 3;
-        $playerb_standing->matches_won += 1;
         if ($structure == "Single Elimination"){
           $playera_standing->active = 0;
+        } else if ($structure == "Swiss") {
+          $playerb_standing->score += 3;
         }
         $this->result = 'B';
       }
-      if (strcmp($playera_standing->player, $playerb_standing->player) == 0){
-        //Might need this later if I want to rebuild bye score with standings $playera_standing->byes++;
-        $playerb_standing->byes++;
-        $playerb_standing->save();
-
-      } else {
-        $playera_standing->matches_played++;
-        $playera_standing->games_played += ($this->playera_wins + $this->playera_losses);
-        $playera_standing->games_won += $this->playera_wins;
-        //echo "****playeragameswon".$playera_standing->games_won;
-        $playerb_standing->matches_played++;
-        $playerb_standing->games_played += $this->playera_wins + $this->playera_losses;
-        $playerb_standing->games_won += $this->playerb_wins;
-      }
+    }
+    if (strcmp($playera_standing->player, $playerb_standing->player) != 0){
+      $playera_standing->matches_played++;
+      $playera_standing->games_played += ($this->playera_wins + $this->playera_losses);
+      $playera_standing->games_won += $this->playera_wins;
+      //echo "****playeragameswon".$playera_standing->games_won;
+      $playerb_standing->matches_played++;
+      $playerb_standing->games_played += $this->playera_wins + $this->playera_losses;
+      $playerb_standing->games_won += $this->playerb_wins;
       $playera_standing->save();
       $playerb_standing->save();
     }
+    $this->finalize_match($this->result, $this->id);
+  }
 
-    public function finalize_match($winner, $match_id) {
-      $db = Database::getConnection();
-      //echo "finalizing match ***".$winner;
-      $stmt = $db->prepare("UPDATE matches SET result = ? WHERE id = ?");
-      $stmt->bind_param("sd", $winner, $match_id );
-      $stmt->execute();
-      $stmt->close();
+  // temp, will fix later
+  // Don't lknow what this does, but it looks a lot like the above.
+  public function fixScores($structure) {
+    // Goes through all matches in this round and updates scores
+    //echo $this->playera_wins . $this->playera_losses;
+    $thisevent = Event::getEventBySubevent($this->subevent);
+    $playera_standing = new Standings($thisevent->name, $this->playera);
+    $playerb_standing = new Standings($thisevent->name, $this->playerb);
+    if ($this->playera_wins > $this->playerb_wins){
+      $playera_standing->score += 3;
+      $playera_standing->matches_won += 1;
+      if ($structure == "Single Elimination"){
+        $playerb_standing->active = 0;
+      }
+      $this->result = 'A';
+    } else {
+      $playerb_standing->score += 3;
+      $playerb_standing->matches_won += 1;
+      if ($structure == "Single Elimination"){
+        $playera_standing->active = 0;
+      }
+      $this->result = 'B';
     }
-
-    public function player_reportable_check() {
-      $event = $this->getEvent();
-      return ($event->player_reportable == 1);
+    if (strcmp($playera_standing->player, $playerb_standing->player) == 0){
+      //Might need this later if I want to rebuild bye score with standings $playera_standing->byes++;
+      $playerb_standing->byes++;
+      $playerb_standing->save();
+    } else {
+      $playera_standing->matches_played++;
+      $playera_standing->games_played += ($this->playera_wins + $this->playera_losses);
+      $playera_standing->games_won += $this->playera_wins;
+      //echo "****playeragameswon".$playera_standing->games_won;
+      $playerb_standing->matches_played++;
+      $playerb_standing->games_played += $this->playera_wins + $this->playera_losses;
+      $playerb_standing->games_won += $this->playerb_wins;
     }
+    $playera_standing->save();
+    $playerb_standing->save();
+  }
 
-    public function getEventNamebyMatchid() {
-      $db = Database::getConnection();
-      $stmt = $db->prepare("SELECT e.name
-      FROM matches m, subevents s, events e
-      WHERE m.id = ? AND m.subevent = s.id AND e.name = s.parent");
+  public function finalize_match($winner, $match_id) {
+    $db = Database::getConnection();
+    //echo "finalizing match ***".$winner;
+    $stmt = $db->prepare("UPDATE matches SET result = ? WHERE id = ?");
+    $stmt->bind_param("sd", $winner, $match_id );
+    $stmt->execute();
+    $stmt->close();
+  }
 
-      $stmt->bind_param("d", $this->id );
-      $stmt->execute();
+  public function player_reportable_check() {
+    $event = $this->getEvent();
+    return ($event->player_reportable == 1);
+  }
 
-      $stmt->bind_result($name);
-      $stmt->fetch();
+  public function getEventNamebyMatchid() {
+    $db = Database::getConnection();
+    $stmt = $db->prepare("SELECT e.name
+    FROM matches m, subevents s, events e
+    WHERE m.id = ? AND m.subevent = s.id AND e.name = s.parent");
 
-      $stmt->close();
-      return $name;
-    }
+    $stmt->bind_param("d", $this->id );
+    $stmt->execute();
+
+    $stmt->bind_result($name);
+    $stmt->fetch();
+
+    $stmt->close();
+    return $name;
+  }
 
 }

@@ -137,12 +137,7 @@ function content() {
     }
 
     if (strcmp($_POST['mode'], "Recalculate Standings") == 0) {
-      // fix this hardcoded structure later
-      if ($event->current_round >= $event->mainrounds) {
-        $structure = $event->finalstruct;
-      } else {
-        $structure = $event->mainstruct;
-      }
+      $structure = $event->mainstruct;
       $event->recalculateScores($structure);
       Standings::updateStandings($event->name, $event->mainid, 1);
     }
@@ -156,7 +151,9 @@ function content() {
     }
 
     if (strcmp($_POST['mode'], "Reactivate Event") == 0) {
-      $event->repairRound();
+      $event->active = 1;
+      $event->finalized = 0;
+      $event->save();
     }
 
     if (strcmp($_POST['mode'], "Set Current Round to") == 0) {

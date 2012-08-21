@@ -145,10 +145,11 @@ class Standings
       $rank++;
     }
     echo "<tr><td colspan=\"8\"><br/><b> Tiebreakers Explained </b><p/></td></tr>";
-    echo "<tr><td colspan=\"8\"> Players with the same number of match points are ranked based on three tiebreakers scores. In order, they are: </td></tr>";
+    echo "<tr><td colspan=\"8\"> Players with the same number of match points are ranked based on three tiebreakers scores according to DCI rules. In order, they are: </td></tr>";
     echo "<tr><td colspan=\"8\"> OMW % is the percentage of matches your opponents have won. </td></tr>";
     echo "<tr><td colspan=\"8\"> PGW % is the percentage of games you have won. </td></tr>";
     echo "<tr><td colspan=\"8\"> OGW % is the percentage of games your opponents have won. </td></tr>";
+    echo "<tr><td colspan=\"8\"> BYEs are not included when calculating standings. For example, a player with one BYE, one win, and one loss has a match win percentage of .50 rather than .66</td></tr>";
     echo "</table></center>";
   }
 

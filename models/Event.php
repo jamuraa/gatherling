@@ -406,6 +406,11 @@ class Event {
     $stmt->execute();
     $removed = $stmt->affected_rows > 0;
     $stmt->close();
+
+    $stmt = $db->prepare("DELETE FROM standings WHERE event = ? AND player = ?");
+    $stmt->bind_param("ss", $this->name, $playername);
+    $stmt->execute();
+    $stmt->close();
     return $removed;
   }
 
@@ -837,9 +842,11 @@ class Event {
   function singleElimination($round) {
     if ($round == "final"){
       if ($this->current_round == ($this->mainrounds) ) {
-        if ($this->finalrounds == 2) {
+        if ($this->finalrounds == 1) {
+          $this->top2Seeding();
+        } else if ($this->finalrounds == 2) {
           $this->top4Seeding();
-        } elseif ($this->finalrounds == 3) {
+        } else if ($this->finalrounds == 3) {
           $this->top8Seeding();
         }
       } else {
@@ -998,7 +1005,8 @@ class Event {
           $match->updateScores($structure);
         }
         if ($structure == "Swiss"){
-          Standings::updateStandings($this->name, $subevent, $this->current_round);
+          $this->recalculateScores($structure);
+          Standings::updateStandings($this->name, $this->mainid, 1);
         }
         $this->pairCurrentRound();
       }
@@ -1034,9 +1042,13 @@ class Event {
     foreach ($standings as $standing) {
       $standing->score = 0;
       $standing->matches_played = 0;
+      $standing->matches_won = 0;
       $standing->games_won = 0;
       $standing->byes = 0;
       $standing->games_played = 0;
+      $standing->OP_Match = 0;
+      $standing->PL_Game = 0;
+      $standing->OP_Game = 0;
       $standing->save();
     }
   }
@@ -1062,7 +1074,7 @@ class Event {
   // This doesn't "repair" the round, it "re-pairs" the round by removing the pairings for the round.
   // It will always restart the top N if it is after the end rounds.
   function repairRound(){
-    if ($this->current_round < ($this->finalrounds + $this->mainrounds)){
+    if ($this->current_round <= $this->mainrounds){
       $round = $this->current_round;
       $subevent = $this->mainid;
     } else {
