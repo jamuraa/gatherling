@@ -204,4 +204,51 @@ if ($version < 10) {
   echo "... DB now at version 10! <br />";
 }
 
+if ($version < 11) {
+  // Match Pairing Updates
+  // Reconstructed from schemas.
+  echo "Updating to version 11 (add pairing system stuff, cards)... <br />";
+  do_query("ALTER TABLE cards ADD COLUMN (isp TINYINT(1) DEFAULT '0')");
+  do_query("ALTER TABLE cards ADD COLUMN (rarity VARCHAR(40) DEFAULT NULL)");
+
+  do_query("ALTER TABLE events ADD COLUMN (active TINYINT(1) DEFAULT '0')");
+  do_query("ALTER TABLE events ADD COLUMN (current_round TINYINT(3) NOT NULL)");
+  do_query("ALTER TABLE events ADD COLUMN (player_reportable TINYINT(1) NOT NULL DEFAULT '0')");
+
+  do_query("ALTER TABLE matches ADD COLUMN (playera_wins INT(11) NOT NULL DEFAULT '0')");
+  do_query("ALTER TABLE matches ADD COLUMN (playera_losses INT(11) NOT NULL DEFAULT '0')");
+  do_query("ALTER TABLE matches ADD COLUMN (playera_draws INT(11) NOT NULL DEFAULT '0')");
+  do_query("ALTER TABLE matches ADD COLUMN (playerb_wins INT(11) NOT NULL DEFAULT '0')");
+  do_query("ALTER TABLE matches ADD COLUMN (playerb_losses INT(11) NOT NULL DEFAULT '0')");
+  do_query("ALTER TABLE matches ADD COLUMN (playerb_draws INT(11) NOT NULL DEFAULT '0')");
+  do_query("ALTER TABLE matches ADD COLUMN (verification varchar(40) NOT NULL DEFAULT 'unverified')");
+
+  do_query(<<<EOS
+CREATE TABLE IF NOT EXISTS `standings` (
+  `player` varchar(40) DEFAULT NULL,
+  `event` varchar(40) DEFAULT NULL,
+  `active` tinyint(3) DEFAULT '0',
+  `matches_played` tinyint(3) DEFAULT '0',
+  `games_won` tinyint(3) DEFAULT '0',
+  `games_played` tinyint(3) DEFAULT '0',
+  `byes` tinyint(3) DEFAULT '0',
+  `OP_Match` decimal(3,3) DEFAULT '0.000',
+  `PL_Game` decimal(3,3) DEFAULT '0.000',
+  `OP_Game` decimal(3,3) DEFAULT '0.000',
+  `score` tinyint(3) DEFAULT '0',
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `seed` tinyint(3) NOT NULL,
+  `matched` tinyint(1) NOT NULL,
+  `matches_won` tinyint(3) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `player` (`player`),
+  KEY `event` (`event`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=266 ;
+EOS;
+  
+  do_query("UPDATE db_version SET version = 11");
+  $db->commit();
+  echo "... DB now at version 11! <br />";
+}
+
 $db->autocommit(TRUE);
