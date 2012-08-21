@@ -361,23 +361,5 @@ function distance_of_time_in_words($from_time,$to_time = 0, $include_seconds = f
 }
 
 function version_tagline() {
-  print "Gatherling version 2.1.1 (\"I am getting too old for this. I can only imagine how YOU feel.\")";
-  # print "Gatherling version 2.1.0 (\"The program wasn't designed to alter the past. It was designed to affect the future.\")";
-  # print "Gatherling version 2.0.6 (\"We stole the Statue of Liberty! ...  The small one, from Las Vegas.\")";
-  # print "Gatherling version 2.0.5 (\"No, that's perfectly normal paranoia. Everyone in the universe gets that.\")";
-  # print "Gatherling version 2.0.4 (\"This is no time to talk about time. We don't have the time!\")";
-  # print "Gatherling version 2.0.3 (\"Are you hungry? I haven't eaten since later this afternoon.\")";
-  # print "Gatherling version 2.0.2 (\"Woah lady, I only speak two languages, English and bad English.\")";
-  # print "Gatherling version 2.0.1 (\"Use this to defend yourself. It's a powerful weapon.\")";
-  # print "Gatherling version 2.0.0 (\"I'm here to keep you safe, Sam.  I want to help you.\")";
-  # print "Gatherling version 1.9.9 (\"You'd think they'd never seen a girl and a cat on a broom before\")";
-  # print "Gatherling version 1.9.8 (\"I'm tellin' you, man, every third blink is slower.\")";
-  # print "Gatherling version 1.9.7 (\"Try blue, it's the new red!\")";
-  # print "Gatherling version 1.9.6 (\"Just relax and let your mind go blank. That shouldn't be too hard for you.\")";
-  # print "Gatherling version 1.9.5 (\"The grade that you receive will be your last, WE SWEAR!\")";
-  # print "Gatherling version 1.9.4 (\"We're gonna need some more FBI guys, I guess.\")";
-  # print "Gatherling version 1.9.3 (\"This is the Ocean, silly, we're not the only two in here.\")";
-  # print "Gatherling version 1.9.2 (\"So now you're the boss. You're the King of Bob.\")";
-  # print "Gatherling version 1.9.1 (\"It's the United States of Don't Touch That Thing Right in Front of You.\")";
-  # print "Gatherling version 1.9 (\"It's funny 'cause the squirrel got dead\")";
+  print "Gatherling version 3.0.17 (\"I don't know what you're talking about, but it sounds illegal.\")";
 }
