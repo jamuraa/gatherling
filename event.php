@@ -497,7 +497,7 @@ function playerList($event) {
     }
     echo "<td>";
     if ($entry->player->verified) {
-      echo image_tag("verified.png", array("alt" => "Verified", "title" => "Player Verified on MTGO"))
+      echo image_tag("verified.png", array("alt" => "Verified", "title" => "Player Verified on MTGO"));
     }
     echo "{$entry->player->name}";
     echo "</td>";
@@ -532,8 +532,8 @@ function playerList($event) {
   echo "</td></tr>";
   echo "</table>";
 
-  //***
-if ($event->active == 0){
+
+  if ($event->active == 0){
     echo "<table style=\"border-width: 0px\" align=\"center\">";
     echo "<tr><td>";
     echo "<tr><td colspan=\"2\" align=\"center\">";
@@ -610,7 +610,7 @@ function pointsAdjustmentForm($event) {
     $adjustment = $event->getSeasonPointAdjustment($name);
     echo "<tr> <td> {$name} </td>";
     if ($entry->medal != "") {
-      $img = "<img src=\"{$Theme}imageset/{$entry->medal}.png\" alt=\"Medal\" />";
+      $img = medalImgStr($entry->medal);
       echo "<td> {$img} </td>";
     } else {
       echo "<td> </td>";
@@ -641,9 +641,9 @@ function matchList($event) {
   if (!isset($_POST['newmatchround'])) {$_POST['newmatchround'] = '';}
 
   // Start a new form
-  echo "<form action=\"event.php\" method=\"post\" ";
-  echo "enctype=\"multipart/form-data\">";
+  echo "<form action=\"event.php\" method=\"post\" enctype=\"multipart/form-data\">";
   echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
+  echo "<input type=\"hidden\" name=\"eventname\" value=\"{$event->name}\">";
   echo "<table style=\"border-width: 0px\" align=\"center\">";
   echo "<tr><td align=\"center\" colspan=\"2\">";
   echo "<table align=\"center\" style=\"border-width: 0px;\">";
@@ -661,20 +661,22 @@ function matchList($event) {
     echo "<td><b>Winner</b></td>";
     echo "<td><b>Player A Wins</b></td>";
     echo "<td><b>Player B Wins</b></td><td align=\"center\"><b>Delete</td></tr>";
-  }
-  else {
+  } else {
     echo "<tr><td align=\"center\" colspan=\"5\"><i>";
     echo "There are no matches listed for this event.</td></tr>";
   }
   $first = 1;
   $rndadd = 0;
   foreach ($matches as $match) {
-    if( $first && $match->timing == 1) {
+    if ($first && $match->timing == 1) {
       $rndadd = $match->rounds;
     }
     $first = 0;
-    $printrnd = ($match->timing == 2) ?
-      $match->round + $rndadd : $match->round;
+    if ($match->timing == 2) {
+      $printrnd = $match->round + $rndadd;
+    } else { 
+      $printrnd = $match->round;
+    }
     $printplr = $match->getWinner();
     if (is_null($printplr)) {
       $printplr = 'Database Error';
@@ -683,12 +685,10 @@ function matchList($event) {
     $star = ($match->timing > 1) ? "*" : "";
     echo "<tr><td align=\"center\">$printrnd$star</td>";
     if (strcasecmp($match->verification, 'verified') != 0 && $event->finalized == 0) {
-      echo "<input type=\"hidden\" name=\"eventname\" value=\"{$event->name}\">";
-
       echo "<td><input type=\"checkbox\" name=\"dropplayerA[]\" value=\"{$match->playera}\">";
       if (($match->getPlayerWins($match->playera) > 0) || ($match->getPlayerLosses($match->playera) > 0)) {
         if ($match->getPlayerWins($match->playera) > $match->getPlayerLosses($match->playera)) {
-          $matchresult = "Win"
+          $matchresult = "Win";
         } else {
           $matchresult = "Loss";
         }
@@ -700,7 +700,7 @@ function matchList($event) {
       echo "<td><input type=\"checkbox\" name=\"dropplayerB[]\" value=\"{$match->playerb}\">";
       if (($match->getPlayerWins($match->playerb) > 0) || ($match->getPlayerLosses($match->playerb) > 0)) {
         if ($match->getPlayerWins($match->playerb) > $match->getPlayerLosses($match->playerb)) {
-          $matchresult = "Win"
+          $matchresult = "Win";
         } else {
           $matchresult = "Loss";
         }

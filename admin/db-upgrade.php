@@ -222,6 +222,8 @@ if ($version < 11) {
   do_query("ALTER TABLE matches ADD COLUMN (playerb_losses INT(11) NOT NULL DEFAULT '0')");
   do_query("ALTER TABLE matches ADD COLUMN (playerb_draws INT(11) NOT NULL DEFAULT '0')");
   do_query("ALTER TABLE matches ADD COLUMN (verification varchar(40) NOT NULL DEFAULT 'unverified')");
+  // Automatically verify all the ones that are in here already
+  do_query("UPDATE matches SET verification = 'verified'");
 
   do_query(<<<EOS
 CREATE TABLE IF NOT EXISTS `standings` (
@@ -244,8 +246,9 @@ CREATE TABLE IF NOT EXISTS `standings` (
   KEY `player` (`player`),
   KEY `event` (`event`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=266 ;
-EOS;
-  
+EOS
+);
+
   do_query("UPDATE db_version SET version = 11");
   $db->commit();
   echo "... DB now at version 11! <br />";

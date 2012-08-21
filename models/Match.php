@@ -201,7 +201,7 @@ class Match {
   }
 
   function isDraw () {
-    return ($this->result == 'D')
+    return ($this->result == 'D');
   }
 
   function isBYE () {

@@ -270,7 +270,7 @@ class Event {
   }
 
   function isFinalized () {
-    return ($this->finalized == 0)
+    return ($this->finalized == 0);
   }
 
   function isSteward($name) {

@@ -184,7 +184,7 @@ class Series {
 
   // Returns a HTML image tag which displays the logo for this series.
   public static function image_tag($seriesname) {
-    reutrn "<img src=\"displaySeries.php?series=$seriesname\" />";
+    return "<img src=\"displaySeries.php?series=$seriesname\" />";
   }
 
   public function mostRecentEvent() {
