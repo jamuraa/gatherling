@@ -62,7 +62,7 @@ class Standings
       $stmt = $db->prepare("INSERT INTO standings(player, event, active,
         matches_played, matches_won, games_won, games_played, byes, OP_Match, PL_Game,
         OP_Game, score, seed, matched)
-        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
       $stmt->bind_param("ssdddddddddddd", $this->player, $this->event, $this->active, $this->matches_played, $this->matches_won, $this->games_won, $this->games_played, $this->byes, $this->OP_Match, $this->PL_Game, $this->OP_Game, $this->score, $this->seed, $this->matched);
       $stmt->execute() or die($stmt->error);
       $stmt->close();
