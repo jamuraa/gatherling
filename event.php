@@ -1193,8 +1193,9 @@ function updateMatches() {
       }
 
       if ((strcasecmp($resultForA, 'notset') != 0) && (strcasecmp($resultForB, 'notset') != 0)) {
-        Match::saveReport($resultForA,$_POST['hostupdatesmatches'][$ndx], 'a');
-        Match::saveReport($resultForB,$_POST['hostupdatesmatches'][$ndx], 'b');
+        $matchid = $_POST['hostupdatesmatches'][$ndx];
+        Match::saveReport($resultForA, $matchid, 'a');
+        Match::saveReport($resultForB, $matchid, 'b');
       }
     }
   }
@@ -1206,7 +1207,7 @@ function updateMatches() {
   if (isset($_POST['newmatchplayerAwins'])) {$pAWins = $_POST['newmatchplayerAwins'];} else {$pAWins = "";}
   if (isset($_POST['newmatchplayerBwins'])) {$pBWins = $_POST['newmatchplayerBwins'];} else {$pBWins = "";}
 
-  if (strcmp($pA, "") != 0 && strcmp("$pB", "") != 0 && strcmp($res, "") != 0 && strcmp($rnd, "") != 0) {
+  if ((strcmp($pA, "") != 0) && (strcmp("$pB", "") != 0) && (strcmp($res, "") != 0) && (strcmp($rnd, "") != 0)) {
     if ($res == "P") {
       $event = new Event($_POST['name']);
       $event->addPairing($pA, $pB, $rnd, $res);
@@ -1216,7 +1217,7 @@ function updateMatches() {
     }
   }
 
-  if (isset($_POST['newbyeplayer'])) {
+  if (isset($_POST['newbyeplayer']) && (strcmp($_POST['newbyeplayer'], "") != 0)) {
     $p = $_POST['newbyeplayer'];
     $event = new Event($_POST['name']);
     $event->addMatch($p, $p, $rnd, 'BYE');
