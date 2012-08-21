@@ -353,7 +353,9 @@ class Match {
       $playera_standing = new Standings($thisevent->name, $this->playera);
       $playerb_standing = new Standings($thisevent->name, $this->playerb);
       if ($this->result == 'BYE'){
-        $playera_standing->score += 3;
+        $playerb_standing->score += 3;
+        $playerb_standing->byes++;
+        $playerb_standing->save();
       } else {
         if ($this->playera_wins > $this->playerb_wins){
           if ($structure == "Single Elimination"){
@@ -371,10 +373,7 @@ class Match {
           $this->result = 'B';
         }
       }
-      if (strcmp($playera_standing->player, $playerb_standing->player) == 0){
-        $playerb_standing->byes++;
-        $playerb_standing->save();
-      } else {
+      if (strcmp($playera_standing->player, $playerb_standing->player) != 0){
         $playera_standing->matches_played++;
         $playera_standing->games_played += ($this->playera_wins + $this->playera_losses);
         $playera_standing->games_won += $this->playera_wins;
@@ -398,12 +397,14 @@ class Match {
       $playerb_standing = new Standings($thisevent->name, $this->playerb);
       if ($this->playera_wins > $this->playerb_wins){
         $playera_standing->score += 3;
+        $playera_standing->matches_won += 1;
         if ($structure == "Single Elimination"){
           $playerb_standing->active = 0;
         }
         $this->result = 'A';
       } else {
         $playerb_standing->score += 3;
+        $playerb_standing->matches_won += 1;
         if ($structure == "Single Elimination"){
           $playera_standing->active = 0;
         }

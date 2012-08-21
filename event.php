@@ -138,7 +138,12 @@ function content() {
 
     if (strcmp($_POST['mode'], "Recalculate Standings") == 0) {
       // fix this hardcoded structure later
-      $event->recalculateScores("Swiss");
+      if ($event->current_round >= $event->mainrounds) {
+        $structure = $event->finalstruct;
+      } else {
+        $structure = $event->mainstruct;
+      }
+      $event->recalculateScores($structure);
       Standings::updateStandings($event->name, $event->mainid, 1);
     }
 
@@ -533,7 +538,7 @@ function playerList($event) {
   echo "</table>";
 
 
-  if ($event->active == 0){
+  if ($event->active == 0 && $event->finalized == 0) {
     echo "<table style=\"border-width: 0px\" align=\"center\">";
     echo "<tr><td>";
     echo "<tr><td colspan=\"2\" align=\"center\">";
@@ -544,17 +549,7 @@ function playerList($event) {
     echo "</tr></td>";
     echo "</table>";
 
-    echo "<center> <b> Players added after the event has started will receive 0 points for any rounds already started and be paired when the next round begins</center></b>";
-    echo "<table style=\"border-width: 0px\" align=\"center\">";
-    echo "<tr><td>";
-    echo "<tr><td colspan=\"2\" align=\"center\">";
-    echo "<form action=\"event.php\" method=\"post\">";
-    echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
-    echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
-    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Recalculate Standings\" />";
-    echo "</tr></td>";
-    echo "</table>";
-  } else {
+  } else if ($event->active == 1) {
     echo "<center> <b> Players added after the event has started will receive 0 points for any rounds already started and be paired when the next round begins</center></b>";
     echo "<table style=\"border-width: 0px\" align=\"center\">";
     echo "<tr><td>";
@@ -583,13 +578,23 @@ function playerList($event) {
     echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Delete Current Matches and Re-Pair Round\" />";
     echo "</tr></td>";
     echo "</table>";
-
+  } else {
     echo "<table style=\"border-width: 0px\" align=\"center\">";
     echo "<tr><td>";
     echo "<tr><td colspan=\"2\" align=\"center\">";
     echo "<form action=\"event.php\" method=\"post\">";
     echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
     echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Reactivate Event\" />";
+    echo "</tr></td>";
+    echo "</table>";
+
+    echo "<table style=\"border-width: 0px\" align=\"center\">";
+    echo "<tr><td>";
+    echo "<tr><td colspan=\"2\" align=\"center\">";
+    echo "<form action=\"event.php\" method=\"post\">";
+    echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
+    echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
+    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Recalculate Standings\" />";
     echo "</tr></td>";
     echo "</table>";
 

@@ -6,6 +6,7 @@ class Standings
   public $active;
   public $score;
   public $matches_played;
+  public $matches_won;
   public $games_won;
   public $games_played;
   public $byes;
@@ -26,11 +27,11 @@ class Standings
     } else {
       //echo "past loop";
       $db = Database::getConnection();
-      $stmt = $db->prepare("SELECT active, matches_played, games_won, games_played, byes, OP_Match, PL_Game, OP_Game, score, seed, matched FROM standings WHERE event = ? AND player = ? limit 1");
+      $stmt = $db->prepare("SELECT active, matches_played, matches_won, games_won, games_played, byes, OP_Match, PL_Game, OP_Game, score, seed, matched FROM standings WHERE event = ? AND player = ? limit 1");
       $stmt or die($db->error);
       $stmt->bind_param("ss", $eventname, $playername);
       $stmt->execute();
-      $stmt->bind_result($this->active, $this->matches_played, $this->games_won, $this->games_played, $this->byes, $this->OP_Match, $this->PL_Game, $this->OP_Game, $this->score, $this->seed, $this->matched);
+      $stmt->bind_result($this->active, $this->matches_played, $this->matches_won, $this->games_won, $this->games_played, $this->byes, $this->OP_Match, $this->PL_Game, $this->OP_Game, $this->score, $this->seed, $this->matched);
       $this->player = $playername;
       $this->event = $eventname;
       if ($stmt->fetch() == NULL) { // No entry in standings table,
@@ -42,6 +43,7 @@ class Standings
       // Initialize
       $this->score = 0;
       $this->matches_played = 0;
+      $this->matches_won = 0;
       $this->games_won = 0;
       $this->games_played = 0;
       $this->byes = 0;
@@ -59,19 +61,19 @@ class Standings
       $this->active = 1;
 
       $stmt = $db->prepare("INSERT INTO standings(player, event, active,
-        matches_played, games_won, games_played, byes, OP_Match, PL_Game,
+        matches_played, matches_won, games_won, games_played, byes, OP_Match, PL_Game,
         OP_Game, score, seed, matched)
         VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-      $stmt->bind_param("ssddddddddddd", $this->player, $this->event, $this->active, $this->matches_played, $this->games_won, $this->games_played, $this->byes, $this->OP_Match, $this->PL_Game, $this->OP_Game, $this->score, $this->seed, $this->matched);
+      $stmt->bind_param("ssdddddddddddd", $this->player, $this->event, $this->active, $this->matches_played, $this->matches_won, $this->games_won, $this->games_played, $this->byes, $this->OP_Match, $this->PL_Game, $this->OP_Game, $this->score, $this->seed, $this->matched);
       $stmt->execute() or die($stmt->error);
       $stmt->close();
     } else {
       $stmt = $db->prepare("UPDATE standings SET
-                            player = ?, event = ?, active = ?, matches_played = ?, games_won = ?,
-                            games_played = ?, byes = ?, OP_Match = ?, PL_Game = ?, OP_Game = ?,
-                            score = ?, seed = ?, matched = ? WHERE player = ? AND event = ?");
+        player = ?, event = ?, active = ?, matches_played = ?, matches_won = ?,
+        games_won = ?, games_played = ?, byes = ?, OP_Match = ?, PL_Game = ?, OP_Game = ?,
+        score = ?, seed = ?, matched = ? WHERE player = ? AND event = ?");
       $stmt or die($db->error);
-      $stmt->bind_param("ssdddddddddddss", $this->player, $this->event, $this->active, $this->matches_played, $this->games_won, $this->games_played, $this->byes, $this->OP_Match, $this->PL_Game, $this->OP_Game, $this->score, $this->seed, $this->matched, $this->player, $this->event);
+      $stmt->bind_param("ssddddddddddddss", $this->player, $this->event, $this->active, $this->matches_played, $this->matches_won, $this->games_won, $this->games_played, $this->byes, $this->OP_Match, $this->PL_Game, $this->OP_Game, $this->score, $this->seed, $this->matched, $this->player, $this->event);
       $stmt->execute() or die($stmt->error);
       $stmt->close();
     }
@@ -166,8 +168,8 @@ class Standings
     foreach ($opponents as $opponent) {
       // do calc
       if ($opponent->byes > 0){
-        $opp_score = $opponent->score - ($opponent->byes * 3);
-        $OMW += (($opp_score / 3) / $opponent->matches_played);
+        $opp_score = $opponent->matches_won - $opponent->byes;
+        $OMW += ($opp_score / $opponent->matches_played);
         if ($opponent->games_played == 0) {
           $OGW += 0;
         } else {
@@ -175,7 +177,7 @@ class Standings
         }
         $number_of_opponents++;
       } else {
-        if ($opponent->matches_played != 0) $OMW += (($opponent->score / 3) / $opponent->matches_played);
+        if ($opponent->matches_played != 0) $OMW += ($opponent->matches_won / $opponent->matches_played);
         if ($opponent->games_played != 0) $OGW += ($opponent->games_won / $opponent->games_played);
         $number_of_opponents++;
       }
