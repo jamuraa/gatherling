@@ -90,15 +90,17 @@ class Player {
   function save() {
     $db = Database::getConnection();
     $stmt = $db->prepare("UPDATE players SET password = ?, host = ?, super = ? WHERE name = ?");
-    $stmt->bind_param("sdds", $this->password, $this->host, $this->super, $this->name);
+    $stmt->bind_param("sddds", $this->password, $this->host, $this->super, $this->name);
     $stmt->execute();
     $stmt->close();
   }
 
+  /** Returns true if a player has hosted at least one event. */
   function isHost() {
     return ($this->super == 1) || (count($this->stewardsSeries()) > 0) || ($this->getHostedEventsCount() > 0);
   }
 
+  /** Returns true if a player stewards a series. */
   function isSteward() {
     return ($this->super == 1) || (count($this->stewardsSeries()) > 0);
   }
@@ -251,13 +253,40 @@ class Player {
     return $decks;
   }
 
+  // Gets the $number most recent matches.  Ignores matches in progress.
   function getRecentMatches($number = 6) {
     $db = Database::getConnection();
     $stmt = $db->prepare("SELECT m.id
       FROM matches m, events e, subevents s
       WHERE (m.playera = ? OR m.playerb = ?) AND m.subevent = s.id
-       AND s.parent = e.name
+       AND s.parent = e.name AND m.result != 'P'
       ORDER BY e.start DESC, s.timing DESC, m.round DESC LIMIT $number");
+    $stmt->bind_param("ss", $this->name, $this->name);
+    $stmt->execute();
+    $stmt->bind_result($matchid);
+
+    $matchids = array();
+    while ($stmt->fetch()) {
+      $matchids[] = $matchid;
+    }
+    $stmt->close();
+
+    $matches = array();
+    foreach ($matchids as $matchid) {
+      $matches[] = new Match($matchid);
+    }
+
+    return $matches;
+  }
+
+  // Returns all matches that are curently in progress.
+  function getCurrentMatches() {
+    $db = Database::getConnection();
+    $stmt = $db->prepare("SELECT m.id
+      FROM matches m, events e, subevents s
+      WHERE (m.playera = ? OR m.playerb = ?) AND m.subevent = s.id
+       AND s.parent = e.name AND (m.result = 'P' OR m.result = 'BYE')
+      ORDER BY e.start DESC, s.timing DESC, m.round DESC ");
     $stmt->bind_param("ss", $this->name, $this->name);
     $stmt->execute();
     $stmt->bind_result($matchid);

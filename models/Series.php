@@ -11,6 +11,8 @@ class Series {
   public $this_season_master_link;
   public $this_season_season;
 
+  public $prereg_default;
+
   function __construct($name) {
     if ($name == "") {
       $this->name = "";
@@ -18,15 +20,17 @@ class Series {
       $this->start_time = "";
       $this->stewards = array();
       $this->new = true;
+      $this->prereg_default = true;
+      $this->pkonly_default = false;
       return;
     }
 
     $db = Database::getConnection();
-    $stmt = $db->prepare("SELECT isactive, day, normalstart FROM series WHERE name = ?");
+    $stmt = $db->prepare("SELECT isactive, day, normalstart, prereg_default FROM series WHERE name = ?");
     $stmt or die($db->error);
     $stmt->bind_param("s", $name);
     $stmt->execute();
-    $stmt->bind_result($this->active, $this->start_day, $this->start_time);
+    $stmt->bind_result($this->active, $this->start_day, $this->start_time, $this->prereg_default);
     if ($stmt->fetch() == NULL) {
       throw new Exception('Series '. $name .' not found in DB');
     }
@@ -62,14 +66,14 @@ class Series {
   function save() {
     $db = Database::getConnection();
     if ($this->new) {
-      $stmt = $db->prepare("INSERT INTO series(name, day, normalstart, isactive) values(?, ?, ?)");
-      $stmt->bind_param("sssd", $this->name, $this->start_day, $this->start_time, $this->active);
+      $stmt = $db->prepare("INSERT INTO series(name, day, normalstart, isactive, prereg_default) values(?, ?, ?, ?, ?, ?)");
+      $stmt->bind_param("sssdd", $this->name, $this->start_day, $this->start_time, $this->active, $this->prereg_default);
       $stmt->execute() or die($stmt->error);
       $stmt->close();
     } else {
-      $stmt = $db->prepare("UPDATE series SET day = ?, normalstart = ?, isactive = ? WHERE name = ?");
+      $stmt = $db->prepare("UPDATE series SET day = ?, normalstart = ?, isactive = ?, prereg_default = ? WHERE name = ?");
       $stmt or die($db->error);
-      $stmt->bind_param("ssds", $this->start_day, $this->start_time, $this->active, $this->name);
+      $stmt->bind_param("ssdds", $this->start_day, $this->start_time, $this->active, $this->prereg_default, $this->name);
       $stmt->execute() or die($stmt->error);
       $stmt->close();
     }
@@ -178,8 +182,9 @@ class Series {
     return $names;
   }
 
+  // Returns a HTML image tag which displays the logo for this series.
   public static function image_tag($seriesname) {
-    return "<img src=\"displaySeries.php?series=$seriesname\" />";
+    reutrn "<img src=\"displaySeries.php?series=$seriesname\" />";
   }
 
   public function mostRecentEvent() {
@@ -209,7 +214,7 @@ class Series {
     #$stmt->bindParam(3, $this->name, PDO::PARAM_STR);
     $stmt->execute() or print_r($stmt->errorInfo());
     fclose($f);
-  } 
+  }
 
   public function currentSeason() {
     $seasonnum = 0;
@@ -592,3 +597,4 @@ class Series {
     echo "</select>";
   }
 }
+
