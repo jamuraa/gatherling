@@ -187,6 +187,19 @@ function formatDropMenu($format, $useAll = 0, $form_name = 'format') {
     $result->close();
 }
 
+function dropMenu($name, $options, $selected = NULL) {
+  echo "<select name=\"{$name}\">";
+  foreach ($options as $option) {
+    $setxt = "";
+    if (!is_null($selected) && $selected == $option) {
+      $setxt = " selected";
+    }
+    echo "<option value=\"{$option}\"{$setxt}>{$option}</option>";
+  }
+  echo "</select>";
+}
+
+
 function numDropMenu($field, $title, $max, $def, $min = 0, $special="") {
     if(strcmp($def, "") == 0) {$def = -1;}
     echo "<select name=\"$field\">";
@@ -363,3 +376,9 @@ function distance_of_time_in_words($from_time,$to_time = 0, $include_seconds = f
 function version_tagline() {
   print "Gatherling version 3.0.17 (\"I don't know what you're talking about, but it sounds illegal.\")";
 }
+
+function redirect($page) {
+  header("Location: {$CONFIG['base_url']}{$page}");
+  exit(0);
+}
+
