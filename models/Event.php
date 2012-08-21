@@ -663,6 +663,16 @@ class Event {
     return $result;
   }
 
+  public static function largestEventNum() {
+    $db = @Database::getConnection();
+    $stmt = $db->prepare("SELECT max(number) FROM events where number != 128"); // 128 is "special"
+    $stmt->execute();
+    $stmt->bind_result($result);
+    $stmt->fetch();
+    $stmt->close();
+    return $result;
+  }
+
   public static function getOldest() {
     $db = Database::getConnection();
     $stmt = $db->prepare("SELECT name FROM events ORDER BY start LIMIT 1");

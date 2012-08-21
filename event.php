@@ -364,7 +364,7 @@ function eventForm($event = NULL, $forcenew = false) {
   seasonDropMenu($event->season);
   echo "</td></tr>";
   echo "<tr><th>Number</th><td>";
-  numDropMenu("number", "- Event Number -", 100, $event->number, 0, "Custom");
+  numDropMenu("number", "- Event Number -", Event::largestEventNum() + 5, $event->number, 0, "Custom");
   echo "</td><tr>";
   echo "<tr><th>Format</th><td>";
   formatDropMenu($event->format);
