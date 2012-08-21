@@ -55,8 +55,11 @@ print_header("Event Host Control Panel", $js);
 <div class="uppertitle"> Host Control Panel </div>
 
 <?php
-if (Player::isLoggedIn()) {content();}
-else {linkToLogin();}
+if (Player::isLoggedIn()) {
+  content();
+} else {
+  linkToLogin();
+}
 ?>
 
 <div class="clear"></div>
@@ -68,67 +71,77 @@ else {linkToLogin();}
 function content() {
   $event = NULL;
   // Prevent surplufous warnings.   TODO: fix the code so we don't try to access these if unset.
-  if(!isset($_GET['action'])) {$_GET['action'] = '';}
-  if(!isset($_POST['mode'])) {$_POST['mode'] = '';}
-  if(!isset($_GET['mode'])) {$_GET['mode'] = '';}
-  if(!isset($_GET['series'])) {$_GET['series'] = '';}
-  if(!isset($_GET['season'])) {$_GET['season'] = '';}
+  if (!isset($_GET['action'])) {$_GET['action'] = '';}
+  if (!isset($_POST['mode'])) {$_POST['mode'] = '';}
+  if (!isset($_GET['mode'])) {$_GET['mode'] = '';}
+  if (!isset($_GET['series'])) {$_GET['series'] = '';}
+  if (!isset($_GET['season'])) {$_GET['season'] = '';}
 
-  if (strcmp($_GET['action'], "undrop") == 0) {
-    $player = new Standings ($_GET['event'],$_GET['player']);
-    $player->active = 1;
-    $player->save();
+  $player = Player::getSessionPlayer();
+
+  if (isset($_GET['name']) || isset($_POST['name'])) {
+    if (isset($_POST['name'])) {
+      $eventname = $_POST['name'];
+    } else {
+      $eventname = $_GET['name'];
+    }
+    $event = new Event($eventname);
   }
 
-
-  if(isset($_GET['name'])) {
-    $event = new Event($_GET['name']);
-    eventForm($event);
-  } elseif (strcmp($_POST['mode'], "Create New Event") == 0) {
-    if (Player::getSessionPlayer()->isSteward() && isset($_POST['insert'])) {
-      insertEvent();
-      eventList();
-    } else {
-      authFailed();
-    }
-  } elseif (strcmp($_GET['mode'], "Create New Event") == 0) {
-    if (Player::getSessionPlayer()->isSteward()) {
+  // if -- can create new events
+  if (Player::getSessionPlayer()->isSteward()) {
+    if (strcmp($_POST['mode'], "Create New Event") == 0) {
+      if (isset($_POST['insert'])) {
+        insertEvent();
+        eventList();
+        return;
+      } else {
+        authFailed();
+        return;
+      }
+    } elseif (strcmp($_GET['mode'], "Create New Event") == 0) {
       eventForm();
-    } else {
-      authFailed();
+      return;
+    } elseif (strcmp($_POST['mode'], "Create Next Event") == 0) {
+      $oldevent = new Event($_POST['name']);
+      $newevent = new Event("");
+      $newevent->season = $oldevent->season;
+      $newevent->number = $oldevent->number + 1;
+      $newevent->format = $oldevent->format;
+      $newevent->start = strftime("%Y-%m-%d %H:00:00", strtotime($oldevent->start) + (86400 * 7));
+      $newevent->kvalue = $oldevent->kvalue;
+      $newevent->finalized = 0;
+      $newevent->player_reportable = $oldevent->player_reportable;
+      $newevent->prereg_allowed = $oldevent->prereg_allowed;
+
+      $newevent->series = $oldevent->series;
+      $newevent->host = $oldevent->host;
+      $newevent->cohost = $oldevent->cohost;
+
+      $newevent->mainrounds = $oldevent->mainrounds;
+      $newevent->mainstruct = $oldevent->mainstruct;
+      $newevent->finalrounds = $oldevent->finalrounds;
+      $newevent->finalstruct = $oldevent->finalstruct;
+
+      $newevent->name = sprintf("%s %d.%02d",$newevent->series, $newevent->season, $newevent->number);
+
+      eventForm($newevent, true);
+      return;
+    } else if (!isset($event)) {
+      if (!isset($_POST['series'])) { $_POST['series'] = ''; }
+      if (!isset($_POST['season'])) { $_POST['season'] = ''; }
+      eventList($_POST['series'], $_POST['season']);
     }
-  } elseif (strcmp($_POST['mode'], "Create Next Event") == 0) {
-    $oldevent = new Event($_POST['name']);
-    $newevent = new Event("");
-    $newevent->season = $oldevent->season;
-    $newevent->number = $oldevent->number + 1;
-    $newevent->format = $oldevent->format;
-    $newevent->start = strftime("%Y-%m-%d %H:00:00", strtotime($oldevent->start) + (86400 * 7));
-    $newevent->kvalue = $oldevent->kvalue;
-    $newevent->finalized = 0;
-    $newevent->player_reportable = $oldevent->player_reportable;
-    $newevent->prereg_allowed = $oldevent->prereg_allowed;
+  }
 
-    $newevent->series = $oldevent->series;
-    $newevent->host = $oldevent->host;
-    $newevent->cohost = $oldevent->cohost;
-
-    $newevent->mainrounds = $oldevent->mainrounds;
-    $newevent->mainstruct = $oldevent->mainstruct;
-    $newevent->finalrounds = $oldevent->finalrounds;
-    $newevent->finalstruct = $oldevent->finalstruct;
-
-    $newevent->name = sprintf("%s %d.%02d",$newevent->series, $newevent->season, $newevent->number);
-
-    eventForm($newevent, true);
-
-  } elseif (isset($_POST['name'])) {
-    $event = new Event($_POST['name']);
+  if ($event && $event->authCheck($player)) {
+    if (strcmp($_GET['action'], "undrop") == 0) {
+      $player = new Standings ($event->name,$_GET['player']);
+      $player->active = 1;
+      $player->save();
+    }
 
     if (strcmp($_POST['mode'], "Start Event") == 0) {
-      //echo "**********start event**************";
-      //*activate event and pair first round
-      // echo "********".$event->name;
       $event->active = 1;
       $event->save();
       $entries = $event->getEntries();
@@ -160,37 +173,30 @@ function content() {
       $event->repairRound();
     }
 
-    // bug fix for series stewards not having access to update series  
-    if (!(Player::getSessionPlayer()->isSteward())) {
-      authFailed();
-    } else {
-      if (strcmp($_POST['mode'], "Parse DCI Files") == 0) {
-        dciInput();
-      } elseif (strcmp($_POST['mode'], "Parse DCIv3 Files") == 0) {
-        dci3Input();
-      } elseif (strcmp($_POST['mode'], "Auto-Input Event Data") == 0) {
-        autoInput();
-      } elseif(strcmp($_POST['mode'], "Update Registration") == 0) {
-        updateReg();
-      } elseif(strcmp($_POST['mode'], "Update Match Listing") == 0) {
-        updateMatches();
-      } elseif(strcmp($_POST['mode'], "Update Medals") == 0) {
-        updateMedals();
-      } elseif(strcmp($_POST['mode'], "Update Adjustments") == 0) {
-        updateAdjustments();
-      } elseif(strcmp($_POST['mode'], "Upload Trophy") == 0) {
-        if (insertTrophy()) {
-          $event->hastrophy = 1;
-        }
-      } elseif(strcmp($_POST['mode'], "Update Event Info") == 0) {
-        $event = updateEvent();
+    if (strcmp($_POST['mode'], "Parse DCI Files") == 0) {
+      dciInput();
+    } elseif (strcmp($_POST['mode'], "Parse DCIv3 Files") == 0) {
+      dci3Input();
+    } elseif (strcmp($_POST['mode'], "Auto-Input Event Data") == 0) {
+      autoInput();
+    } elseif(strcmp($_POST['mode'], "Update Registration") == 0) {
+      updateReg();
+    } elseif(strcmp($_POST['mode'], "Update Match Listing") == 0) {
+      updateMatches();
+    } elseif(strcmp($_POST['mode'], "Update Medals") == 0) {
+      updateMedals();
+    } elseif(strcmp($_POST['mode'], "Update Adjustments") == 0) {
+      updateAdjustments();
+    } elseif(strcmp($_POST['mode'], "Upload Trophy") == 0) {
+      if (insertTrophy()) {
+        $event->hastrophy = 1;
       }
-      eventForm($event);
+    } elseif(strcmp($_POST['mode'], "Update Event Info") == 0) {
+      $event = updateEvent();
     }
+    eventForm($event);
   } else {
-    if (!isset($_POST['series'])) { $_POST['series'] = ''; }
-    if (!isset($_POST['season'])) { $_POST['season'] = ''; }
-    eventList($_POST['series'], $_POST['season']);
+    authFailed();
   }
 }
 
@@ -494,7 +500,7 @@ function playerList($event) {
         echo "<input type=\"checkbox\" name=\"dropplayer[]\" ";
         echo "value=\"{$entry->player->name}\"></td>";
       } else {
-        echo "<td>Dropped <a href=\"event.php?player=".$entry->player->name."&event=".$event->name."&action=undrop&name=".$event->name."\">(undrop)</a></td>"; // else echo a symbol to represent player has dropped
+        echo "<td>Dropped <a href=\"event.php?player=".$entry->player->name."&action=undrop&name=".$event->name."\">(undrop)</a></td>"; // else echo a symbol to represent player has dropped
       }
     }
     echo "<td>";
@@ -1492,7 +1498,7 @@ function authFailed() {
   echo "You are not permitted to make that change. Please contact the ";
   echo "event host to modify this event. If you <b>are</b> the event host, ";
   echo "or feel that you should have privilege to modify this event, you ";
-  echo "should contact Dabil via the Pauper Krew forums.<br /><br />";
+  echo "should contact jamuraa on the forums.<br /><br />";
 }
 
 function fileInputForm($event) {

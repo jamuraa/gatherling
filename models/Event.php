@@ -298,8 +298,12 @@ class Event {
     $stmt->close();
   }
 
-  function authCheck($playername) {
-    if ($this->isHost($playername) || $this->isSteward($playername)) {
+  function authCheck($player) {
+    $playername = $player;
+    if (is_object($player)) {
+      $playername = $player->name;
+    }
+    if ($this->isHost($playername) || $this->isSteward($playername) || (new Series($this->series))->isSteward($playername)) {
       return true;
     }
     $player = new Player($playername);
