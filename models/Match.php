@@ -309,12 +309,12 @@ class Match {
     } else {
       if (($playera_wins == $playerb_losses) && ($playerb_wins == $playera_losses)) {
         // Players report the same result
-        Match::setMatchVerification($match_id, 'verified');
+        Match::flagVerified($match_id, 'verified');
         $event = Event::getEventBySubevent($subevent);
         $event->resolveRound($subevent,$event->current_round);
       } else {
         // Different reports.  Flag as such.
-        Match::setMatchVerification($match_id, 'failed');
+        Match::flagVerified($match_id, 'failed');
       }
     }
   }
