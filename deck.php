@@ -621,21 +621,22 @@ function checkDeckAuth($event, $player, $deck = NULL) {
     loginRequired();
     return false;
   }
+  $loginname = Player::loginName();
   if (is_null($deck)) {
     // Creating a deck.
     $entry = new Entry($event, $player);
-    $auth = $entry->canCreateDeck(Player::loginName());
+    $auth = $entry->canCreateDeck($loginname);
   } else {
     // Updating a deck.
-    $auth = $deck->canEdit(Player::loginName());
+    $auth = $deck->canEdit($loginname);
   }
 
   if ($auth) {
     return true;
   } else {
     authFailed();
-    return false;
   }
+  return false;
 }
 
 ?>

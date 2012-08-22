@@ -42,8 +42,9 @@ EOT;
       </div>
       <div id="mainmenu_submenu" class="grid_12">
         <ul>
-          <li><a href="index.php">Home</a></li>
+          <li><a href="http://pdcmagic.com/">Home</a></li>
           <li><a href="http://forums.pdcmagic.com/">Forums</a></li>
+          <li><a href="http://pdcmagic.com/articles/">Articles</a></li>
           <li><a href="series.php">Events</a></li>
           <li class="current">
             <a href="index.php">
