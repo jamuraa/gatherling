@@ -43,6 +43,18 @@ if (isset($_GET['deck'])) {
     json_headers();
     echo json_encode($result);
   }
+} elseif (isset($_GET['dropplayer']) && isset($_GET['event'])) {
+  $event = new Event($_GET['event']);
+  if ($event->authCheck($_SESSION['username'])) {
+    $result = array();
+    $playername = $_GET['dropplayer'];
+    Standings::dropPlayer($event->name, $playername);
+    $result['success'] = true;
+    $result['player'] = $playername;
+    $result['eventname'] = $event->name;
+    json_headers();
+    echo json_encode($result);
+  }
 } else {
   error_headers();
 }

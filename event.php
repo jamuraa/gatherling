@@ -3,6 +3,7 @@ include 'lib.php';
 
 $verified_url = theme_file("images/verified.png");
 $dot_url = theme_file("images/dot.png");
+$drop_url = $CONFIG['base_url'] + 'event.php?action=undrop';
 
 $js = <<<EOD
 
@@ -26,6 +27,11 @@ function delPlayerRow(data) {
   $('#entry_row_' + data.player).find('td').wrapInner('<div style="display: block;" />').parent().find('td > div').slideUp(500, function() { $(this).parent().parent().remove(); });
 }
 
+function dropPlayer(data) {
+  if (!data.success) { return false; }
+  $('#entry_row_' + data.player).find('input[name=dropplayer[]]').parent().html('Dropped <a href=\"{$CONFIG['base_url']}event.php?player=' + data.player + '&action=undrop&name=' + data.eventname + '\">(undrop)</a>');
+}
+
 function updateRegistration() {
   event_name = $('input[name=name]').val();
   newentry_name = $('input[name=newentry]').val();
@@ -38,6 +44,12 @@ function updateRegistration() {
     if (e.checked) {
       $.ajax({url: 'ajax.php?event=' + event_name + '&delplayer=' + e.value,
               success: delPlayerRow});
+    }
+  });
+  $('input[name=dropplayer[]]').each(function(x, e) {
+    if (e.checked) {
+      $.ajax({url: 'ajax.php?event=' + event_name + '&dropplayer=' + e.value,
+             success: dropPlayer});
     }
   });
   return false;
