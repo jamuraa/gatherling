@@ -269,8 +269,8 @@ class Event {
     return $ishost || $iscohost;
   }
 
-  function isFinalized () {
-    return ($this->finalized == 0);
+  function isFinalized() {
+    return ($this->finalized != 0);
   }
 
   function isSteward($name) {

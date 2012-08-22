@@ -630,10 +630,12 @@ function checkDeckAuth($event, $player, $deck = NULL) {
     $auth = $deck->canEdit(Player::loginName());
   }
 
-  if (!$auth) {
+  if ($auth) {
+    return true;
+  } else {
     authFailed();
+    return false;
   }
-  return $auth;
 }
 
 ?>
