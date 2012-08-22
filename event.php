@@ -1585,9 +1585,9 @@ function dciregister($data) {
     if (preg_match("/\"(.*)\"/", $tokens[3], $matches)) {
       $didadd = $event->addPlayer($matches[1]); 
       if ($didadd) {
-        echo "Adding player: {$matches[1]}.<br />";
+        echo "Added player: {$matches[1]}.<br />";
       } else {
-        echo "{$matches[1]} could not be added.<br />";
+        echo "{$matches[1]} could not be added (maybe already registered?).<br />";
       }
       $ret[] = $matches[1];
     }

@@ -10,6 +10,7 @@ class Entry {
     $db = Database::getConnection();
     $stmt = $db->prepare("SELECT deck, medal FROM entries WHERE event = ? AND player = ?");
     $stmt->bind_param("ss", $eventname, $playername);
+    $stmt->execute();
     $stmt->store_result();
     $found = false;
     if ($stmt->num_rows > 0) {
