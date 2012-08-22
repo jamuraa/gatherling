@@ -1216,7 +1216,7 @@ function updateMatches() {
     }
   }
 
-  if (isset($_POST['newbyeplayer'])) {
+  if (isset($_POST['newbyeplayer']) && (strcmp($_POST['newbyeplayer'], "") != 0)) {
     $p = $_POST['newbyeplayer'];
     $event = new Event($_POST['name']);
     $event->addMatch($p, $p, $rnd, 'BYE');

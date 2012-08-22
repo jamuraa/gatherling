@@ -303,7 +303,8 @@ class Event {
     if (is_object($player)) {
       $playername = $player->name;
     }
-    if ($this->isHost($playername) || $this->isSteward($playername) || (new Series($this->series))->isSteward($playername)) {
+    $series = new Series($this->series);
+    if ($this->isHost($playername) || $this->isSteward($playername) || $series->isSteward($playername)) {
       return true;
     }
     $player = new Player($playername);
