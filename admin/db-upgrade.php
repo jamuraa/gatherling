@@ -254,4 +254,13 @@ EOS
   echo "... DB now at version 11! <br />";
 }
 
+if ($version < 12) {
+  // Fixes to the pairing updates
+  echo "Updating to version 12 (final changes for the pairing)... <br />";
+  do_query("ALTER TABLE events MODIFY COLUMN result VARCHAR(5) not null");
+  do_query("UPDATE db_version SET version = 12");
+
+  echo "... DB now at version 12! <br />";
+}
+
 $db->autocommit(TRUE);
