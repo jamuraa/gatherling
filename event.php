@@ -618,27 +618,22 @@ function matchList($event) {
   // Prevent warnings in php output.  TODO: make this not needed.
   if (!isset($_POST['newmatchround'])) {$_POST['newmatchround'] = '';}
 
+  echo "<p style=\"text-align: center\"><b>Match List</b><br />";
+  echo "<i>* denotes a playoff/finals match.</i><br />";
+  echo "<i>To drop a player while entering match results, select the";
+  echo " check box next to the players name.</i></p>";
   // Start a new form
   echo "<form action=\"event.php\" method=\"post\" enctype=\"multipart/form-data\">";
   echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
   echo "<input type=\"hidden\" name=\"eventname\" value=\"{$event->name}\">";
-  echo "<table style=\"border-width: 0px\" align=\"center\">";
-  echo "<tr><td align=\"center\" colspan=\"2\">";
-  echo "<table align=\"center\" style=\"border-width: 0px;\">";
-  echo "<tr><td align=\"center\" colspan=\"7\">";
-  echo "<b>Match List</td></tr>";
-  echo "<tr><td align=\"center\" colspan=\"7\">";
-  echo "<i>* denotes a playoff/finals match.</td></tr>";
-  echo "<tr><td align=\"center\" colspan=\"7\">";
-  echo "<i>To drop a player while entering match results, select the check box next to the players name.</i></td></tr>";
   echo "<input type=\"hidden\" name=\"view\" value=\"match\">";
-  echo "<tr><td>&nbsp;</td></tr>";
+  echo "<table align=\"center\" style=\"border-width: 0px;\">";
   if (count($matches) > 0) {
-    echo "<tr><td align=\"center\"><b>Round</td><td><b>Player A</td>";
-    echo "<td><b>Player B</td>";
-    echo "<td><b>Winner</b></td>";
-    echo "<td><b>Player A Wins</b></td>";
-    echo "<td><b>Player B Wins</b></td><td align=\"center\"><b>Delete</td></tr>";
+    echo "<tr class=\"lefted\"><th style=\"text-align: center; padding-right: 10px;\">Round</th><th>Player A</th>";
+    echo "<th>Player B</th>";
+    echo "<th>Winner</th>";
+    echo "<th>A Wins</th>";
+    echo "<th>B Wins</th><th style=\"text-align: center;\"><b>Delete</th></tr>";
   } else {
     echo "<tr><td align=\"center\" colspan=\"5\"><i>";
     echo "There are no matches listed for this event.</td></tr>";
@@ -696,11 +691,11 @@ function matchList($event) {
       echo "<option value=\"B\">{$match->playerb}</option>";
       echo "<option value=\"D\">Draw</option>";
       echo "</select>";
-      echo "<td align=\"center\">"; 
-      playerAWinsDropMenu("playerAwins[]");
+      echo "<td align=\"center\">";
+      playerWinsDropMenu("A");
       echo "</td>";
       echo "<td align=\"center\">"; 
-      playerBWinsDropMenu("playerBwins[]");
+      playerWinsDropMenu("B");
       echo "</td>";
     } else {
       echo "<td><a class=\"{$match->verification}\">{$match->playera}</a></td>";
@@ -748,17 +743,15 @@ function matchList($event) {
     playerDropMenu($event, "A");
     playerDropMenu($event, "B");
     resultDropMenu();
-    playerAWinsDropMenu();
-    playerBWinsDropMenu();
+    playerWinsDropMenu("A", true);
+    playerWinsDropMenu("B", true);
     echo "</td></tr>";
   }
   echo "<tr><td>&nbsp;</td></tr>";
   echo "<tr><td align=\"center\" colspan=\"7\">";
   echo "<input type=\"submit\" name=\"mode\" ";
   echo "value=\"Update Match Listing\"></td></tr>";
-  echo "</table>";
   echo "</form>";
-  echo "</td></tr>";
   echo "</table>";
 }
 
@@ -1071,9 +1064,13 @@ function resultDropMenu($name = "newmatchresult") {
   echo "</select>";
 }
 
-function playerAWinsDropMenu($name = "newmatchplayerAwins") {
-  echo "<select name=\"{$name}\">";
-  echo "<option value=\"\">- Player A Wins -</option>";
+function playerWinsDropMenu($player = "A", $new = false) {
+  if ($new) {
+    echo "<select name=\"newmatchplayer{$player}wins\">";
+  } else {
+    echo "<select name=\"player{$player}wins[]\">";
+  }
+  echo "<option value=\"\">- {$player} Wins -</option>";
   echo "<option value=\"2\">2 Wins</option>";
   echo "<option value=\"1\">1 Wins</option>";
   echo "<option value=\"0\">0 Wins</option>";
@@ -1082,7 +1079,7 @@ function playerAWinsDropMenu($name = "newmatchplayerAwins") {
 
 function playerBWinsDropMenu($name = "newmatchplayerBwins") {
   echo "<select name=\"{$name}\">";
-  echo "<option value=\"\">- Player B Wins -</option>";
+  echo "<option value=\"\">- B Wins -</option>";
   echo "<option value=\"2\">2 Wins</option>";
   echo "<option value=\"1\">1 Wins</option>";
   echo "<option value=\"0\">0 Wins</option>";

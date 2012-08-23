@@ -213,3 +213,7 @@ a.create_deck_link {
 tr#row_new_entry td {
   vertical-align: inherit;
 }
+
+.lefted {
+  text-align: left;
+}
