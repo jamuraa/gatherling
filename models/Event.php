@@ -883,19 +883,14 @@ class Event {
   function singleEliminationPairing($top_cut) {
     $players = $this->standing->getEventStandings($this->name,2);
     $players = array_slice($players, 0, $top_cut);
-    $counter = 0;
-    while ($counter < (count($players) - 1)){
-      $playera = $players[$counter]->player;
-      if ($playera == null) {
-        exit; // This is almost certainly wrong, it quits the entire script?
+    while (count($players) > 0) {
+      $playera = array_shift($players);
+      $playerb = array_shift($players);
+      if ($playerb == NULL) {
+        $this->awardBye($playera->player);
+      } else {
+        $this->addPairing($playera->player, $playerb->player, ($this->current_round +1), "P");
       }
-      $counter++;
-      $playerb = $players[$counter]->player;
-      if ($playerb== null) {
-        $this->award_bye($players[$counter]);
-      }
-      $this->addPairing($playera, $playerb, ($this->current_round +1), "P");
-      $counter++;
     }
   }
 
@@ -907,20 +902,18 @@ class Event {
     } else {
       $byes_needed = $check - count($players);
       while ($byes_needed > 0){
-        $bye = rand ( 0, (count($players)-1) );
-        $this->award_bye($players[$bye]);
-        unset ($players[$bye]);
+        $bye = rand(0, (count($players)-1));
+        $this->awardBye($players[$bye]->player);
+        unset($players[$bye]);
         $players = array_values($players);
         $byes_needed--;
       }
 
       $counter = 0;
-      while ($counter < (count($players) - 1)){
-        $playera = $players[$counter]->player;
-        $counter++;
-        $playerb = $players[$counter]->player;
-        $this->addPairing($playera, $playerb, ($this->current_round +1), "P");
-        $counter++;
+      while (count($players) > 0) {
+        $playera = array_shift($players);
+        $playerb = array_shift($players);
+        $this->addPairing($playera->player, $playerb->player, ($this->current_round + 1), "P");
       }
       if ($this->current_round >= $this->mainrounds) {
         $this->finalrounds = $rounds;
@@ -975,8 +968,8 @@ class Event {
     }
   }
 
-  function award_bye($player) {
-    $this->addPairing($player->player, $player->player, ($this->current_round +1), "BYE");
+  function awardBye($playername) {
+    $this->addPairing($playername, $playername, ($this->current_round + 1), "BYE");
   }
 
   public static function getActiveEvents() {
