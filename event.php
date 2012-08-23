@@ -1077,15 +1077,6 @@ function playerWinsDropMenu($player = "A", $new = false) {
   echo "</select>";
 }
 
-function playerBWinsDropMenu($name = "newmatchplayerBwins") {
-  echo "<select name=\"{$name}\">";
-  echo "<option value=\"\">- B Wins -</option>";
-  echo "<option value=\"2\">2 Wins</option>";
-  echo "<option value=\"1\">1 Wins</option>";
-  echo "<option value=\"0\">0 Wins</option>";
-  echo "</select>";
-}
-
 function controlPanel($event, $cur = "") {
   $name = $event->name;
   echo "<tr><td colspan=\"2\" align=\"center\">";
