@@ -61,6 +61,14 @@ class Match {
     return new Event($this->eventname);
   }
 
+  private function playerA($name) {
+    return strcasecmp($this->playera, $name) == 0;
+  }
+
+  private function playerB($name) {
+    return strcasecmp($this->playerb, $name) == 0;
+  }
+
   // Returns true if $player has a bye in this match
   function playerBye($player) {
     if ($this->result != 'BYE') {
@@ -71,14 +79,8 @@ class Match {
       $playername = $player->name;
     }
 
-    if (strcasecmp ($this->playera, $playername) == 0) {
-      return true;
-    }
-
-    if (strcasecmp ($this->playerb, $playername) == 0) {
-      return true;
-    }
-
+    if ($this->playerA($playername)) { return true; }
+    if ($this->playerB($playername)) { return true; }
     return false;
   }
 
@@ -92,14 +94,8 @@ class Match {
       $playername = $player->name;
     }
 
-    if (strcasecmp ($this->playera, $playername) == 0) {
-        return true;
-    }
-
-    if (strcasecmp ($this->playerb, $playername) == 0) {
-        return true;
-    }
-
+    if ($this->playerA($playername)) { return true; }
+    if ($this->playerB($playername)) { return true; }
     return false;
   }
 
@@ -109,14 +105,8 @@ class Match {
       $playername = $player->name;
     }
 
-    if ((strcasecmp($this->playera, $playername) == 0) && ($this->result == 'A')) {
-      return true;
-    }
-
-    if ((strcasecmp($this->playerb, $playername) == 0) && ($this->result == 'B')) {
-      return true;
-    }
-
+    if ($this->playerA($playername) && ($this->result == 'A')) { return true; }
+    if ($this->playerB($playername) && ($this->result == 'B')) { return true; }
     return false;
   }
 
@@ -126,14 +116,8 @@ class Match {
       $playername = $player->name;
     }
 
-    if ((strcasecmp($this->playerb, $playername) == 0) && ($this->result == 'A')) {
-      return true;
-    }
-
-    if ((strcasecmp($this->playera, $playername) == 0) && ($this->result == 'B')) {
-      return true;
-    }
-
+    if ($this->playerA($playername) && ($this->result == 'A')) { return true; }
+    if ($this->playerB($playername) && ($this->result == 'B')) { return true; }
     return false;
   }
 
@@ -145,13 +129,8 @@ class Match {
       $playername = $player->name;
     }
 
-    if (strcasecmp($this->playera, $playername) == 0) {
-      return $this->playera_wins;
-    }
-
-    if (strcasecmp($this->playerb, $playername) == 0) {
-      return $this->playerb_wins;
-    }
+    if ($this->playerA($playername)) { return $this->playera_wins; }
+    if ($this->playerB($playername)) { return $this->playerb_wins; }
 
     return false;
   }
@@ -164,39 +143,31 @@ class Match {
       $playername = $player->name;
     }
 
-    if (strcasecmp($this->playera, $playername) == 0) {
-      return $this->playera_losses;
-    }
-
-    if (strcasecmp($this->playerb, $playername) == 0) {
-      return $this->playerb_losses;
-    }
-
+    if ($this->playerA($playername)) { return $this->playera_losses; }
+    if ($this->playerB($playername)) { return $this->playerb_losses; }
     return false;
   }
 
+  function getPlayerResult($playername) {
+    if (strcasecomp($match->playera, $playername) == 0) {
+      if ($this->isBYE()) { return 'BYE'; }
+      if ($this->result == 'A') { return 'Won'; }
+      if ($this->result == 'B') { return 'Loss'; }
+      return 'Draw';
+    } else if (strcasecomp($match->playerb, $playername) == 0) {
+      if ($this->result == 'A') { return 'Loss'; }
+      if ($this->result == 'B') { return 'Won'; }
+      return 'Draw';
+    }
+    throw new Exception("Player $playername is not in match {$match->id}");
+  }
 
   function getWinner() {
-    if ($this->playerWon($this->playera)) {
-      return $this->playera;
-    }
-
-    if ($this->playerWon($this->playerb)) {
-      return $this->playerb;
-    }
-
-    if ($this->isBYE()) {
-        return 'BYE';
-    }
-
-    if ($this->matchInProgress()) {
-        return 'Match in Progress';
-    }
-
-    if ($this->isDraw()) {
-        return 'Draw';
-    }
-
+    if ($this->playerWon($this->playera)) { return $this->playera; }
+    if ($this->playerWon($this->playerb)) { return $this->playerb; }
+    if ($this->isBYE())                   { return 'BYE'; }
+    if ($this->matchInProgress())         { return 'Match in Progress'; }
+    if ($this->isDraw())                  { return 'Draw'; }
     return NULL;
   }
 
@@ -217,24 +188,14 @@ class Match {
   // Returns NULL if neither player has lost.
   // TODO: what to do if both players lose? (DL)
   function getLoser() {
-    if ($this->playerLost($this->playera)) {
-      return $this->playera;
-    }
-
-    if ($this->playerLost($this->playerb)) {
-      return $this->playerb;
-    }
-
+    if ($this->playerLost($this->playera)) { return $this->playera; }
+    if ($this->playerLost($this->playerb)) { return $this->playerb; }
     return NULL;
   }
 
   function otherPlayer($oneplayer) {
-    if (strcasecmp($oneplayer, $this->playera) == 0) {
-      return $this->playerb;
-    } elseif (strcasecmp($oneplayer, $this->playerb) == 0) {
-      return $this->playera;
-    }
-
+    if ($this->playerA($oneplayer)) { return $this->playerb; }
+    if ($this->playerB($oneplayer)) { return $this->playera; }
     return NULL;
   }
 
@@ -286,6 +247,12 @@ class Match {
       return NULL;
 
     }
+  }
+
+  public function reportSubmitted($name) {
+    if ($this->playerA($name) && (($this->playera_wins + $this->playera_losses) > 0)) { return true; }
+    if ($this->playerB($name) && (($this->playerb_wins + $this->playerb_losses) > 0)) { return true; }
+    return false;
   }
 
   // Checks both reports against each other to see if they match.
@@ -429,7 +396,7 @@ class Match {
     $stmt->close();
   }
 
-  public function player_reportable_check() {
+  public function isReportable() {
     $event = $this->getEvent();
     return ($event->player_reportable == 1);
   }

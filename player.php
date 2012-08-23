@@ -436,24 +436,15 @@ function print_recentMatchTable() {
   $matches = $player->getRecentMatches();
 
   echo "<table style=\"border-width: 0px\" width=300>\n";
-  echo "<tr><td colspan=3><b>RECENT MATCHES</td><td align=\"right\">\n";
+  echo "<tr><td colspan=\"4\"><b>RECENT MATCHES</td><td align=\"right\">\n";
   echo "<a href=\"player.php?mode=allmatches\">(see all)</a></td></tr>\n";
   foreach ($matches as $match) {
-    $res = "Draw";
-    if ($match->playerWon($player->name)) {
-      $res = "Win";
-    }
-    if ($match->playerLost($player->name)) {
-      $res = "Loss";
-    }
-    if ($match->playera == $match->playerb) {
-      $res = "BYE";
-    }
-    $opp = $match->playera;
-    if (strcasecmp($player->name, $opp) == 0) {
-      $opp = $match->playerb;
-    }
-    echo "<tr><td><b>$res</b><b>{$match->getPlayerWins($player->name)}</b><b> - </b><b>{$match->getPlayerLosses($player->name)}</b></td>";
+    $res = $match->getPlayerResult($player->name);
+    $opp = $match->otherPlayer($player->name);
+    $event = $match->getEvent();
+    echo "<tr>";
+    echo "<td>{$event->name} Round: {$event->current_round} </td>";
+    echo "<td><b>$res {$match->getPlayerWins($player->name)} - {$match->getPlayerLosses($player->name)}</b></td>";
     echo "<td>vs.</td>\n";
     $oppplayer = new Player($opp);
     echo "<td>" . $oppplayer->linkTo() . "</td></tr>\n";
@@ -468,17 +459,11 @@ function print_currentMatchTable() {
   $matches = $player->getCurrentMatches();
 
   echo "<table style=\"border-width: 0px\" width=300>\n";
-  echo "<tr><td colspan=4><b>ACTIVE MATCHES</td><td align=\"right\">\n";
+  echo "<tr><td colspan=\"4\"><b>ACTIVE MATCHES</td><td align=\"right\">\n";
   echo "</td></tr>\n";
   foreach ($matches as $match) {
-    $event = new Event($match->getEventNamebyMatchid());
-    $opp = $match->playera;
-    $player_number="b";
-    if (strcasecmp($player->name, $opp) == 0) {
-      $opp = $match->playerb;
-      $player_number="a";
-    }
-
+    $event = $match->getEvent();
+    $opp = $match->otherPlayer($player->name);
 
     if ($match->result != "BYE") {
       $oppplayer = new Player($opp);
@@ -486,25 +471,21 @@ function print_currentMatchTable() {
       echo "<td>vs.</td>\n";
       echo "<td>" . $oppplayer->linkTo() ."</td><td>";
       if ($match->verification == "unverified"){
-        if ($player_number=="b" AND ($match->playerb_wins + $match->playerb_losses) > 0){
-          echo "(Report Submitted)";
-        } else if ($player_number=="a" AND ($match->playera_wins + $match->playera_losses) > 0){
+        if ($match->reportSubmitted($player->name)) {
           echo "(Report Submitted)";
         } else {
-          if ($match->player_reportable_check() == True){
+          if ($match->isReportable() == True){
             echo "<a href=\"player.php?mode=submit_result&match_id=".$match->id."&player=".$player_number ."\">(Report Result)</a>";
           } else {
             echo "Please report results in the report channel for this event";
           }
         }
       } else if ($match->verification == "failed") {
-        echo "<font style=\"color: red; font-weight: bold;\">Verification Failed  </style><a href=\"player.php?mode=submit_result&match_id=".$match->id."&player=".$player_number ."\">(Correct Result)</a>";
-      } else if ($match->result == "BYE") {
+        echo "<span style=\"color: red; font-weight: bold;\">Verification Failed</span><a href=\"player.php?mode=submit_result&match_id=".$match->id."&player=".$player_number ."\">(Correct Result)</a>";
       } else { // Only verified left
-        echo "(Report Submitted)";
+        echo "(Match Verified)";
       }
       echo "</td></tr>\n";
-
     } else { // result is a bye
       if ($match->round == $event->current_round){
         echo "<tr><td>";
