@@ -69,19 +69,21 @@ class Match {
     return strcasecmp($this->playerb, $name) == 0;
   }
 
+  private function toName($player_or_name) {
+    if (is_object($player_or_name)) {
+      return $player_or_name->name;
+    }
+    return $player_or_name;
+  }
+
   // Returns true if $player has a bye in this match
   function playerBye($player) {
     if ($this->result != 'BYE') {
       return false;
     }
-    $playername = $player;
-    if (is_object($player)) {
-      $playername = $player->name;
-    }
+    $playername = $this->toName($player);
 
-    if ($this->playerA($playername)) { return true; }
-    if ($this->playerB($playername)) { return true; }
-    return false;
+    return $this->playerA($playername) || $this->playerB($playername);
   }
 
   // Returns true if $player is playing this match right now.
@@ -89,72 +91,54 @@ class Match {
     if ($this->result != 'P') {
       return false;
     }
-    $playername = $player;
-    if (is_object($player)) {
-      $playername = $player->name;
-    }
+    $playername = $this->toName($player);
 
-    if ($this->playerA($playername)) { return true; }
-    if ($this->playerB($playername)) { return true; }
-    return false;
+    return $this->playerA($playername) || $this->playerB($playername);
   }
 
   function playerWon($player) {
-    $playername = $player;
-    if (is_object($player)) {
-      $playername = $player->name;
-    }
+    $playername = $this->toName($player);
 
-    if ($this->playerA($playername) && ($this->result == 'A')) { return true; }
-    if ($this->playerB($playername) && ($this->result == 'B')) { return true; }
-    return false;
+    return (($this->playerA($playername) && ($this->result == 'A'))
+         || ($this->playerB($playername) && ($this->result == 'B')));
   }
 
   function playerLost($player) {
-    $playername = $player;
-    if (is_object($player)) {
-      $playername = $player->name;
-    }
+    $playername = $this->toName($player);
 
-    if ($this->playerA($playername) && ($this->result == 'A')) { return true; }
-    if ($this->playerB($playername) && ($this->result == 'B')) { return true; }
-    return false;
+    return (($this->playerA($playername) && ($this->result == 'A'))
+         || ($this->playerB($playername) && ($this->result == 'B')));
   }
 
   // returns the number of wins for the current match for $player
   // returns false if the player is not in this match.
   function getPlayerWins($player) {
-    $playername = $player;
-    if (is_object($player)) {
-      $playername = $player->name;
-    }
+    $playername = $this->toName($player);
 
     if ($this->playerA($playername)) { return $this->playera_wins; }
     if ($this->playerB($playername)) { return $this->playerb_wins; }
-
     return false;
   }
 
   // returns the number of wins for the current match for $player
   // Returns false if the player is not in this match.
   function getPlayerLosses($player) {
-    $playername = $player;
-    if (is_object($player)) {
-      $playername = $player->name;
-    }
+    $playername = $this->toName($player);
 
     if ($this->playerA($playername)) { return $this->playera_losses; }
     if ($this->playerB($playername)) { return $this->playerb_losses; }
     return false;
   }
 
-  function getPlayerResult($playername) {
-    if (strcasecomp($match->playera, $playername) == 0) {
+  function getPlayerResult($player) {
+    $playername = $this->toName($player);
+    if ($this->playerA($playername)) {
       if ($this->isBYE()) { return 'BYE'; }
       if ($this->result == 'A') { return 'Won'; }
       if ($this->result == 'B') { return 'Loss'; }
       return 'Draw';
-    } else if (strcasecomp($match->playerb, $playername) == 0) {
+    }
+    if ($this->playerB($playername)) {
       if ($this->result == 'A') { return 'Loss'; }
       if ($this->result == 'B') { return 'Won'; }
       return 'Draw';
