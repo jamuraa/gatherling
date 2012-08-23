@@ -774,9 +774,8 @@ class Event {
       $this->finalized = 1;
       $this->save();
       // need to add code to set medals
-
     }
-    $this->current_round ++ ;
+    $this->current_round++;
     $this->save();
     return true;
   }
@@ -785,7 +784,6 @@ class Event {
   function swissPairing($subevent_id) {
     Standings::resetMatched($this->name);
     while (Standings::checkUnmatchedPlayers($this->name) > 0){
-      //echo "found an unmatched player";
       $player = $this->standing->getEventStandings($this->name, 1);
       $this->swissFindMatch($player, $subevent_id);
     }

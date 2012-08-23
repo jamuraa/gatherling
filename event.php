@@ -148,7 +148,7 @@ function content() {
 
   if ($event && $event->authCheck($player)) {
     if (strcmp($_GET['action'], "undrop") == 0) {
-      $player = new Standings ($event->name,$_GET['player']);
+      $player = new Standings($event->name,$_GET['player']);
       $player->active = 1;
       $player->save();
     }
@@ -168,10 +168,11 @@ function content() {
     }
 
     if (strcmp($_POST['mode'], "Reset Event") == 0) {
+      var_dump($event);
       $event->resetEvent();
     }
 
-    if (strcmp($_POST['mode'], "Delete Current Matches and Re-Pair Round") == 0) {
+    if (strcmp($_POST['mode'], "Delete Matches and Re-Pair Round") == 0) {
       $event->repairRound();
     }
 
@@ -685,12 +686,7 @@ function matchList($event) {
       echo "<input type=\"hidden\" name=\"hostupdatesmatches[]\" value=\"{$match->id}\">";
       echo "<td>";
       // matchresult is used to identify Draws
-      echo "<select name=\"matchresult[]\" width=\"150\" STYLE=\"width: 150px\">";
-      echo "<option value=\"\">- Winner -</option>";
-      echo "<option value=\"A\">{$match->playera}</option>";
-      echo "<option value=\"B\">{$match->playerb}</option>";
-      echo "<option value=\"D\">Draw</option>";
-      echo "</select>";
+      resultDropMenu("matchresult[]");
       echo "<td align=\"center\">";
       playerWinsDropMenu("A");
       echo "</td>";
@@ -722,17 +718,16 @@ function matchList($event) {
   }
   echo "<tr><td>&nbsp;</td></tr>";
   if ($event->active) {
-    echo "<tr><td align=\"center\" colspan=\"7\"><b>Add Pairing</b></td></tr>";
+    echo "<tr><td align=\"right\" colspan=\"3\"><b>Add Pairing</b></td>";
     echo "<input type=\"hidden\" name=\"newmatchround\" value=\"{$event->current_round}\">"; 
     echo "<input type=\"hidden\" name=\"newmatchresult\" value=\"P\">"; 
-    echo "<tr><td align=\"center\" colspan=\"7\">";
+    echo "<td colspan=\"4\">";
     playerDropMenu($event, "A");
     echo " vs ";
     playerDropMenu($event, "B");
     echo "</td></tr>";
-    echo "<tr><td>&nbsp;</td></tr>";
-    echo "<tr><td align=\"center\" colspan=\"7\"><b>Award Bye</b></td></tr>";
-    echo "<tr><td align=\"center\" colspan=\"7\">";
+    echo "<tr><td align=\"right\" colspan=\"3\"><b>Award Bye</b></td>";
+    echo "<td colspan=\"4\">";
     playerByeMenu($event);
     echo "</td></tr>";
   } else {
@@ -742,7 +737,7 @@ function matchList($event) {
     roundDropMenu($event, $_POST['newmatchround']);
     playerDropMenu($event, "A");
     playerDropMenu($event, "B");
-    resultDropMenu();
+    resultDropMenu("newmatchresult", array("P" => "In Progress", "BYE" => "BYE"));
     playerWinsDropMenu("A", true);
     playerWinsDropMenu("B", true);
     echo "</td></tr>";
@@ -1053,14 +1048,15 @@ function roundDropMenu($event, $selected) {
   echo "</select>";
 }
 
-function resultDropMenu($name = "newmatchresult") {
+function resultDropMenu($name = "newmatchresult", $extra_options = array()) {
   echo "<select name=\"{$name}\">";
   echo "<option value=\"\">- Winner -</option>";
-  echo "<option value=\"P\">In Progress</option>";
   echo "<option value=\"A\">Player A</option>";
   echo "<option value=\"B\">Player B</option>";
   echo "<option value=\"D\">Draw</option>";
-  echo "<option value=\"BYE\">BYE</option>";
+  foreach ($extra_options as $value => $text) {
+    echo "<option value=\"{$value}\">{$text}</option>";
+  }
   echo "</select>";
 }
 
