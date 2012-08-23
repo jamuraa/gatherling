@@ -480,9 +480,7 @@ function playerList($event) {
   $numentries = count($entries);
   echo "<form action=\"event.php\" method=\"post\">";
   echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
-  echo "<table style=\"border-width: 0px\" align=\"center\">";
-  echo "<tr><td colspan=\"2\" align=\"center\">";
-  echo "<table align=\"center\" style=\"border-width: 0px;\">";
+  echo "<table id=\"event_player_list\">";
   echo "<tr><td colspan=\"4\" align=\"center\">";
   if ($numentries > 0) {
     echo "<b>{$numentries} Registered Players</b></td></tr>";
@@ -540,80 +538,40 @@ function playerList($event) {
     echo "<input type=\"checkbox\" name=\"delentries[]\" ";
     echo "value=\"{$entry->player->name}\"></td></tr>";
   }
-  echo "<tr id=\"row_new_entry\"><td>New:</td><td>";
+  echo "<tr id=\"row_new_entry\"><td>Add:</td><td>";
   stringField("newentry", "", 20);
   echo "</td><td>&nbsp;</td><td colspan=2>";
   echo "<input id=\"update_reg\" type=\"submit\" name=\"mode\" value=\"Update Registration\" />";
   echo "</td></tr>";
-  echo "<tr><td align=\"center\" colspan=\"4\">";
-  echo "</form>";
-  echo "</td></tr>";
-  echo "</table>";
-  echo "</td></tr>";
-  echo "</table>";
-
-
-  if ($event->active == 0 && $event->finalized == 0) {
-    echo "<table style=\"border-width: 0px\" align=\"center\">";
-    echo "<tr><td>";
-    echo "<tr><td colspan=\"2\" align=\"center\">";
-    echo "<form action=\"event.php\" method=\"post\">";
-    echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
-    echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
-    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Start Event\" />";
-    echo "</tr></td>";
-    echo "</table>";
-
-  } else if ($event->active == 1) {
-    echo "<center> <b> Players added after the event has started will receive 0 points for any rounds already started and be paired when the next round begins</center></b>";
-    echo "<table style=\"border-width: 0px\" align=\"center\">";
-    echo "<tr><td>";
-    echo "<tr><td colspan=\"2\" align=\"center\">";
-    echo "<form action=\"event.php\" method=\"post\">";
-    echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
-    echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
-    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Recalculate Standings\" />";
-    echo "</tr></td>";
-    echo "</table>";
-
-    echo "<table style=\"border-width: 0px\" align=\"center\">";
-    echo "<tr><td>";
-    echo "<tr><td colspan=\"2\" align=\"center\">";
-    echo "<form action=\"event.php\" method=\"post\">";
-    echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
-    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Reset Event\" />";
-    echo "</tr></td>";
-    echo "</table>";
-
-    echo "<table style=\"border-width: 0px\" align=\"center\">";
-    echo "<tr><td>";
-    echo "<tr><td colspan=\"2\" align=\"center\">";
-    echo "<form action=\"event.php\" method=\"post\">";
-    echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
-    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Delete Current Matches and Re-Pair Round\" />";
-    echo "</tr></td>";
-    echo "</table>";
-  } else {
-    echo "<table style=\"border-width: 0px\" align=\"center\">";
-    echo "<tr><td>";
-    echo "<tr><td colspan=\"2\" align=\"center\">";
-    echo "<form action=\"event.php\" method=\"post\">";
-    echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
-    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Reactivate Event\" />";
-    echo "</tr></td>";
-    echo "</table>";
-
-    echo "<table style=\"border-width: 0px\" align=\"center\">";
-    echo "<tr><td>";
-    echo "<tr><td colspan=\"2\" align=\"center\">";
-    echo "<form action=\"event.php\" method=\"post\">";
-    echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
-    echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
-    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Recalculate Standings\" />";
-    echo "</tr></td>";
-    echo "</table>";
-
+  if ($event->active == 1) {
+    echo "<tr><td colspan=\"2\">";
+    echo "<p class=\"squeeze\">Players added after the event has started:</p>";
+    echo "<ul>";
+    echo "<li>receive 0 points for any rounds already started</li>";
+    echo "<li>will be paired with the next round begins</li>";
+    echo "</ul>";
+    echo "</td></tr>";
   }
+  echo "</table>";
+  echo "</form>";
+
+  echo "<div id=\"event_run_actions\">";
+  echo "<form action=\"event.php\" method=\"post\">";
+  echo "<input type=\"hidden\" name=\"view\" value=\"reg\" />";
+  echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
+  echo "<p>Round Actions</p>";
+  if ($event->active == 0 && $event->finalized == 0) {
+    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Start Event\" />";
+  } else if ($event->active == 1) {
+    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Recalculate Standings\" />";
+    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Reset Event\" />";
+    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Delete Matches and Re-Pair Round\" />";
+  } else {
+    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Reactivate Event\" />";
+    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Recalculate Standings\" />";
+  }
+  echo "</form>";
+  echo "</div>";
 }
 
 function pointsAdjustmentForm($event) {
