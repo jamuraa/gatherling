@@ -182,8 +182,8 @@ function content() {
       $event->save();
     }
 
-    if (strcmp($_POST['mode'], "Set Current Round to") == 0) {
-      $event->repairRound();
+    if (strcmp($_POST['mode'], "Assign Medals") == 0) {
+      $event->assignMedals();
     }
 
     if (strcmp($_POST['mode'], "Parse DCI Files") == 0) {
@@ -570,6 +570,7 @@ function playerList($event) {
   } else {
     echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Reactivate Event\" />";
     echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Recalculate Standings\" />";
+    echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Assign Medals\" />";
   }
   echo "</form>";
   echo "</div>";

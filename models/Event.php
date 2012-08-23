@@ -29,10 +29,10 @@ class Event {
   public $finalid; // Has one final subevent
 
   // Pairing/event related
-  public $player_reportable;
   public $active;
   public $current_round;
   public $standing;
+  public $player_reportable;
 
   public $hastrophy;
   private $new;
@@ -562,27 +562,52 @@ class Event {
     $t4 = array();
     $sec = "";
     $win = "";
-    $quarter_finals = $this->finalrounds >= 3;
-    if ($quarter_finals) {
-      $quart_round = $this->mainrounds + $this->finalrounds - 2;
-      $matches = $this->getRoundMatches($quart_round);
-      foreach ($matches as $match) {
-        $t8[] = $match->getLoser();
+    if ($this->finalrounds > 0) {
+      $quarter_finals = $this->finalrounds >= 3;
+      if ($quarter_finals) {
+        $quart_round = $this->mainrounds + $this->finalrounds - 2;
+        $matches = $this->getRoundMatches($quart_round);
+        foreach ($matches as $match) {
+          $t8[] = $match->getLoser();
+        }
       }
-    }
-    $semi_finals = $this->finalrounds >= 2;
-    if ($semi_finals) {
-      $semi_round = $this->mainrounds + $this->finalrounds - 1;
-      $matches = $this->getRoundMatches($semi_round);
-      foreach ($matches as $match) {
-        $t4[] = $match->getLoser();
+      $semi_finals = $this->finalrounds >= 2;
+      if ($semi_finals) {
+        $semi_round = $this->mainrounds + $this->finalrounds - 1;
+        $matches = $this->getRoundMatches($semi_round);
+        foreach ($matches as $match) {
+          $t4[] = $match->getLoser();
+        }
       }
+
+      $finalmatches = $this->getRoundMatches($this->mainrounds + $this->finalrounds);
+      $finalmatch = $finalmatches[0];
+      $sec = $finalmatch->getLoser();
+      $win = $finalmatch->getWinner();
+    } else {
+        $quarter_finals = $this->mainrounds >= 3;
+        if ($quarter_finals) {
+            $quart_round = $this->mainrounds - 2;
+            $matches = $this->getRoundMatches($quart_round);
+            foreach ($matches as $match) {
+                $t8[] = $match->getLoser();
+            }
+        }
+        $semi_finals = $this->mainrounds >= 2;
+        if ($semi_finals) {
+            $semi_round = $this->mainrounds - 1;
+            $matches = $this->getRoundMatches($semi_round);
+            foreach ($matches as $match) {
+                $t4[] = $match->getLoser();
+            }
+        }
+
+        $finalmatches = $this->getRoundMatches($this->mainrounds);
+        $finalmatch = $finalmatches[0];
+        $sec = $finalmatch->getLoser();
+        $win = $finalmatch->getWinner();
     }
 
-    $finalmatches = $this->getRoundMatches($this->mainrounds + $this->finalrounds);
-    $finalmatch = $finalmatches[0];
-    $sec = $finalmatch->getLoser();
-    $win = $finalmatch->getWinner();
 
     $this->setFinalists($win, $sec, $t4, $t8);
   }
@@ -773,7 +798,9 @@ class Event {
       $this->active = 0;
       $this->finalized = 1;
       $this->save();
+      $this->assignMedals();
       // need to add code to set medals
+
     }
     $this->current_round++;
     $this->save();
@@ -1086,4 +1113,40 @@ class Event {
     $this->pairCurrentRound();
   }
 
+  function assignMedals(){
+    if ($this->current_round < ($this->mainrounds)) {
+      $structure  = $this->finalstruct;
+      $subevent_id = $this->finalid;
+      $round = "final";
+    } else {
+      $structure = $this->mainstruct;
+      $subevent_id = $this->mainid;
+      $round = "main";
+    }
+
+    switch ($structure) {
+      case "Swiss":
+        $this->assignMedalsByStandings();
+        break;
+      case "Single Elimination":
+        $this->assignTropiesFromMatches();
+        break;
+      case "League":
+        $this->assignMedalsByStandings();
+        break;
+    }
+  }
+
+  function assignMedalsByStandings(){
+    $players = $this->standing->getEventStandings($this->name,0);
+    $win = $players[0]->player;
+    $sec = $players[1]->player;
+    $t4[0] = $players[2]->player;
+    $t4[1] = $players[3]->player;
+    $t8[0] = $players[4]->player;
+    $t8[1] = $players[5]->player;
+    $t8[2] = $players[6]->player;
+    $t8[3] = $players[7]->player;
+    $this->setFinalists($win, $sec, $t4, $t8);
+  }
 }
