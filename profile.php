@@ -3,11 +3,11 @@ include 'lib.php';
 
 print_header("Player Profile");
 
-$playername = "";
-if(isset($_SESSION['username'])) {$playername = $_SESSION['username'];}
-if(isset($_GET['player'])) {$playername = $_GET['player'];}
-if(isset($_POST['player'])) {$playername = $_POST['player'];}
-  searchForm($playername);
+$playername = Player::loginName();
+if (!$playername) { $playername = ""; }
+if (isset($_GET['player'])) {$playername = $_GET['player'];}
+if (isset($_POST['player'])) {$playername = $_POST['player'];}
+searchForm($playername);
 ?>
 <div class="grid_10 suffix_1 prefix_1">
 <div id="gatherling_main" class="box">
@@ -36,7 +36,7 @@ function content() {
   } else {
     echo "<center>\n";
         echo "Please <a href=\"login.php\">log in</a> to see";
-        echo " your profile. You may also use the search below without";
+        echo " your profile. You may also use the search without";
         echo " logging in.\n";
         echo "</center>\n";
     }

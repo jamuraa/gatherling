@@ -12,7 +12,11 @@ class Player {
   }
 
   static function loginName() {
-    return $_SESSION['username'];
+    if (Player::isLoggedIn()) {
+      return $_SESSION['username'];
+    } else {
+      return false;
+    }
   }
 
   static function getSessionPlayer() {

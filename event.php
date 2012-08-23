@@ -751,7 +751,7 @@ function matchList($event) {
 }
 
 function standingsList($event) {
-  Standings::printEventStandings($event->name,$_SESSION['username']);
+  Standings::printEventStandings($event->name, Player::loginName());
 }
 
 function medalList($event) {
@@ -911,8 +911,8 @@ function insertEvent() {
 
   $event->save();
 
-  if (strcmp($_POST['host'], $_SESSION['username']) != 0) {
-    $event->addSteward($_SESSION['username']);
+  if (strcmp($_POST['host'], Player::loginName()) != 0) {
+    $event->addSteward(Player::loginName());
   }
 
   return $event;

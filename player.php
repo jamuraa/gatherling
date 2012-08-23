@@ -65,7 +65,7 @@ if ($player == NULL) {
     print_allContainer();
   } elseif ($dispmode == 'allratings') {
     if(!isset($_GET['format'])) {$_GET['format'] = "Composite";}
-    print_ratingsTable($_SESSION['username']);
+    print_ratingsTable(Player::loginName());
     echo "<br /><br />";
     print_ratingHistoryForm($_GET['format']);
     echo "<br />";
@@ -83,7 +83,7 @@ if ($player == NULL) {
   } elseif ($dispmode == 'verify_result') {
     print_verify_resultForm($_POST['report'], $_POST['match_id'],$_POST['player']);
   } elseif ($dispmode == 'standings') {
-    Standings::printEventStandings($_GET['event'],$_SESSION['username']);
+    Standings::printEventStandings($_GET['event'],Player::loginName());
   } elseif ($dispmode == 'verifymtgo') {
     // print_verifyMtgoForm($player, $result);
     print_manualverifyMtgoForm();
@@ -260,7 +260,7 @@ function setPlayerIgnores() {
 }
 
 function print_mainPlayerCP($player) {
-  $upper = strtoupper($_SESSION['username']);
+  $upper = strtoupper(Player::loginName());
   echo "<div class=\"alpha grid_5\">\n";
   echo "<div id=\"gatherling_lefthalf\">\n";
   print_conditionalAllDecks();
