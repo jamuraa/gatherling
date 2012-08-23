@@ -530,7 +530,7 @@ class Event {
     return $newmatch;
   }
 
-  function addMatch($playera, $playerb, $round = '99', $result = 'P', $playera_wins = '0', $playerb_wins = '0') {
+  function addMatch($playera, $playerb, $round = '-1', $result = 'P', $playera_wins = '0', $playerb_wins = '0') {
     $draws = 0; // draws have not been implemented yet so I just assign a zero for now
     $id = $this->mainid;
 
@@ -539,7 +539,7 @@ class Event {
       $round = $round - $this->mainrounds;
     }
 
-    if ($round == 99) {
+    if ($round == -1) {
       $round = $this->current_round;
     }
 
