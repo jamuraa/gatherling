@@ -541,8 +541,12 @@ function playerList($event) {
     }
     echo "<td>$decklink</td>";
     echo "<td align=\"center\">";
-    echo "<input type=\"checkbox\" name=\"delentries[]\" ";
-    echo "value=\"{$entry->player->name}\"></td></tr>";
+    if ($entry->canDelete()) {
+      echo "<input type=\"checkbox\" name=\"delentries[]\" value=\"{$entry->player->name}\" />";
+    } else {
+      not_allowed("Can't delete player, they have matches recorded.");
+    }
+    echo "</td></tr>";
   }
   echo "<tr id=\"row_new_entry\"><td>Add:</td><td>";
   stringField("newentry", "", 20);
@@ -1111,13 +1115,13 @@ function controlPanel($event, $cur = "") {
 function updateReg() {
   $event = new Event($_POST['name']);
   if (isset($_POST['delentries'])) {
-    for($ndx = 0; $ndx < sizeof($_POST['delentries']); $ndx++) {
-      $event->removeEntry($_POST['delentries'][$ndx]);
+    foreach ($_POST['delentries'] as $playername) {
+      $event->removeEntry($playername);
     }
   }
   if(isset($_POST['dropplayer'])) {
-    for($ndx = 0; $ndx < sizeof($_POST['dropplayer']); $ndx++) {
-      Standings::dropPlayer($_POST['name'], $_POST['dropplayer'][$ndx]);
+    foreach ($_POST['dropplayer'] as $playername) {
+      Standings::dropPlayer($event->name, $playername);
     }
   }
   $event->addPlayer($_POST['newentry']);
@@ -1125,21 +1129,20 @@ function updateReg() {
 
 function updateMatches() {
   if(isset($_POST['matchdelete'])) {
-    for($ndx = 0; $ndx < sizeof($_POST['matchdelete']); $ndx++) {
-      Match::destroy($_POST['matchdelete'][$ndx]); 
-      // and then call function to rebuild the standings 
+    foreach ($_POST['matchdelete'] as $matchid) {
+      Match::destroy($matchid); 
     }
   }
 
   if (isset($_POST['dropplayerA'])) {
-    for ($ndx = 0; $ndx < sizeof($_POST['dropplayerA']); $ndx++) {
-      Standings::dropPlayer ($_POST['eventname'], $_POST['dropplayerA'][$ndx]);
+    foreach ($_POST['droplayerA'] as $playername) {
+      Standings::dropPlayer ($_POST['eventname'], $playername);
     }
   }
 
   if (isset($_POST['dropplayerB'])) {
-    for($ndx = 0; $ndx < sizeof($_POST['dropplayerB']); $ndx++) {
-      Standings::dropPlayer ($_POST['eventname'], $_POST['dropplayerB'][$ndx]);
+    foreach ($_POST['dropplayerB'] as $playername) {
+      Standings::dropPlayer ($_POST['eventname'], $playername);
     }
   }
 
@@ -1176,14 +1179,14 @@ function updateMatches() {
     }
   }
 
-  if (isset($_POST['newmatchplayerA'])) {$pA = $_POST['newmatchplayerA'];} else {$pA = "";}
-  if (isset($_POST['newmatchplayerB'])) {$pB = $_POST['newmatchplayerB'];} else {$pB = "";}
-  if (isset($_POST['newmatchresult'])) {$res = $_POST['newmatchresult'];} else {$res = "";}
-  if (isset($_POST['newmatchround'])) {$rnd = $_POST['newmatchround'];} else {$rnd = "";}
-  if (isset($_POST['newmatchplayerAwins'])) {$pAWins = $_POST['newmatchplayerAwins'];} else {$pAWins = "";}
-  if (isset($_POST['newmatchplayerBwins'])) {$pBWins = $_POST['newmatchplayerBwins'];} else {$pBWins = "";}
+  if (isset($_POST['newmatchplayerA'])) { $pA = $_POST['newmatchplayerA']; } else {$pA = "";}
+  if (isset($_POST['newmatchplayerB'])) { $pB = $_POST['newmatchplayerB']; } else {$pB = "";}
+  if (isset($_POST['newmatchresult'])) { $res = $_POST['newmatchresult']; } else {$res = "";}
+  if (isset($_POST['newmatchround'])) { $rnd = $_POST['newmatchround']; } else {$rnd = "";}
+  if (isset($_POST['newmatchplayerAwins'])) { $pAWins = $_POST['newmatchplayerAwins']; } else {$pAWins = "";}
+  if (isset($_POST['newmatchplayerBwins'])) { $pBWins = $_POST['newmatchplayerBwins']; } else {$pBWins = "";}
 
-  if ((strcmp($pA, "") != 0) && (strcmp("$pB", "") != 0) && (strcmp($res, "") != 0) && (strcmp($rnd, "") != 0)) {
+  if ((strcmp($pA, "") != 0) && (strcmp($pB, "") != 0) && (strcmp($res, "") != 0) && (strcmp($rnd, "") != 0)) {
     if ($res == "P") {
       $event = new Event($_POST['name']);
       $event->addPairing($pA, $pB, $rnd, $res);
@@ -1362,36 +1365,42 @@ function autoInput() {
     }
   }
   $finals = array();
-  for($ndx = 0; $ndx < sizeof($_POST['finals']); $ndx++) {
-    $finals[$ndx] = extractFinals($_POST['finals'][$ndx]);
+  foreach ($_POST['finals'] as $line) {
+    $finals[] = extractFinals($line);
   }
+  // At this point, $finals is an array of arrays, with the matchings in each round, i.e.
+  // [0][0] Alphie     [1][0] Betta     [2][0] Dave
+  // [0][1] Betta
+  // [0][2] Charlie    [1][1] Dave
+  // [0][3] Dave
+
   $fid = $event->finalid;
   $win = "";
   $sec = "";
   $t4 = array();
   $t8 = array();
-  for($ndx = 0; $ndx < sizeof($finals); $ndx++) {
-    for($match = 0; $match < sizeof($finals[$ndx]); $match+=2) {
-      $playerA = $finals[$ndx][$match];
-      $playerB = $finals[$ndx][$match + 1];
+  for($round = 0; $round < sizeof($finals); $round++) {
+    for($match = 0; $match < sizeof($finals[$round]); $match+=2) {
+      $playerA = $finals[$round][$match];
+      $playerB = $finals[$round][$match + 1];
       $event->addPlayer($playerA);
       $event->addPlayer($playerB);
-      if($ndx < sizeof($finals) - 1) {
-        $winner = detwinner($playerA, $playerB, $finals[$ndx + 1]);
+      if ($round < sizeof($finals) - 1) {
+        $winner = detwinner($playerA, $playerB, $finals[$round + 1]);
       } else {
         $winner = $_POST['champion'];
       }
       $res = "D";
       if(strcmp($winner, $playerA) == 0) {$res = "A";}
       if(strcmp($winner, $playerB) == 0) {$res = "B";}
-      $event->addMatch($playerA, $playerB, $ndx + 1 + $event->mainrounds, $res, 0, 0);
+      $event->addMatch($playerA, $playerB, $round + 1 + $event->mainrounds, $res, 0, 0);
       $loser = (strcmp($winner, $playerA) == 0) ? $playerB : $playerA;
-      if ($ndx == sizeof($finals) - 1) {
+      if ($round == sizeof($finals) - 1) {
         $win = $winner;
         $sec = $loser;
-      } elseif ($ndx == sizeof($finals) - 2) {
+      } elseif ($round == sizeof($finals) - 2) {
         $t4[] = $loser;
-      } elseif($ndx == sizeof($finals) - 3) {
+      } elseif($round == sizeof($finals) - 3) {
         $t8[] = $loser;
       }
     }
@@ -1403,11 +1412,10 @@ function extractPairings($text) {
   $pairings = array();
   $lines = explode("\n", $text);
   $loc = 0;
-  for($ndx = 0; $ndx < sizeof($lines); $ndx++) {
-    if(preg_match("/^\s*[0-9]+\s+([0-9]+\s+)?([0-9a-z_.\- ]+),.*\s+[0-9]+\s+([0-9a-z_.\- ]+),/i",
-      $lines[$ndx], $m)) {
-      $pairings[$loc] = array($m[2], $m[3]);
-      $loc++;
+  foreach ($lines as $line) {
+    if (preg_match("/^\s*[0-9]+\s+([0-9]+\s+)?([0-9a-z_.\- ]+),.*\s+[0-9]+\s+([0-9a-z_.\- ]+),/i",
+      $line, $m)) {
+      $pairings[] = array($m[2], $m[3]);
     }
   }
   return $pairings;
@@ -1415,10 +1423,8 @@ function extractPairings($text) {
 
 function extractBye($text) {
   $lines = explode("\n", $text);
-  $loc = 0;
-  for($ndx = 0; $ndx < sizeof($lines); $ndx++) {
-    if(preg_match("/^\s*[0-9]+\s+([0-9]+\s+)?([0-9a-z_.\- ]+),.*\s+\* BYE \*/i",
-      $lines[$ndx], $m)) {
+  foreach ($lines as $line) {
+    if(preg_match("/^\s*[0-9]+\s+([0-9]+\s+)?([0-9a-z_.\- ]+),.*\s+\* BYE \*/i", $line, $m)) {
       return $m[2];
     }
   }
@@ -1428,9 +1434,8 @@ function extractBye($text) {
 function extractStandings($text) {
   $standings = array();
   $lines = explode("\n", $text);
-  for($ndx = 0; $ndx < sizeof($lines); $ndx++) {
-    if(preg_match("/^\s*[0-9]+\s+([0-9]+\s+)?([0-9a-z_.\- ]+),.*\s+([0-9]+)\s+/i",
-    $lines[$ndx], $m)) {
+  foreach ($lines as $line) {
+    if(preg_match("/^\s*[0-9]+\s+([0-9]+\s+)?([0-9a-z_.\- ]+),.*\s+([0-9]+)\s+/i", $line, $m)) {
       $standings[$m[2]] = $m[3];
     }
   }
@@ -1440,8 +1445,8 @@ function extractStandings($text) {
 function standFromPairs($text) {
   $standings = array();
   $lines = explode("\n", $text);
-  for($ndx = 0; $ndx < sizeof($lines); $ndx++) {
-    if(preg_match("/^\s*[0-9]+\s+([0-9]+\s+)?([0-9a-z_.\- ]+),.*\s+([0-9]+)-([0-9]+)\s+[0-9]+\s+([0-9a-z_.\- ]+),/i", $lines[$ndx], $m)) {
+  foreach ($lines as $line) {
+    if(preg_match("/^\s*[0-9]+\s+([0-9]+\s+)?([0-9a-z_.\- ]+),.*\s+([0-9]+)-([0-9]+)\s+[0-9]+\s+([0-9a-z_.\- ]+),/i", $line, $m)) {
       $standings[$m[2]] = $m[3];
       $standings[$m[5]] = $m[4];
     }
@@ -1452,23 +1457,25 @@ function standFromPairs($text) {
 function extractFinals($text) {
   $finals = array();
   $lines = explode("\n", $text);
-  $loc = 0;
-  for($ndx = 0; $ndx < sizeof($lines); $ndx++) {
-    if(preg_match("/[\t ]+([0-9a-z_.\- ]+),/i", $lines[$ndx], $m)) {
-      $finals[$loc] = $m[1];
-      $loc++;
+  foreach ($lines as $line) {
+    if (preg_match("/[\t ]+([0-9a-z_.\- ]+),/i", $line, $m)) {
+      $finals[] = $m[1];
     }
   }
   return $finals;
 }
 
+// $a and $b are the players in this round
+// $next is an array of the next round's players
+// returns the name of the winner from this round.
 function detwinner($a, $b, $next) {
-  $ret = "No Winner";
-  for($ndx = 0; $ndx < sizeof($next); $ndx++) {
-    if(strcmp($a, $next[$ndx]) == 0) {$ret = $a;}
-    if(strcmp($b, $next[$ndx]) == 0) {$ret = $b;}
+  if (in_array($a, $next)) { 
+    return $a;
   }
-  return $ret;
+  if (in_array($b, $next)) {
+    return $b;
+  }
+  return "No Winner";
 }
 
 function authFailed() {
@@ -1544,8 +1551,8 @@ function dciregister($data) {
 \n/", "\n", $data);
   $lines = explode("\n", $data);
   $ret = array();
-  for ($ndx = 0; $ndx < sizeof($lines); $ndx++) {
-    $tokens = explode(",", $lines[$ndx]);
+  foreach ($lines as $line) {
+    $tokens = explode(",", $line);
     if (preg_match("/\"(.*)\"/", $tokens[3], $matches)) {
       $didadd = $event->addPlayer($matches[1]); 
       if ($didadd) {

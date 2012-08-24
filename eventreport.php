@@ -179,8 +179,9 @@ function metastats($event) {
     $deckarr = deckInfo($deck);
     if($deckarr[1] != "blackout") {
       $archcnt[$deckarr[3]]++;
-      for($ndx = 0; $ndx < strlen($deckarr[1]); $ndx++) {
-        $colorcnt[$deckarr[1]{$ndx}]++;
+      $colors = str_split($deckarr[1]);
+      foreach ($colors as $color) {
+        $colorcnt[$color]++;
       }
     }
     else {$ndecks--;}
@@ -238,10 +239,10 @@ function fullmetagame($event) {
 
   $stmt = $db->prepare("INSERT INTO meta(player, deckname, archetype,  colors, medal, id)
     VALUES(?, ?, ?, ?, ?, ?)");
-  for($ndx = 0; $ndx < sizeof($players); $ndx++) {
-    $stmt->bind_param("sssssd", $players[$ndx]['player'],
-      $players[$ndx]['deckname'], $players[$ndx]['archetype'],
-      $players[$ndx]['colors'], $players[$ndx]['medal'], $players[$ndx]['id']);
+  foreach ($players as $player) {
+    $stmt->bind_param("sssssd", $player['player'],
+      $player['deckname'], $player['archetype'],
+      $player['colors'], $player['medal'], $player['id']);
     $stmt->execute() or die($stmt->error);
   }
   $stmt->close();

@@ -281,8 +281,8 @@ function parseCards($text) {
   $lines = explode("\n", $text);
   $badcards = array();
   $cardarr = array();
-  for ($ndx = 0; $ndx < sizeof($lines); $ndx++) {
-    $chopped = chop($lines[$ndx]);
+  foreach ($lines as $line) {
+    $chopped = chop($line);
     if (preg_match("/[ \t]*([0-9]+)x?[ \t]+(.*)/i", $chopped, $m)) {
       $qty = $m[1];
       $card = chop($m[2]);

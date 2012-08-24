@@ -48,36 +48,27 @@ function calcPostEventRatings($event, $format) {
   global $db;
   $players = getEntryRatings($event, $format);
   $matches = getMatches($event);
-  for($ndx = 0; $ndx < sizeof($matches); $ndx++) {
+  foreach ($matches as $match) {
     $aPts = 0.5; $bPts = 0.5;
-    if(strcmp($matches[$ndx]['result'], 'A') == 0) {
+    if(strcmp($match['result'], 'A') == 0) {
       $aPts = 1.0; $bPts = 0.0;
-      $players[$matches[$ndx]['playera']]['wins']++;
-      $players[$matches[$ndx]['playerb']]['losses']++;
+      $players[$match['playera']]['wins']++;
+      $players[$match['playerb']]['losses']++;
     }
-    elseif(strcmp($matches[$ndx]['result'], 'B') == 0) {
+    elseif(strcmp($match['result'], 'B') == 0) {
       $aPts = 0.0; $bPts = 1.0;
-      $players[$matches[$ndx]['playerb']]['wins']++;
-      $players[$matches[$ndx]['playera']]['losses']++;
+      $players[$match['playerb']]['wins']++;
+      $players[$match['playera']]['losses']++;
     }
-    $newA = newRating($players[$matches[$ndx]['playera']]['rating'],
-      $players[$matches[$ndx]['playerb']]['rating'],
-      $aPts, $matches[$ndx]['kvalue']);
-    $newB = newRating($players[$matches[$ndx]['playerb']]['rating'],
-      $players[$matches[$ndx]['playera']]['rating'],
-      $bPts, $matches[$ndx]['kvalue']);
+    $newA = newRating($players[$match['playera']]['rating'],
+      $players[$match['playerb']]['rating'],
+      $aPts, $match['kvalue']);
+    $newB = newRating($players[$match['playerb']]['rating'],
+      $players[$match['playera']]['rating'],
+      $bPts, $match['kvalue']);
 
-#    if(strcmp($format, "Other Formats") == 0) {
-#    if(strcasecmp($matches[$ndx]['playera'], 'kingritz') == 0) {
-#      printf("%s\n", $event);
-#      printf("%d -> %d\n", $players[$matches[$ndx]['playera']]['rating'], $newA);}
-#    if(strcasecmp($matches[$ndx]['playerb'], 'kingritz') == 0) {
-#      printf("%s\n", $event);
-#      printf("%d -> %d\n", $players[$matches[$ndx]['playerb']]['rating'], $newB);}
-#    }
-
-    $players[$matches[$ndx]['playera']]['rating'] = $newA;
-    $players[$matches[$ndx]['playerb']]['rating'] = $newB;
+    $players[$match['playera']]['rating'] = $newA;
+    $players[$match['playerb']]['rating'] = $newB;
   }
   return $players;
 }

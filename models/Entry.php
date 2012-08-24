@@ -94,6 +94,11 @@ class Entry {
     return $this->player->getMatchesEvent($this->event->name);
   }
 
+  function canDelete() {
+    $matches = $this->getMatches();
+    return (count($matches) == 0);
+  }
+
   function canCreateDeck($username) {
     if (($this->event->finalized == 0) && (strcasecmp($username, $this->player->name) == 0)) {
       return true;
