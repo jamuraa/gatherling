@@ -1019,7 +1019,9 @@ class Event {
           $this->recalculateScores($structure);
           Standings::updateStandings($this->name, $this->mainid, 1);
         }
-        $this->pairCurrentRound();
+        if ($structure != "League") {
+          $this->pairCurrentRound();
+        }
       }
     }
   }

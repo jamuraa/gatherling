@@ -306,6 +306,9 @@ class Match {
           $playerb_standing->active = 0;
         } else if ($structure == "Swiss") {
           $playera_standing->score += 3;
+        } else if ($structure == "League") {
+          $playera_standing->score += 3;
+          $playerb_standing->score -= 1;
         }
         $this->result = 'A';
       } else {
@@ -313,6 +316,9 @@ class Match {
           $playera_standing->active = 0;
         } else if ($structure == "Swiss") {
           $playerb_standing->score += 3;
+        } else if ($structure == "League") {
+          $playerb_standing->score += 3;
+          $playera_standing->score -= 1;
         }
         $this->result = 'B';
       }
@@ -344,6 +350,8 @@ class Match {
       $playera_standing->matches_won += 1;
       if ($structure == "Single Elimination"){
         $playerb_standing->active = 0;
+      } else if ($structure == "League") {
+        $playerb_standing->score -= 1;
       }
       $this->result = 'A';
     } else {
@@ -351,6 +359,8 @@ class Match {
       $playerb_standing->matches_won += 1;
       if ($structure == "Single Elimination"){
         $playera_standing->active = 0;
+      } else if ($structure == "League") {
+        $playera_standing->score -= 1;
       }
       $this->result = 'B';
     }

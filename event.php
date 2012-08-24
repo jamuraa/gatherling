@@ -167,8 +167,13 @@ function content() {
       Standings::updateStandings($event->name, $event->mainid, 1);
     }
 
+    if (strcmp($_POST['mode'], "End Current League Round") == 0) {
+      $event->recalculateScores("League");
+      Standings::updateStandings($event->name, $event->mainid, 1);
+      $event->pairCurrentRound();
+    }
+
     if (strcmp($_POST['mode'], "Reset Event") == 0) {
-      var_dump($event);
       $event->resetEvent();
     }
 
@@ -749,6 +754,22 @@ function matchList($event) {
   echo "value=\"Update Match Listing\"></td></tr>";
   echo "</form>";
   echo "</table>";
+
+  if ($event->current_round > $event->mainrounds) {
+    $structure = $event->finalstruct;
+  } else {
+    $structure = $event->mainstruct;
+  }
+
+  if ($structure == "League"){
+    echo "<div id=\"event_run_actions\">";
+    echo "<form action=\"event.php\" method=\"post\">";
+    echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
+    echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
+    echo "<input type=\"submit\" name=\"mode\" value=\"End Current League Round\" />";
+    echo "</form>";
+    echo "</div>";
+  }
 }
 
 function standingsList($event) {
