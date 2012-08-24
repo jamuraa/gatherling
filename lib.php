@@ -374,6 +374,10 @@ function distance_of_time_in_words($from_time,$to_time = 0, $include_seconds = f
   }
 }
 
+function not_allowed($reason) {
+  echo "<span class=\"notallowed\" title=\"{$reason}\">&#x26A0;</span>";
+}
+
 function version_tagline() {
   print "Gatherling version 3.0.17 (\"I don't know what you're talking about, but it sounds illegal.\")";
 }

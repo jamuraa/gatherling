@@ -535,8 +535,12 @@ function playerList($event) {
     }
     echo "<td>$decklink</td>";
     echo "<td align=\"center\">";
-    echo "<input type=\"checkbox\" name=\"delentries[]\" ";
-    echo "value=\"{$entry->player->name}\"></td></tr>";
+    if ($entry->canDelete()) {
+      echo "<input type=\"checkbox\" name=\"delentries[]\" value=\"{$entry->player->name}\" />";
+    } else {
+      not_allowed("Can't delete player, they have matches recorded.");
+    }
+    echo "</td></tr>";
   }
   echo "<tr id=\"row_new_entry\"><td>Add:</td><td>";
   stringField("newentry", "", 20);
