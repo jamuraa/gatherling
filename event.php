@@ -168,7 +168,6 @@ function content() {
     }
 
     if (strcmp($_POST['mode'], "Reset Event") == 0) {
-      var_dump($event);
       $event->resetEvent();
     }
 
