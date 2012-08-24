@@ -577,7 +577,7 @@ class Player {
   function getStreak($type = "W") {
     $matches = $this->getAllMatches();
 
-    $arr = array();
+    $results = array();
     foreach ($matches as $match) {
       $thisres = 'D';
       if ($match->playerWon($this->name)) {
@@ -586,13 +586,13 @@ class Player {
         $thisres = 'L';
       }
 
-      $arr[] = $thisres;
+      $results[] = $thisres;
     }
 
     $max = 0;
     $streak = 0;
-    for ($ndx = 0; $ndx < sizeof($arr); $ndx++) {
-      if ($arr[$ndx] == $type) {$streak++;}
+    foreach ($results as $result) {
+      if ($result == $type) {$streak++;}
       else {$streak = 0;}
       if ($streak > $max) {$max = $streak;}
     }

@@ -42,9 +42,9 @@ function ratingsForm($format) {
 function formatDropMenuR($format) {
   $names = array("Composite", "Standard", "Extended", "Classic", "Other Formats");
   echo "<select name=\"format\">";
-  for($ndx = 0; $ndx < sizeof($names); $ndx++) {
-    $sel = (strcmp($names[$ndx], $format) == 0) ? "selected" : "";
-    echo "<option value=\"{$names[$ndx]}\" $sel>{$names[$ndx]}</option>";
+  foreach ($names as $name) {
+    $sel = (strcmp($name, $format) == 0) ? "selected" : "";
+    echo "<option value=\"{$name}\" $sel>{$name}</option>";
   }
   echo "</select>";
 }
