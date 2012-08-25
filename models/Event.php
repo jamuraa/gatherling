@@ -15,6 +15,8 @@ class Event {
   public $reporturl;
   public $metaurl;
 
+  public $player_editdecks;
+
   // Class associations
   public $series; // belongs to Series
   public $host; // has one Player - host
@@ -58,18 +60,19 @@ class Event {
       $this->active = 0;
       $this->current_round = 0;
       $this->player_reportable = 0;
+      $this->player_editdecks = 1;
 
       return;
     }
 
     $db = Database::getConnection();
-    $stmt = $db->prepare("SELECT format, host, cohost, series, season, number, start, kvalue, finalized, prereg_allowed, threadurl, metaurl, reporturl, active, current_round, player_reportable FROM events WHERE name = ?");
+    $stmt = $db->prepare("SELECT format, host, cohost, series, season, number, start, kvalue, finalized, prereg_allowed, threadurl, metaurl, reporturl, active, current_round, player_reportable, player_editdecks FROM events WHERE name = ?");
     if (!$stmt) {
       die($db->error);
     }
     $stmt->bind_param("s", $name);
     $stmt->execute();
-    $stmt->bind_result($this->format, $this->host, $this->cohost, $this->series, $this->season, $this->number, $this->start, $this->kvalue, $this->finalized, $this->prereg_allowed, $this->threadurl, $this->metaurl, $this->reporturl, $this->active, $this->current_round, $this->player_reportable);
+    $stmt->bind_result($this->format, $this->host, $this->cohost, $this->series, $this->season, $this->number, $this->start, $this->kvalue, $this->finalized, $this->prereg_allowed, $this->threadurl, $this->metaurl, $this->reporturl, $this->active, $this->current_round, $this->player_reportable, $this->player_editdecks);
     if ($stmt->fetch() == NULL) {
       throw new Exception('Event '. $name .' not found in DB');
     }
@@ -116,9 +119,9 @@ class Event {
     if ($this->new) {
       $stmt = $db->prepare("INSERT INTO events(name, start, format,
         host, cohost, kvalue, number, season, series,
-        threadurl, reporturl, metaurl, finalized, prereg_allowed, player_reportable)
-        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)");
-      $stmt->bind_param("sssssdddssssdd", $this->name, $this->start, $this->format, $this->host, $this->cohost, $this->kvalue, $this->number, $this->season, $this->series, $this->threadurl, $this->reporturl, $this->metaurl, $this->prereg_allowed, $this->player_reportable);
+        threadurl, reporturl, metaurl, finalized, prereg_allowed, player_reportable, player_editdecks)
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)");
+      $stmt->bind_param("sssssdddssssdd", $this->name, $this->start, $this->format, $this->host, $this->cohost, $this->kvalue, $this->number, $this->season, $this->series, $this->threadurl, $this->reporturl, $this->metaurl, $this->prereg_allowed, $this->player_reportable, $this->player_editdecks);
       $stmt->execute() or die($stmt->error);
       $stmt->close();
 
@@ -129,9 +132,9 @@ class Event {
       $stmt = $db->prepare("UPDATE events SET
         start = ?, format = ?, host = ?, cohost = ?, kvalue = ?,
         number = ?, season = ?, series = ?, threadurl = ?, reporturl = ?,
-        metaurl = ?, finalized = ?, prereg_allowed = ?, active = ?, current_round = ?, player_reportable = ? WHERE name = ?");
+        metaurl = ?, finalized = ?, prereg_allowed = ?, active = ?, current_round = ?, player_reportable = ?, player_editdecks = ? WHERE name = ?");
       $stmt or die($db->error);
-      $stmt->bind_param("ssssdddssssddddds", $this->start, $this->format, $this->host, $this->cohost, $this->kvalue, $this->number, $this->season, $this->series, $this->threadurl, $this->reporturl, $this->metaurl, $this->finalized, $this->prereg_allowed, $this->active, $this->current_round, $this->player_reportable, $this->name );
+      $stmt->bind_param("ssssdddssssdddddds", $this->start, $this->format, $this->host, $this->cohost, $this->kvalue, $this->number, $this->season, $this->series, $this->threadurl, $this->reporturl, $this->metaurl, $this->finalized, $this->prereg_allowed, $this->active, $this->current_round, $this->player_reportable, $this->player_editdecks, $this->name );
       $stmt->execute() or die($stmt->error);
       $stmt->close();
 
@@ -1025,7 +1028,7 @@ class Event {
   }
 
   // Retrieves an event given a subevent ID.
-  static function getEventBySubevent($subevent) {
+  static function findBySubevent($subevent) {
     $db = Database::getConnection();
     $stmt = $db->prepare("SELECT e.name FROM events e, subevents s
     WHERE s.parent = e.name AND s.id = ? LIMIT 1");
@@ -1034,33 +1037,16 @@ class Event {
     $stmt->bind_result($event);
     $stmt->fetch();
     $stmt->close();
-    $event= new Event($event);
+    $event = new Event($event);
     return $event;
   }
 
   function recalculateScores($structure){
-    $this->resetScores();
+    Standings::resetScores($this->name);
     $matches2 = $this->getRoundMatches("ALL");
     foreach ($matches2 as $match) {
       //echo "about to update scores";
       $match->fixScores($structure);
-    }
-  }
-
-  // This should DEFINITELY be in Standings.
-  function resetScores(){
-    $standings = Standings::getEventStandings($this->name, 0);
-    foreach ($standings as $standing) {
-      $standing->score = 0;
-      $standing->matches_played = 0;
-      $standing->matches_won = 0;
-      $standing->games_won = 0;
-      $standing->byes = 0;
-      $standing->games_played = 0;
-      $standing->OP_Match = 0;
-      $standing->PL_Game = 0;
-      $standing->OP_Game = 0;
-      $standing->save();
     }
   }
 

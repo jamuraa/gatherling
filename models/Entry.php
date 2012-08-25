@@ -100,7 +100,7 @@ class Entry {
   }
 
   function canCreateDeck($username) {
-    if (($this->event->finalized == 0) && (strcasecmp($username, $this->player->name) == 0)) {
+    if (($this->event->player_editdecks == 1) && (strcasecmp($username, $this->player->name) == 0)) {
       return true;
     }
     $player = new Player($username);

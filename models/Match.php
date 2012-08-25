@@ -261,7 +261,7 @@ class Match {
       if (($playera_wins == $playerb_losses) && ($playerb_wins == $playera_losses)) {
         // Players report the same result
         Match::flagVerified($match_id, 'verified');
-        $event = Event::getEventBySubevent($subevent);
+        $event = Event::findBySubevent($subevent);
         $event->resolveRound($subevent,$event->current_round);
       } else {
         // Different reports.  Flag as such.
@@ -293,7 +293,7 @@ class Match {
 
   // Goes through all matches in this round and updates the "Standing" objects with new scores.
   public function updateScores($structure) {
-    $thisevent= Event::getEventBySubevent($this->subevent);
+    $thisevent= Event::findBySubevent($this->subevent);
     $playera_standing = new Standings($thisevent->name, $this->playera);
     $playerb_standing = new Standings($thisevent->name, $this->playerb);
     if ($this->result == 'BYE'){
@@ -342,7 +342,7 @@ class Match {
   public function fixScores($structure) {
     // Goes through all matches in this round and updates scores
     //echo $this->playera_wins . $this->playera_losses;
-    $thisevent = Event::getEventBySubevent($this->subevent);
+    $thisevent = Event::findBySubevent($this->subevent);
     $playera_standing = new Standings($thisevent->name, $this->playera);
     $playerb_standing = new Standings($thisevent->name, $this->playerb);
     if ($this->playera_wins > $this->playerb_wins){
