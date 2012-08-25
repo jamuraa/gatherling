@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 class Event {
   public $name;
@@ -585,30 +585,28 @@ class Event {
       $sec = $finalmatch->getLoser();
       $win = $finalmatch->getWinner();
     } else {
-        $quarter_finals = $this->mainrounds >= 3;
-        if ($quarter_finals) {
-            $quart_round = $this->mainrounds - 2;
-            $matches = $this->getRoundMatches($quart_round);
-            foreach ($matches as $match) {
-                $t8[] = $match->getLoser();
-            }
+      $quarter_finals = $this->mainrounds >= 3;
+      if ($quarter_finals) {
+        $quart_round = $this->mainrounds - 2;
+        $matches = $this->getRoundMatches($quart_round);
+        foreach ($matches as $match) {
+          $t8[] = $match->getLoser();
         }
-        $semi_finals = $this->mainrounds >= 2;
-        if ($semi_finals) {
-            $semi_round = $this->mainrounds - 1;
-            $matches = $this->getRoundMatches($semi_round);
-            foreach ($matches as $match) {
-                $t4[] = $match->getLoser();
-            }
+      }
+      $semi_finals = $this->mainrounds >= 2;
+      if ($semi_finals) {
+        $semi_round = $this->mainrounds - 1;
+        $matches = $this->getRoundMatches($semi_round);
+        foreach ($matches as $match) {
+          $t4[] = $match->getLoser();
         }
+      }
 
-        $finalmatches = $this->getRoundMatches($this->mainrounds);
-        $finalmatch = $finalmatches[0];
-        $sec = $finalmatch->getLoser();
-        $win = $finalmatch->getWinner();
+      $finalmatches = $this->getRoundMatches($this->mainrounds);
+      $finalmatch = $finalmatches[0];
+      $sec = $finalmatch->getLoser();
+      $win = $finalmatch->getWinner();
     }
-
-
     $this->setFinalists($win, $sec, $t4, $t8);
   }
 
@@ -841,7 +839,7 @@ class Event {
     $stmt->bind_result($playerb);
     if ($stmt->fetch() == NULL) { // No players left to match against, award bye
       $stmt->close();
-      $this->award_bye($player[0]);
+      $this->awardBye($player[0]->player);
       $player[0]->matched = 1;
       $player[0]->save();
     } else {

@@ -1,5 +1,6 @@
 <?php session_start();
 include 'lib.php';
+include 'parsedci.php';
 
 $verified_url = theme_file("images/verified.png");
 $dot_url = theme_file("images/dot.png");
@@ -1275,186 +1276,14 @@ function autoInput() {
     // No data.
     return;
   }
-  $pairings = array();
-  $standings = array();
-  for($rnd = 0; $rnd < sizeof($_POST['pairings']); $rnd++) {
-    $pairings[$rnd] = extractPairings($_POST['pairings'][$rnd]);
-    if($rnd == 0) {
-      $standings[$rnd] = standFromPairs($_POST['pairings'][$rnd + 1]);
-    } else {
-      $testStr = chop($_POST['standings'][$rnd - 1]);
-      if(strcmp($testStr, "") == 0) {
-        $standings[$rnd] = standFromPairs($_POST['pairings'][$rnd + 1]);
-      }
-      else {
-        $standings[$rnd] = extractStandings($_POST['standings'][$rnd - 1]);
-      }
-    }
-  }
   $event = new Event($_POST['name']);
-  $sid = $event->mainid;
-  $onlyfirstround = true;
-  for ($rnd = 1; $rnd < sizeof($_POST['pairings']); $rnd++) {
-    if (strlen($_POST['pairings'][$rnd]) > 0) {
-      $onlyfirstround = false;
-      break;
-    }
-  }
-  if ($onlyfirstround) {
-    for ($pair = 0; $pair < sizeof($pairings[0]); $pair++) {
-      $event->addPlayer($pairings[0][$pair][0]);
-      $event->addPlayer($pairings[0][$pair][1]);
-    }
-    $byeplayer = extractBye($_POST['pairings'][0]);
-    if ($byeplayer) {
-      $event->addPlayer($byeplayer);
-    }
-    // There are no interesting matches to see, so let's go to the registration list
+  $matches = matchesFromDCIPastes($event, $_POST['pairings'], $_POST['standings'], $_POST['finals'], $_POST['champion']);
+  if ($matches == 0) {
+    // If we didn't add any matches, we should go to the reg, not the matches
     $_POST['view'] = "reg";
-    return;
   }
-  for($rnd = 0; $rnd < sizeof($pairings); $rnd++) {
-    for($pair = 0; $pair < sizeof($pairings[$rnd]); $pair++) {
-      $printrnd = $rnd + 1;
-      $playerA = $pairings[$rnd][$pair][0];
-      $playerB = $pairings[$rnd][$pair][1];
-      $winner = "D";
-      if($rnd == 0) {
-        if(isset($standings[$rnd][$playerA]) &&
-        $standings[$rnd][$playerA] > 1) {$winner = "A";}
-        if(isset($standings[$rnd][$playerB]) &&
-        $standings[$rnd][$playerB] > 1) {$winner = "B";}
-      }
-      else {
-        if(isset($standings[$rnd][$playerA]) &&
-        isset($standings[$rnd - 1][$playerA]) &&
-        $standings[$rnd][$playerA] - $standings[$rnd - 1][$playerA]>1)
-        {$winner = "A";}
-        if(isset($standings[$rnd][$playerB]) &&
-        isset($standings[$rnd - 1][$playerB]) &&
-        $standings[$rnd][$playerB] - $standings[$rnd - 1][$playerB]>1)
-        {$winner = "B";}
-      }
-
-      $event->addPlayer($playerA);
-      $event->addPlayer($playerB);
-
-      $event->addMatch($playerA, $playerB, $rnd+1, $winner, 0, 0);
-    }
-  }
-  $finals = array();
-  foreach ($_POST['finals'] as $line) {
-    $finals[] = extractFinals($line);
-  }
-  // At this point, $finals is an array of arrays, with the matchings in each round, i.e.
-  // [0][0] Alphie     [1][0] Betta     [2][0] Dave
-  // [0][1] Betta
-  // [0][2] Charlie    [1][1] Dave
-  // [0][3] Dave
-
-  $fid = $event->finalid;
-  $win = "";
-  $sec = "";
-  $t4 = array();
-  $t8 = array();
-  for($round = 0; $round < sizeof($finals); $round++) {
-    for($match = 0; $match < sizeof($finals[$round]); $match+=2) {
-      $playerA = $finals[$round][$match];
-      $playerB = $finals[$round][$match + 1];
-      $event->addPlayer($playerA);
-      $event->addPlayer($playerB);
-      if ($round < sizeof($finals) - 1) {
-        $winner = detwinner($playerA, $playerB, $finals[$round + 1]);
-      } else {
-        $winner = $_POST['champion'];
-      }
-      $res = "D";
-      if(strcmp($winner, $playerA) == 0) {$res = "A";}
-      if(strcmp($winner, $playerB) == 0) {$res = "B";}
-      $event->addMatch($playerA, $playerB, $round + 1 + $event->mainrounds, $res, 0, 0);
-      $loser = (strcmp($winner, $playerA) == 0) ? $playerB : $playerA;
-      if ($round == sizeof($finals) - 1) {
-        $win = $winner;
-        $sec = $loser;
-      } elseif ($round == sizeof($finals) - 2) {
-        $t4[] = $loser;
-      } elseif($round == sizeof($finals) - 3) {
-        $t8[] = $loser;
-      }
-    }
-  }
-  $event->setFinalists($win, $sec, $t4, $t8);
 }
 
-function extractPairings($text) {
-  $pairings = array();
-  $lines = explode("\n", $text);
-  $loc = 0;
-  foreach ($lines as $line) {
-    if (preg_match("/^\s*[0-9]+\s+([0-9]+\s+)?([0-9a-z_.\- ]+),.*\s+[0-9]+\s+([0-9a-z_.\- ]+),/i",
-      $line, $m)) {
-      $pairings[] = array($m[2], $m[3]);
-    }
-  }
-  return $pairings;
-}
-
-function extractBye($text) {
-  $lines = explode("\n", $text);
-  foreach ($lines as $line) {
-    if(preg_match("/^\s*[0-9]+\s+([0-9]+\s+)?([0-9a-z_.\- ]+),.*\s+\* BYE \*/i", $line, $m)) {
-      return $m[2];
-    }
-  }
-  return NULL;
-}
-
-function extractStandings($text) {
-  $standings = array();
-  $lines = explode("\n", $text);
-  foreach ($lines as $line) {
-    if(preg_match("/^\s*[0-9]+\s+([0-9]+\s+)?([0-9a-z_.\- ]+),.*\s+([0-9]+)\s+/i", $line, $m)) {
-      $standings[$m[2]] = $m[3];
-    }
-  }
-  return $standings;
-}
-
-function standFromPairs($text) {
-  $standings = array();
-  $lines = explode("\n", $text);
-  foreach ($lines as $line) {
-    if(preg_match("/^\s*[0-9]+\s+([0-9]+\s+)?([0-9a-z_.\- ]+),.*\s+([0-9]+)-([0-9]+)\s+[0-9]+\s+([0-9a-z_.\- ]+),/i", $line, $m)) {
-      $standings[$m[2]] = $m[3];
-      $standings[$m[5]] = $m[4];
-    }
-  }
-  return $standings;
-}
-
-function extractFinals($text) {
-  $finals = array();
-  $lines = explode("\n", $text);
-  foreach ($lines as $line) {
-    if (preg_match("/[\t ]+([0-9a-z_.\- ]+),/i", $line, $m)) {
-      $finals[] = $m[1];
-    }
-  }
-  return $finals;
-}
-
-// $a and $b are the players in this round
-// $next is an array of the next round's players
-// returns the name of the winner from this round.
-function detwinner($a, $b, $next) {
-  if (in_array($a, $next)) { 
-    return $a;
-  }
-  if (in_array($b, $next)) {
-    return $b;
-  }
-  return "No Winner";
-}
 
 function authFailed() {
   echo "You are not permitted to make that change. Please contact the ";
@@ -1492,8 +1321,8 @@ function file3InputForm($event) {
   echo "<table style=\"border-width: 0px;\" align=\"center\">\n";
   echo "<tr><td><b>*302.dat</td><td>\n";
   echo "<input type=\"file\" name=\"302\" id=\"302\" size=40></td></tr>\n";
-  echo "<tr><td><b>*305.dat&nbsp;</td><td>\n";
-  echo "<input type=\"file\" name=\"305\" id=\"305\" size=40></td></tr>\n";
+  echo "<tr><td><b>*303.dat&nbsp;</td><td>\n";
+  echo "<input type=\"file\" name=\"303\" id=\"303\" size=40></td></tr>\n";
   echo "<tr><td colspan=2 align=\"center\">\n";
   echo "<input type=\"submit\" name=\"mode\" value=\"Parse DCIv3 Files\">\n";
   echo "</form>\n";
@@ -1502,182 +1331,42 @@ function file3InputForm($event) {
 
 function dciInput() {
   $reg = array();
+  $event = new Event($_POST['name']);
   if($_FILES['delt']['size'] > 0) {
     $fileptr = fopen($_FILES['delt']['tmp_name'], 'r');
     $deltcontent = fread($fileptr, filesize($_FILES['delt']['tmp_name']));
     fclose($fileptr);
-    $reg = dciregister($deltcontent);
+    $reg = dciregister($event, $deltcontent);
   }
   if($_FILES['kamp']['size'] > 0 && sizeof($reg) > 0) {
     $fileptr = fopen($_FILES['kamp']['tmp_name'], 'r');
     $kampcontent = fread($fileptr, filesize($_FILES['kamp']['tmp_name']));
     fclose($fileptr);
-    dciinputmatches($reg, $kampcontent);
+    dciinputmatches($event, $reg, $kampcontent);
   }
   if($_FILES['elim']['size'] > 0 && sizeof($reg) > 0) {
     $fileptr = fopen($_FILES['elim']['tmp_name'], 'r');
     $elimcontent = fread($fileptr, filesize($_FILES['elim']['tmp_name']));
     fclose($fileptr);
-    dciinputplayoffs($reg, $elimcontent);
+    dciinputplayoffs($event, $reg, $elimcontent);
   }
-}
-
-function dciregister($data) {
-  $event = new Event($_POST['name']);
-  echo "Registering DCI-R players for {$event->name}.<br />";
-  $data = preg_replace("/
-\n/", "\n", $data);
-  $lines = explode("\n", $data);
-  $ret = array();
-  foreach ($lines as $line) {
-    $tokens = explode(",", $line);
-    if (preg_match("/\"(.*)\"/", $tokens[3], $matches)) {
-      $didadd = $event->addPlayer($matches[1]); 
-      if ($didadd) {
-        echo "Added player: {$matches[1]}.<br />";
-      } else {
-        echo "{$matches[1]} could not be added (maybe already registered?).<br />";
-      }
-      $ret[] = $matches[1];
-    }
-  }
-  return $ret;
-}
-
-function dciinputmatches($reg, $data) {
-  $event = new Event($_POST['name']);
-  echo "Adding matches to {$event->name}.<br />";
-  $data = preg_replace("/
-\n/", "\n", $data);
-  $lines = explode("\n", $data);
-  for($table = 0; $table < sizeof($lines)/6; $table++) {
-    $offset = $table * 6;
-    $numberofrounds = explode(",", $lines[$offset]);
-    $playeraresults = explode(",", $lines[$offset + 1]);
-    $playerbresults = explode(",", $lines[$offset + 2]);
-    $playerawins = explode(",", $lines[$offset + 3]);
-    $playerbwins = explode(",", $lines[$offset + 4]);
-    for ($round = 1; $round <= sizeof($numberofrounds); $round++) {
-      if ($numberofrounds[$round - 1] != 0) { 
-        // find by name returns player object! not just a name!
-        $playera = Player::findByName($reg[$playeraresults[$round - 1] - 1]);
-        $playerb = Player::findByName($reg[$playerbresults[$round - 1] - 1]);
-        // may want to write a custom function later that just returns name
-        // should probably do a check to for NULL here for to see if player object
-        // was in fact returned for playera and playerb, just in case the dciregister
-        // function above failed to register
-        $result = 'D';
-        // TODO: need to do a check for a bye here
-        if ($playerawins[$round - 1] > $playerbwins[$round - 1]) {$result = 'A';} // player A wins
-        if ($playerbwins[$round - 1] > $playerawins[$round - 1]) {$result = 'B';} // player B wins
-        echo "{$playera->name} vs {$playerb->name} in Round: {$round} and ";
-        if ($result == 'A') {
-          echo "{$playera->name} wins {$playerawins[$round - 1]} - {$playeralosses[$round - 1]}<br />";
-        }
-        if ($result == 'B') {
-          echo "{$playerb->name} wins {$playerbwins[$round - 1]} - {$playerblosses[$round - 1]}<br />";
-        }
-        if ($result == 'D') {
-          echo " match is a draw<br />";
-        }
-        $event->addMatch($playera->name, $playerb->name, $round, $result, $playerawins[$round - 1], $playerbwins[$round - 1]);
-      }
-    }
-  }
-}
-
-function dciinputplayoffs($reg, $data) {
-  $event = new Event($_POST['name']);
-  $data = preg_replace("/
-\n/", "\n", $data);
-  $lines = explode("\n", $data);
-  $ntables = $lines[0];
-  $nrounds = log($ntables, 2);
-  for($rnd = 1; $rnd <= $nrounds; $rnd++) {
-    $ngames = pow(2, $nrounds - $rnd);
-    for($game = 0; $game < $ngames; $game++) {
-      $offset = 2 + $game*24;
-      $playera = $lines[$offset + ($rnd-1)*3];
-      $pbl = $offset + ($rnd-1)*3 + 12;
-      $playerb = $lines[$pbl];
-      $winner  = $lines[(($pbl+1)+ 3*$rnd - 6)/2 - 1];
-      $pa = $reg[$playera - 1];
-      $pb = $reg[$playerb - 1];
-      $res = 'D';
-      if($winner == $playera) {$res = 'A';}
-      if($winner == $playerb) {$res = 'B';}
-      $event->addMatch($pa, $pb, $rnd + $event->mainrounds, $res, 0, 0);
-    }
-  }
-  $event->assignTropiesFromMatches();
 }
 
 function dci3Input() {
   $reg = array();
+  $event = new Event($_POST['name']);
   if ($_FILES['302']['size'] > 0) {
     $fileptr = fopen($_FILES['302']['tmp_name'], 'r');
     $regfilecontent = fread($fileptr, filesize($_FILES['302']['tmp_name']));
     fclose($fileptr);
-    $reg = dci3register($regfilecontent);
+    $reg = dci3register($event, $regfilecontent);
   }
-  if ($_FILES['305']['size'] > 0) {
-    $fileptr = fopen($_FILES['305']['tmp_name'], 'r');
-    $matchfilecontent = fread($fileptr, filesize($_FILES['305']['tmp_name']));
+  if ($_FILES['303']['size'] > 0) {
+    $fileptr = fopen($_FILES['303']['tmp_name'], 'r');
+    $matchfilecontent = fread($fileptr, filesize($_FILES['303']['tmp_name']));
     fclose($fileptr);
-    dci3makematches($matchfilecontent, $reg);
+    dci3makematches($event, $matchfilecontent, $reg);
   }
-}
-
-function dci3register($data) {
-  $event = new Event($_POST['name']);
-  $result = array();
-  $data = preg_replace("/
-\n/", "\n", $data);
-  $lines = explode("\n", $data);
-  foreach ($lines as $line) {
-    $table = explode("\t", $line);
-    if (count($table) > 5) {
-      $playernumber = $table[0];
-      $playername = $table[5];
-      $result[$playernumber] = $playername;
-      $event->addPlayer($playername);
-    }
-  }
-  return $result;
-}
-
-function dci3makematches($data, $regmap) {
-  $event = new Event($_POST['name']);
-  $result = array();
-  $data = preg_replace("/
-\n/", "\n", $data);
-  $lines = explode("\n", $data);
-  $playernumber = 1;
-  $lastroundnum = 0;
-  $alreadyin = array();
-  foreach ($lines as $line) {
-    $table = explode(",", $line);
-    var_dump($table);
-    $roundnum = $table[0];
-    $opponentnum = $table[1];
-    $win = $table[2];
-    if ($roundnum < $lastroundnum) {
-      $playernumber++;
-    }
-    if (!isset($alreadyin["{$opponentnum}-{$playernumber}-{$roundnum}"])) {
-      // Match hasn't been added yet
-      $res = 'D';
-      if ($win == 3) {
-        $res = 'A';
-      } elseif ($win == 0) {
-        $res = 'B';
-      }
-      $event->addMatch($regmap[$playernumber], $regmap[$opponentnum], $roundnum, $res, 0, 0);
-      $alreadyin["{$playernumber}-{$opponentnum}-{$roundnum}"] = 1;
-    }
-    $lastroundnum = $roundnum;
-  }
-  $event->assignTropiesFromMatches();
 }
 
 ?>
