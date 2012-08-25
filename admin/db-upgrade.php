@@ -257,10 +257,21 @@ EOS
 if ($version < 12) {
   // Fixes to the pairing updates
   echo "Updating to version 12 (final changes for the pairing)... <br />";
-  do_query("ALTER TABLE events MODIFY COLUMN result VARCHAR(5) not null");
+  do_query("ALTER TABLE matches MODIFY COLUMN result VARCHAR(5) not null");
   do_query("UPDATE db_version SET version = 12");
 
+  $db->commit();
   echo "... DB now at version 12! <br />";
+}
+
+if ($version < 13) {
+  echo "Updating to version 13 (add players_editdecks to events)... <br />";
+  do_query("ALTER TABLE events ADD COLUMN player_editdecks TINYINT(1) NOT NULL DEFAULT '1'");
+  do_query("UPDATE events SET player_editdecks = (finalized != 1)");
+  do_query("UPDATE db_version SET version = 13");
+
+  $db->commit();
+  echo "... DB now at version 13! <br />";
 }
 
 $db->autocommit(TRUE);

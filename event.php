@@ -124,6 +124,7 @@ function content() {
       $newevent->start = strftime("%Y-%m-%d %H:00:00", strtotime($oldevent->start) + (86400 * 7));
       $newevent->kvalue = $oldevent->kvalue;
       $newevent->finalized = 0;
+      $newevent->player_editdecks = 1;
       $newevent->player_reportable = $oldevent->player_reportable;
       $newevent->prereg_allowed = $oldevent->prereg_allowed;
 
@@ -178,6 +179,7 @@ function content() {
 
     if (strcmp($_POST['mode'], "Reactivate Event") == 0) {
       $event->active = 1;
+      $event->player_editdecks = 1;
       $event->finalized = 0;
       $event->save();
     }
@@ -420,7 +422,7 @@ function eventForm($event = NULL, $forcenew = false) {
   if ($event->prereg_allowed == 1) {echo "checked=\"yes\" ";}
   echo "/></td></tr>";
 
-  echo "<tr><th>Allow Players to Report Results</th>";
+  echo "<tr><th>Players Can Report Results</th>";
   echo "<td><input type=\"checkbox\" name=\"player_reportable\" value=\"1\" ";
   if ($event->player_reportable == 1) {echo "checked=\"yes\" ";}
   echo "/></td></tr>";
@@ -432,9 +434,13 @@ function eventForm($event = NULL, $forcenew = false) {
     echo "<input type=\"hidden\" name=\"insert\" value=\"1\">";
     echo "</td></tr>";
   } else {
+    echo "<tr><th>Players Can Update Decks</th>";
+    echo "<td><input type=\"checkbox\" name=\"player_editdecks\" value=\"1\" ";
+    if ($event->player_editdecks == 1) { echo "checked=\"yes\" "; }
+    echo "/></td></tr>";
     echo "<tr><th>Finalize Event</th>";
     echo "<td><input type=\"checkbox\" name=\"finalized\" value=\"1\" ";
-    if($event->finalized == 1) {echo "checked=\"yes\" ";}
+    if ($event->finalized == 1) { echo "checked=\"yes\" "; }
     echo "/></td></tr>";
     trophyField($event);
     echo "<tr><td>&nbsp;</td></tr>";
@@ -927,6 +933,7 @@ function updateEvent() {
   $event = new Event($_POST['name']);
   $event->start = "{$_POST['year']}-{$_POST['month']}-{$_POST['day']} {$_POST['hour']}:00:00";
   $event->finalized = $_POST['finalized'] == 1 ? 1 : 0;
+  $event->player_editdecks = $_POST['player_editdecks'] == 1 ? 1 : 0;
   $event->prereg_allowed = $_POST['prereg_allowed'] == 1 ? 1 : 0;
   $event->player_reportable = $_POST['player_reportable'] == 1 ? 1 : 0;
 
