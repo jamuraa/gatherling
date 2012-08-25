@@ -106,8 +106,8 @@ class Match {
   function playerLost($player) {
     $playername = $this->toName($player);
 
-    return (($this->playerA($playername) && ($this->result == 'A'))
-         || ($this->playerB($playername) && ($this->result == 'B')));
+    return (($this->playerA($playername) && ($this->result == 'B'))
+         || ($this->playerB($playername) && ($this->result == 'A')));
   }
 
   // returns the number of wins for the current match for $player
