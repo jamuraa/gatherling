@@ -1026,7 +1026,7 @@ class Event {
   }
 
   // Retrieves an event given a subevent ID.
-  static function getEventBySubevent($subevent) {
+  static function findBySubevent($subevent) {
     $db = Database::getConnection();
     $stmt = $db->prepare("SELECT e.name FROM events e, subevents s
     WHERE s.parent = e.name AND s.id = ? LIMIT 1");
@@ -1035,7 +1035,7 @@ class Event {
     $stmt->bind_result($event);
     $stmt->fetch();
     $stmt->close();
-    $event= new Event($event);
+    $event = new Event($event);
     return $event;
   }
 
