@@ -1040,28 +1040,11 @@ class Event {
   }
 
   function recalculateScores($structure){
-    $this->resetScores();
+    Standings::resetScores($this->name);
     $matches2 = $this->getRoundMatches("ALL");
     foreach ($matches2 as $match) {
       //echo "about to update scores";
       $match->fixScores($structure);
-    }
-  }
-
-  // This should DEFINITELY be in Standings.
-  function resetScores(){
-    $standings = Standings::getEventStandings($this->name, 0);
-    foreach ($standings as $standing) {
-      $standing->score = 0;
-      $standing->matches_played = 0;
-      $standing->matches_won = 0;
-      $standing->games_won = 0;
-      $standing->byes = 0;
-      $standing->games_played = 0;
-      $standing->OP_Match = 0;
-      $standing->PL_Game = 0;
-      $standing->OP_Game = 0;
-      $standing->save();
     }
   }
 
