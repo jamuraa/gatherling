@@ -45,19 +45,11 @@ function printAddCardSet() {
   echo "<form action=\"util/insertcardset.php\" method=\"post\" enctype=\"multipart/form-data\">";
   echo "<h3><center>Install New Cardset</center></h3>";
   echo "<table class=\"form\" style=\"border-width: 0px\" align=\"center\">";
-  echo "<tr><th>Cardset Name</th>";
-  echo "<td><input type=\"text\" name=\"cardsetname\" />";
-  echo "</td> </tr>";
-  echo "<tr><th>Release Date</th>";
-  echo "<td><input type=\"text\" name=\"releasedate\" />";
-  echo "</td> </tr>";
-  echo "<tr><th>Set Type</th>";
-  echo "<td>";
-  dropMenu("settype", array("Core", "Block", "Extra"));
-  echo "</td> </tr>";
-  echo "<tr><th>Cardset Text Spoiler</th>";
-  echo "<td><input type=\"file\" name=\"cardsetfile\" /> ";
-  echo "<input type=\"submit\" name=\"action\" value=\"Install New Cardset\" /></td></tr>";
+  print_text_input("Cardset Name", "cardsetname");
+  print_text_input("Release Date", "releasedate");
+  print_select_input("Set Type", "settype", array("Core", "Block", "Extra"));
+  print_file_input("Cardset Text Spoiler", "cardsetfile");
+  print_submit("Install New Cardset");
   echo "</table></form>";
 }
 
