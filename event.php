@@ -8,9 +8,14 @@ $drop_url = $CONFIG['base_url'] + 'event.php?action=undrop';
 
 $js = <<<EOD
 
+function updatePlayerCount() {
+  var players = $('tr.entry_row').length;
+  $('#player_count').html(players + ' Registered Players');
+}
+
 function addPlayerRow(data) {
   if (!data.success) { return false; }
-  var html = '<tr id="entry_row_' + data.player + '"><td>';
+  var html = '<tr class="entry_row" id="entry_row_' + data.player + '"><td>';
   if (data.event_running) {
     html += '<input type="checkbox" name="dropplayer[]" value="' + data.player + '" />';
   }
@@ -26,11 +31,13 @@ function addPlayerRow(data) {
   $('input[name=newentry]').val("");
   $('#row_new_entry').before(html);
   $('#entry_row_' + data.player).find('td').wrapInner('<div style="display: none;" />').parent().find('td > div').slideDown(500, function() { var set = $(this); set.replaceWith(set.contents()); });
+  updatePlayerCount();
 }
 
 function delPlayerRow(data) {
   if (!data.success) { return false; }
-  $('#entry_row_' + data.player).find('td').wrapInner('<div style="display: block;" />').parent().find('td > div').slideUp(500, function() { $(this).parent().parent().remove(); });
+  $('#entry_row_' + data.player).removeClass('entry_row').find('td').wrapInner('<div style="display: block;" />').parent().find('td > div').slideUp(500, function() { $(this).parent().parent().remove(); });
+  updatePlayerCount();
 }
 
 function dropPlayer(data) {
@@ -498,9 +505,9 @@ function playerList($event) {
   echo "<form action=\"event.php\" method=\"post\">";
   echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
   echo "<table id=\"event_player_list\">";
-  echo "<tr><td colspan=\"6\" align=\"center\">";
+  echo "<tr><th colspan=\"6\" align=\"center\" id=\"player_count\">";
   if ($numentries > 0) {
-    echo "<b>{$numentries} Registered Players</b></td></tr>";
+    echo "{$numentries} Registered Players</th></tr>";
   } else {
     echo "<b>Registered Players</b></td></tr>";
   }
@@ -519,7 +526,7 @@ function playerList($event) {
   }
 
   foreach ($entries as $entry) {
-    echo "<tr id=\"entry_row_{$entry->player->name}\">";
+    echo "<tr class=\"entry_row\" id=\"entry_row_{$entry->player->name}\">";
     // Show drop box if event is active.
     echo "<td align=\"center\">";
     if ($event->active == 1){
