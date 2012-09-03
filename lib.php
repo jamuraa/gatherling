@@ -146,6 +146,7 @@ function printCardLink($card) {
 }
 
 function image_tag($filename, $extra_attr = NULL) {
+  global $CONFIG;
   $tag = "<img ";
   if (is_array($extra_attr)) {
     foreach ($extra_attr as $key => $value) {
