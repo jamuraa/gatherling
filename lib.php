@@ -146,13 +146,14 @@ function printCardLink($card) {
 }
 
 function image_tag($filename, $extra_attr = NULL) {
+  global $CONFIG;
   $tag = "<img ";
   if (is_array($extra_attr)) {
     foreach ($extra_attr as $key => $value) {
       $tag .= "{$key}=\"{$value}\" ";
     }
   }
-  $tag .= "src=\"" . theme_file("images/{$filename}") . "\" />";
+  $tag .= "src=\"" . $CONFIG['base_url'] . theme_file("images/{$filename}") . "\" />";
   return $tag;
 }
 
@@ -383,7 +384,7 @@ function not_allowed($reason) {
 }
 
 function version_tagline() {
-  print "Gatherling version 3.0.17 (\"I don't know what you're talking about, but it sounds illegal.\")";
+  print "Gatherling version 3.2.0 (\"Is this the bathroom? No. This is camels.\")";
 }
 
 function redirect($page) {

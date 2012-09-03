@@ -1,4 +1,14 @@
  <p>
+  <b> 2012-09-02 </b> - Version 3.2.0
+  The big update to Gatherling is going well, with things working good for the couple of events.  Also ended up
+  introducing some bugs as expected with such a large update, so this was mostly a bugsquashing update.
+  <ul>
+    <li> Bugsquashing! Players can register easier now. </li>
+    <li> Enhancements to the host tools so that they work better. </li>
+    <li> Some more enhancements to make things look better. </li>
+   </ul>
+</p>
+ <p>
   <b> 2012-08-21 </b> -
   I am glad to say that finally, we have a big update to gatherling, and it's thanks to longtimegone and Dabil
   who have worked very hard on an update which enables a form of pairing within the Gatherling system.
@@ -15,16 +25,5 @@
          hesitate to contact us in the <a href="http://forums.pdcmagic.com/viewforum.php?f=15">Gatherling Forum</a>.</li>
    </ul>
 </p>
-
- <p>
-  <b> 2012-05-31 </b> -
-  It's an update!  This time it is mostly bugfixes, but maybe there will be some time in the future to
-  make some more improvements.  We've gotten a bunch of help from the community (thanks Dabil) to make
-  some cleanup happen under the hood.
-  <ul>
-    <li> Players with no tournament entries can now login and work fine </li>
-    <li> Lots of under-the-hood stuff made better </li>
-  </ul>
- </p>
 
 <br />

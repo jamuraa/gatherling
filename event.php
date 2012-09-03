@@ -701,7 +701,7 @@ function matchList($event) {
         } else {
           $matchresult = "Loss";
         }
-        echo "<a class=\"{$match->verification}\" title=\"{$matchresult} {$match->getPlayerWins($match->playera)} - {$match->getPlayerLosses($match->playera)}\">{$match->playera}</a></td>";
+        echo "<span class=\"match_{$match->verification}\" title=\"{$matchresult} {$match->getPlayerWins($match->playera)} - {$match->getPlayerLosses($match->playera)}\">{$match->playera}</span></td>";
       } else {
         echo "{$match->playera}</td>";
       }
@@ -713,7 +713,7 @@ function matchList($event) {
         } else {
           $matchresult = "Loss";
         }
-        echo "<a class=\"{$match->verification}\" title=\"{$matchresult} {$match->getPlayerWins($match->playerb)} - {$match->getPlayerLosses($match->playerb)}\">{$match->playerb}</a></td>";
+        echo "<span class=\"match_{$match->verification}\" title=\"{$matchresult} {$match->getPlayerWins($match->playerb)} - {$match->getPlayerLosses($match->playerb)}\">{$match->playerb}</span></td>";
       } else {
         echo "{$match->playerb}</td>";
       }
@@ -729,11 +729,11 @@ function matchList($event) {
       playerWinsDropMenu("B");
       echo "</td>";
     } else {
-      echo "<td><a class=\"{$match->verification}\">{$match->playera}</a></td>";
+      echo "<td class=\"match_{$match->verification}\">{$match->playera}</td>";
       if ($match->playera == $match->playerb) {
         echo "<td>No Opponent</td>";
       } else {
-        echo "<td><a class=\"{$match->verification}\">{$match->playerb}</a></td>";
+        echo "<td class=\"match_{$match->verification}\">{$match->playerb}</td>";
       }
       if ($match->round == $event->current_round) {
         if ($printplr == 'Match in Progress') {

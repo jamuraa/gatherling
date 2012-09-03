@@ -55,6 +55,7 @@ function doRegister() {
   }
   if ($code == 0) {
     $player->password = hash('sha256', $_POST['pw1']);
+    $player->super = Players::activeCount() == 0;
     $player->save();
   }
   return $code;
