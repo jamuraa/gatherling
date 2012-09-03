@@ -12,6 +12,8 @@ $CONFIG['db_password'] = 'password';
 $CONFIG['db_database'] = 'gatherling';
 
 # === Website ===
+# The base url where gatherling is installed.
+$CONFIG['base_url'] = "http://website.com/gatherling";
 # The name of your site.  This is used in a lot of places.
 $CONFIG['site_name'] = "website name";
 # The Style of the site.
