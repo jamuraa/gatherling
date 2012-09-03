@@ -217,3 +217,16 @@ tr#row_new_entry td {
 .lefted {
   text-align: left;
 }
+
+.match_verified {
+    color: green;
+}
+
+.match_unverified {
+    color: yellow;
+}
+
+.match_failed {
+    color: red;
+}
+
