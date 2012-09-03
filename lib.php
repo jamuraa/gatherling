@@ -383,7 +383,7 @@ function not_allowed($reason) {
 }
 
 function version_tagline() {
-  print "Gatherling version 3.0.17 (\"I don't know what you're talking about, but it sounds illegal.\")";
+  print "Gatherling version 3.2.0 (\"Is this the bathroom? No. This is camels.\")";
 }
 
 function redirect($page) {
