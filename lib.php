@@ -6,6 +6,10 @@ $R1 = "#EEEEEE";
 $R2 = "#FFFFFF";
 $CC = $R1;
 
+function is_assoc($array) {
+  return (bool)count(array_filter(array_keys($array), 'is_string'));
+}
+
 /** Gets the correct name, relative to the gatherling root dir, for a file in the theme.
  *  Allows for overrides, falls back to default/
  */

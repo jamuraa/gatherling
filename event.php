@@ -8,24 +8,36 @@ $drop_url = $CONFIG['base_url'] + 'event.php?action=undrop';
 
 $js = <<<EOD
 
+function updatePlayerCount() {
+  var players = $('tr.entry_row').length;
+  $('#player_count').html(players + ' Registered Players');
+}
+
 function addPlayerRow(data) {
   if (!data.success) { return false; }
-  var html = '<tr id="entry_row_' + data.player + '"><td>';
+  var html = '<tr class="entry_row" id="entry_row_' + data.player + '"><td>';
+  if (data.event_running) {
+    html += '<input type="checkbox" name="dropplayer[]" value="' + data.player + '" />';
+  }
+  html += '</td><td>' + data.player + '</td>';
+  html += '<td>';
   if (data.verified) {
     html += '<img src="$verified_url" alt="Verified" />';
   }
-  html += '</td><td>' + data.player + '</td>';
+  html += '</td>';
   html += '<td align="center"><img src="$dot_url" alt="dot" /></td>';
   html += '<td><a class="create_deck_link" href="deck.php?player=' + data.player + '&event=' + event_name + '&mode=create">[Create Deck]</a></td>';
   html += '<td align="center"><input type="checkbox" name="delentries[]" value="' + data.player + '" /></td></tr>';
   $('input[name=newentry]').val("");
   $('#row_new_entry').before(html);
   $('#entry_row_' + data.player).find('td').wrapInner('<div style="display: none;" />').parent().find('td > div').slideDown(500, function() { var set = $(this); set.replaceWith(set.contents()); });
+  updatePlayerCount();
 }
 
 function delPlayerRow(data) {
   if (!data.success) { return false; }
-  $('#entry_row_' + data.player).find('td').wrapInner('<div style="display: block;" />').parent().find('td > div').slideUp(500, function() { $(this).parent().parent().remove(); });
+  $('#entry_row_' + data.player).removeClass('entry_row').find('td').wrapInner('<div style="display: block;" />').parent().find('td > div').slideUp(500, function() { $(this).parent().parent().remove(); });
+  updatePlayerCount();
 }
 
 function dropPlayer(data) {
@@ -81,6 +93,14 @@ if (Player::isLoggedIn()) {
 <?php print_footer(); ?>
 
 <?php
+
+function mode_is($str) {
+  if (isset($_GET['mode'])) { $mode = $_GET['mode']; }
+  if (isset($_POST['mode'])) { $mode = $_POST['mode']; }
+
+  return (bool)(strcmp($mode, $str) == 0);
+}
+
 function content() {
   $event = NULL;
   // Prevent surplufous warnings.   TODO: fix the code so we don't try to access these if unset.
@@ -92,7 +112,7 @@ function content() {
 
   $player = Player::getSessionPlayer();
 
-  if (isset($_GET['name']) || isset($_POST['name'])) {
+  if ((isset($_GET['name']) || isset($_POST['name'])) && !mode_is("Create New Event")) {
     if (isset($_POST['name'])) {
       $eventname = $_POST['name'];
     } else {
@@ -103,19 +123,16 @@ function content() {
 
   // if -- can create new events
   if (Player::getSessionPlayer()->isSteward()) {
-    if (strcmp($_POST['mode'], "Create New Event") == 0) {
+    if (mode_is("Create New Event")) {
       if (isset($_POST['insert'])) {
-        insertEvent();
-        eventList();
-        return;
-      } else {
-        authFailed();
+        $event = insertEvent();
+        eventForm($event);
         return;
       }
-    } elseif (strcmp($_GET['mode'], "Create New Event") == 0) {
+    } elseif (mode_is("Create New Event")) {
       eventForm();
       return;
-    } elseif (strcmp($_POST['mode'], "Create Next Event") == 0) {
+    } elseif (mode_is("Create Next Event")) {
       $oldevent = new Event($_POST['name']);
       $newevent = new Event("");
       $newevent->season = $oldevent->season;
@@ -155,7 +172,7 @@ function content() {
       $player->save();
     }
 
-    if (strcmp($_POST['mode'], "Start Event") == 0) {
+    if (mode_is("Start Event")) {
       $event->active = 1;
       $event->save();
       $entries = $event->getEntries();
@@ -163,56 +180,56 @@ function content() {
       $event->pairCurrentRound();
     }
 
-    if (strcmp($_POST['mode'], "Recalculate Standings") == 0) {
+    if (mode_is("Recalculate Standings")) {
       $structure = $event->mainstruct;
       $event->recalculateScores($structure);
       Standings::updateStandings($event->name, $event->mainid, 1);
     }
 
-    if (strcmp($_POST['mode'], "End Current League Round") == 0) {
+    if (mode_is("End Current League Round")) {
       $event->recalculateScores("League");
       Standings::updateStandings($event->name, $event->mainid, 1);
       $event->pairCurrentRound();
     }
 
-    if (strcmp($_POST['mode'], "Reset Event") == 0) {
+    if (mode_is("Reset Event")) {
       $event->resetEvent();
     }
 
-    if (strcmp($_POST['mode'], "Delete Matches and Re-Pair Round") == 0) {
+    if (mode_is("Delete Matches and Re-Pair Round")) {
       $event->repairRound();
     }
 
-    if (strcmp($_POST['mode'], "Reactivate Event") == 0) {
+    if (mode_is("Reactivate Event")) {
       $event->active = 1;
       $event->player_editdecks = 1;
       $event->finalized = 0;
       $event->save();
     }
 
-    if (strcmp($_POST['mode'], "Assign Medals") == 0) {
+    if (mode_is("Assign Medals")) {
       $event->assignMedals();
     }
 
-    if (strcmp($_POST['mode'], "Parse DCI Files") == 0) {
+    if (mode_is("Parse DCI Files")) {
       dciInput();
-    } elseif (strcmp($_POST['mode'], "Parse DCIv3 Files") == 0) {
+    } elseif (mode_is("Parse DCIv3 Files")) {
       dci3Input();
-    } elseif (strcmp($_POST['mode'], "Auto-Input Event Data") == 0) {
+    } elseif (mode_is("Auto-Input Event Data")) {
       autoInput();
-    } elseif(strcmp($_POST['mode'], "Update Registration") == 0) {
+    } elseif (mode_is("Update Registration")) {
       updateReg();
-    } elseif(strcmp($_POST['mode'], "Update Match Listing") == 0) {
+    } elseif (mode_is("Update Match Listing")) {
       updateMatches();
-    } elseif(strcmp($_POST['mode'], "Update Medals") == 0) {
+    } elseif (mode_is("Update Medals")) {
       updateMedals();
-    } elseif(strcmp($_POST['mode'], "Update Adjustments") == 0) {
+    } elseif (mode_is("Update Adjustments")) {
       updateAdjustments();
-    } elseif(strcmp($_POST['mode'], "Upload Trophy") == 0) {
+    } elseif (mode_is("Upload Trophy")) {
       if (insertTrophy()) {
         $event->hastrophy = 1;
       }
-    } elseif(strcmp($_POST['mode'], "Update Event Info") == 0) {
+    } elseif (mode_is("Update Event Info")) {
       $event = updateEvent();
     }
     eventForm($event);
@@ -494,9 +511,9 @@ function playerList($event) {
   echo "<form action=\"event.php\" method=\"post\">";
   echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
   echo "<table id=\"event_player_list\">";
-  echo "<tr><td colspan=\"4\" align=\"center\">";
+  echo "<tr><th colspan=\"6\" align=\"center\" id=\"player_count\">";
   if ($numentries > 0) {
-    echo "<b>{$numentries} Registered Players</b></td></tr>";
+    echo "{$numentries} Registered Players</th></tr>";
   } else {
     echo "<b>Registered Players</b></td></tr>";
   }
@@ -504,10 +521,10 @@ function playerList($event) {
   echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
   if ($numentries > 0) {
     echo "<tr>";
-    if ($event->active == 1){
-      echo "<th>Drop</th>";
-    }
-    echo "<th style=\"text-align: left\">Player</th><th>Medal</th>";
+    echo "<th>";
+    if ($event->active == 1) { echo "Drop"; }
+    echo "</th>";
+    echo "<th style=\"text-align: left\" colspan=\"2\">Player</th><th>Medal</th>";
     echo "<th style=\"text-align: center\">Deck</th><th>Delete</th></tr>";
   } else {
     echo "<tr><td align=\"center\" colspan=\"5\"><i>";
@@ -515,22 +532,23 @@ function playerList($event) {
   }
 
   foreach ($entries as $entry) {
-    echo "<tr id=\"entry_row_{$entry->player->name}\">";
+    echo "<tr class=\"entry_row\" id=\"entry_row_{$entry->player->name}\">";
     // Show drop box if event is active.
+    echo "<td align=\"center\">";
     if ($event->active == 1){
       if (Standings::playerActive($event->name,$entry->player->name)) {
-        echo "<td align=\"center\">";
-        echo "<input type=\"checkbox\" name=\"dropplayer[]\" ";
-        echo "value=\"{$entry->player->name}\"></td>";
+        echo "<input type=\"checkbox\" name=\"dropplayer[]\" value=\"{$entry->player->name}\" />";
       } else {
-        echo "<td>Dropped <a href=\"event.php?player=".$entry->player->name."&action=undrop&name=".$event->name."\">(undrop)</a></td>"; // else echo a symbol to represent player has dropped
+        echo "Dropped <a href=\"event.php?player=".$entry->player->name."&action=undrop&name=".$event->name."\">(undrop)</a>";
+        // TODO: Symbol for dropped, instead of mark
       }
     }
-    echo "<td>";
+    echo "</td><td>";
+    echo "{$entry->player->name}";
+    echo "</td><td>";
     if ($entry->player->verified) {
       echo image_tag("verified.png", array("alt" => "Verified", "title" => "Player Verified on MTGO"));
     }
-    echo "{$entry->player->name}";
     echo "</td>";
     if(strcmp("", $entry->medal) != 0) {
       $img = medalImgStr($entry->medal);
@@ -557,11 +575,11 @@ function playerList($event) {
   }
   echo "<tr id=\"row_new_entry\"><td>Add:</td><td>";
   stringField("newentry", "", 20);
-  echo "</td><td>&nbsp;</td><td colspan=2>";
+  echo "</td><td>&nbsp;</td><td colspan=\"2\">";
   echo "<input id=\"update_reg\" type=\"submit\" name=\"mode\" value=\"Update Registration\" />";
   echo "</td></tr>";
   if ($event->active == 1) {
-    echo "<tr><td colspan=\"2\">";
+    echo "<tr><td colspan=\"6\">";
     echo "<p class=\"squeeze\">Players added after the event has started:</p>";
     echo "<ul>";
     echo "<li>receive 0 points for any rounds already started</li>";

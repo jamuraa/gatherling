@@ -1,4 +1,6 @@
-<?php include 'lib.php';
+<?php
+include 'lib.php';
+require_once 'lib_form_helper.php';
 
 print_header("Register");
 ?>
@@ -19,8 +21,8 @@ function content() {
   else {
     $code = doRegister();
     if($code == 0) {
-      echo "Registration was successful. You may now ";
-      echo "<a href=\"login.php\">Log In</a>.\n";
+      echo "<center>Registration was successful. You may now ";
+      echo "<a href=\"login.php\">Log In</a>.</center>";
     } elseif ($code == -1) {
       echo "Passwords don't match. Please go back and try again.\n";
     } elseif ($code == -2) {
@@ -34,20 +36,12 @@ function content() {
 
 function regForm() {
   echo "<form action=\"register.php\" method=\"post\">\n";
-  echo "<table align=\"center\" style=\"border-width: 0px\">\n";
-  echo "<tr><td><b>MTGO Username</td>\n";
-  echo "<td><input type=\"text\" name=\"username\" value=\"\">\n";
-  echo "</td></tr>\n";
-  echo "<tr><td><b>Password</td>\n";
-  echo "<td><input type=\"password\" name=\"pw1\" value=\"\">\n";
-  echo "</td></tr>";
-  echo "<tr><td><b>Confirm Password</td>\n";
-  echo "<td><input type=\"password\" name=\"pw2\" value=\"\">\n";
-  echo "</td></tr>\n";
-  echo "<tr><td>&nbsp;</td></tr>\n";
-  echo "<tr><td align=\"center\" colspan=\"2\">\n";
-  echo "<input type=\"submit\" name=\"mode\" value=\"Register Account\">";
-  echo "</td></tr></table></form>\n";
+  echo "<table class=\"form\" style=\"border-width: 0px\">\n";
+  print_text_input("MTGO Username", "username");
+  print_password_input("Password", "pw1");
+  print_password_input("Confirm Password", "pw2");
+  print_submit("Register Account", "mode");
+  echo "</table></form>";
 }
 
 function doRegister() {
