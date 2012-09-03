@@ -152,7 +152,7 @@ function image_tag($filename, $extra_attr = NULL) {
       $tag .= "{$key}=\"{$value}\" ";
     }
   }
-  $tag .= "src=\"" . theme_file("images/{$filename}") . "\" />";
+  $tag .= "src=\"" . $CONFIG['base_url'] . theme_file("images/{$filename}") . "\" />";
   return $tag;
 }
 
