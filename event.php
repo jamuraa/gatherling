@@ -81,6 +81,14 @@ if (Player::isLoggedIn()) {
 <?php print_footer(); ?>
 
 <?php
+
+function mode_is($str) {
+  if (isset($_GET['mode'])) { $mode = $_GET['mode']; }
+  if (isset($_POST['mode'])) { $mode = $_POST['mode']; }
+
+  return (bool)(strcmp($mode, $str) == 0);
+}
+
 function content() {
   $event = NULL;
   // Prevent surplufous warnings.   TODO: fix the code so we don't try to access these if unset.
@@ -92,7 +100,7 @@ function content() {
 
   $player = Player::getSessionPlayer();
 
-  if (isset($_GET['name']) || isset($_POST['name'])) {
+  if ((isset($_GET['name']) || isset($_POST['name'])) && !mode_is("Create New Event")) {
     if (isset($_POST['name'])) {
       $eventname = $_POST['name'];
     } else {
@@ -103,19 +111,16 @@ function content() {
 
   // if -- can create new events
   if (Player::getSessionPlayer()->isSteward()) {
-    if (strcmp($_POST['mode'], "Create New Event") == 0) {
+    if (mode_is("Create New Event")) {
       if (isset($_POST['insert'])) {
-        insertEvent();
-        eventList();
-        return;
-      } else {
-        authFailed();
+        $event = insertEvent();
+        eventForm($event);
         return;
       }
-    } elseif (strcmp($_GET['mode'], "Create New Event") == 0) {
+    } elseif (mode_is("Create New Event")) {
       eventForm();
       return;
-    } elseif (strcmp($_POST['mode'], "Create Next Event") == 0) {
+    } elseif (mode_is("Create Next Event")) {
       $oldevent = new Event($_POST['name']);
       $newevent = new Event("");
       $newevent->season = $oldevent->season;
@@ -155,7 +160,7 @@ function content() {
       $player->save();
     }
 
-    if (strcmp($_POST['mode'], "Start Event") == 0) {
+    if (mode_is("Start Event")) {
       $event->active = 1;
       $event->save();
       $entries = $event->getEntries();
@@ -163,50 +168,50 @@ function content() {
       $event->pairCurrentRound();
     }
 
-    if (strcmp($_POST['mode'], "Recalculate Standings") == 0) {
+    if (mode_is("Recalculate Standings")) {
       $structure = $event->mainstruct;
       $event->recalculateScores($structure);
       Standings::updateStandings($event->name, $event->mainid, 1);
     }
 
-    if (strcmp($_POST['mode'], "Reset Event") == 0) {
+    if (mode_is("Reset Event")) {
       $event->resetEvent();
     }
 
-    if (strcmp($_POST['mode'], "Delete Matches and Re-Pair Round") == 0) {
+    if (mode_is("Delete Matches and Re-Pair Round")) {
       $event->repairRound();
     }
 
-    if (strcmp($_POST['mode'], "Reactivate Event") == 0) {
+    if (mode_is("Reactivate Event")) {
       $event->active = 1;
       $event->player_editdecks = 1;
       $event->finalized = 0;
       $event->save();
     }
 
-    if (strcmp($_POST['mode'], "Assign Medals") == 0) {
+    if (mode_is("Assign Medals")) {
       $event->assignMedals();
     }
 
-    if (strcmp($_POST['mode'], "Parse DCI Files") == 0) {
+    if (mode_is("Parse DCI Files")) {
       dciInput();
-    } elseif (strcmp($_POST['mode'], "Parse DCIv3 Files") == 0) {
+    } elseif (mode_is("Parse DCIv3 Files")) {
       dci3Input();
-    } elseif (strcmp($_POST['mode'], "Auto-Input Event Data") == 0) {
+    } elseif (mode_is("Auto-Input Event Data")) {
       autoInput();
-    } elseif(strcmp($_POST['mode'], "Update Registration") == 0) {
+    } elseif (mode_is("Update Registration")) {
       updateReg();
-    } elseif(strcmp($_POST['mode'], "Update Match Listing") == 0) {
+    } elseif (mode_is("Update Match Listing")) {
       updateMatches();
-    } elseif(strcmp($_POST['mode'], "Update Medals") == 0) {
+    } elseif (mode_is("Update Medals")) {
       updateMedals();
-    } elseif(strcmp($_POST['mode'], "Update Adjustments") == 0) {
+    } elseif (mode_is("Update Adjustments")) {
       updateAdjustments();
-    } elseif(strcmp($_POST['mode'], "Upload Trophy") == 0) {
+    } elseif (mode_is("Upload Trophy")) {
       if (insertTrophy()) {
         $event->hastrophy = 1;
       }
-    } elseif(strcmp($_POST['mode'], "Update Event Info") == 0) {
+    } elseif (mode_is("Update Event Info")) {
       $event = updateEvent();
     }
     eventForm($event);

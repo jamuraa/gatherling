@@ -65,16 +65,18 @@ class Event {
       return;
     }
 
-    $db = Database::getConnection();
-    $stmt = $db->prepare("SELECT format, host, cohost, series, season, number, start, kvalue, finalized, prereg_allowed, threadurl, metaurl, reporturl, active, current_round, player_reportable, player_editdecks FROM events WHERE name = ?");
-    if (!$stmt) {
-      die($db->error);
-    }
-    $stmt->bind_param("s", $name);
-    $stmt->execute();
-    $stmt->bind_result($this->format, $this->host, $this->cohost, $this->series, $this->season, $this->number, $this->start, $this->kvalue, $this->finalized, $this->prereg_allowed, $this->threadurl, $this->metaurl, $this->reporturl, $this->active, $this->current_round, $this->player_reportable, $this->player_editdecks);
-    if ($stmt->fetch() == NULL) {
-      throw new Exception('Event '. $name .' not found in DB');
+    if (!$this->new) {
+      $db = Database::getConnection();
+      $stmt = $db->prepare("SELECT format, host, cohost, series, season, number, start, kvalue, finalized, prereg_allowed, threadurl, metaurl, reporturl, active, current_round, player_reportable, player_editdecks FROM events WHERE name = ?");
+      if (!$stmt) {
+        die($db->error);
+      }
+      $stmt->bind_param("s", $name);
+      $stmt->execute();
+      $stmt->bind_result($this->format, $this->host, $this->cohost, $this->series, $this->season, $this->number, $this->start, $this->kvalue, $this->finalized, $this->prereg_allowed, $this->threadurl, $this->metaurl, $this->reporturl, $this->active, $this->current_round, $this->player_reportable, $this->player_editdecks);
+      if ($stmt->fetch() == NULL) {
+        throw new Exception('Event '. $name .' not found in DB');
+      }
     }
 
     $stmt->close();
@@ -121,7 +123,7 @@ class Event {
         host, cohost, kvalue, number, season, series,
         threadurl, reporturl, metaurl, finalized, prereg_allowed, player_reportable, player_editdecks)
         VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)");
-      $stmt->bind_param("sssssdddssssdd", $this->name, $this->start, $this->format, $this->host, $this->cohost, $this->kvalue, $this->number, $this->season, $this->series, $this->threadurl, $this->reporturl, $this->metaurl, $this->prereg_allowed, $this->player_reportable, $this->player_editdecks);
+      $stmt->bind_param("sssssdddssssddd", $this->name, $this->start, $this->format, $this->host, $this->cohost, $this->kvalue, $this->number, $this->season, $this->series, $this->threadurl, $this->reporturl, $this->metaurl, $this->prereg_allowed, $this->player_reportable, $this->player_editdecks);
       $stmt->execute() or die($stmt->error);
       $stmt->close();
 
