@@ -11,10 +11,15 @@ $js = <<<EOD
 function addPlayerRow(data) {
   if (!data.success) { return false; }
   var html = '<tr id="entry_row_' + data.player + '"><td>';
+  if (data.event_running) {
+    html += '<input type="checkbox" name="dropplayer[]" value="' + data.player + '" />';
+  }
+  html += '</td><td>' + data.player + '</td>';
+  html += '<td>';
   if (data.verified) {
     html += '<img src="$verified_url" alt="Verified" />';
   }
-  html += '</td><td>' + data.player + '</td>';
+  html += '</td>';
   html += '<td align="center"><img src="$dot_url" alt="dot" /></td>';
   html += '<td><a class="create_deck_link" href="deck.php?player=' + data.player + '&event=' + event_name + '&mode=create">[Create Deck]</a></td>';
   html += '<td align="center"><input type="checkbox" name="delentries[]" value="' + data.player + '" /></td></tr>';
@@ -493,7 +498,7 @@ function playerList($event) {
   echo "<form action=\"event.php\" method=\"post\">";
   echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
   echo "<table id=\"event_player_list\">";
-  echo "<tr><td colspan=\"4\" align=\"center\">";
+  echo "<tr><td colspan=\"6\" align=\"center\">";
   if ($numentries > 0) {
     echo "<b>{$numentries} Registered Players</b></td></tr>";
   } else {
@@ -503,10 +508,10 @@ function playerList($event) {
   echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
   if ($numentries > 0) {
     echo "<tr>";
-    if ($event->active == 1){
-      echo "<th>Drop</th>";
-    }
-    echo "<th style=\"text-align: left\">Player</th><th>Medal</th>";
+    echo "<th>";
+    if ($event->active == 1) { echo "Drop"; }
+    echo "</th>";
+    echo "<th style=\"text-align: left\" colspan=\"2\">Player</th><th>Medal</th>";
     echo "<th style=\"text-align: center\">Deck</th><th>Delete</th></tr>";
   } else {
     echo "<tr><td align=\"center\" colspan=\"5\"><i>";
@@ -516,20 +521,21 @@ function playerList($event) {
   foreach ($entries as $entry) {
     echo "<tr id=\"entry_row_{$entry->player->name}\">";
     // Show drop box if event is active.
+    echo "<td align=\"center\">";
     if ($event->active == 1){
       if (Standings::playerActive($event->name,$entry->player->name)) {
-        echo "<td align=\"center\">";
-        echo "<input type=\"checkbox\" name=\"dropplayer[]\" ";
-        echo "value=\"{$entry->player->name}\"></td>";
+        echo "<input type=\"checkbox\" name=\"dropplayer[]\" value=\"{$entry->player->name}\" />";
       } else {
-        echo "<td>Dropped <a href=\"event.php?player=".$entry->player->name."&action=undrop&name=".$event->name."\">(undrop)</a></td>"; // else echo a symbol to represent player has dropped
+        echo "Dropped <a href=\"event.php?player=".$entry->player->name."&action=undrop&name=".$event->name."\">(undrop)</a>";
+        // TODO: Symbol for dropped, instead of mark
       }
     }
-    echo "<td>";
+    echo "</td><td>";
+    echo "{$entry->player->name}";
+    echo "</td><td>";
     if ($entry->player->verified) {
       echo image_tag("verified.png", array("alt" => "Verified", "title" => "Player Verified on MTGO"));
     }
-    echo "{$entry->player->name}";
     echo "</td>";
     if(strcmp("", $entry->medal) != 0) {
       $img = medalImgStr($entry->medal);
@@ -556,11 +562,11 @@ function playerList($event) {
   }
   echo "<tr id=\"row_new_entry\"><td>Add:</td><td>";
   stringField("newentry", "", 20);
-  echo "</td><td>&nbsp;</td><td colspan=2>";
+  echo "</td><td>&nbsp;</td><td colspan=\"2\">";
   echo "<input id=\"update_reg\" type=\"submit\" name=\"mode\" value=\"Update Registration\" />";
   echo "</td></tr>";
   if ($event->active == 1) {
-    echo "<tr><td colspan=\"2\">";
+    echo "<tr><td colspan=\"6\">";
     echo "<p class=\"squeeze\">Players added after the event has started:</p>";
     echo "<ul>";
     echo "<li>receive 0 points for any rounds already started</li>";

@@ -27,6 +27,7 @@ if (isset($_GET['deck'])) {
       $result["success"] = true;
       $result["player"] = $player->name;
       $result["verified"] = $player->verified;
+      $result["event_running"] = $event->active == 1;
     } else {
       $result["success"] = false;
     }
