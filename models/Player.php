@@ -602,20 +602,18 @@ class Player {
   function getRival() {
     $db = Database::getConnection();
     $stmt = $db->prepare("SELECT q.p AS opp, count(q.p) n FROM
-       (SELECT playera AS p FROM matches WHERE playerb = ?
+       (SELECT playera AS p FROM matches WHERE result = 'A' or result = 'B' and playerb = ?
         UNION ALL
-        SELECT playerb as p FROM matches WHERE playera = ?) AS q
+        SELECT playerb as p FROM matches WHERE result = 'A' or result = 'B' and playera = ?) AS q
         GROUP BY q.p ORDER BY n DESC LIMIT 1");
     $stmt->bind_param("ss", $this->name, $this->name);
     $stmt->execute();
     $stmt->bind_result($rival, $numtimes);
-
-    $rivalname = null;
     $stmt->fetch();
     $stmt->close();
 
-    if ($rivalname != null) {
-      return new Player($rivalname);
+    if ($rival != null) {
+      return new Player($rival);
     } else {
       return null;
     }
