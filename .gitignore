@@ -1,5 +1,6 @@
 util/*.txt
 util/setpassword.php
+util/ghost-login.php
 config.php
 gatherling
 nav/
