@@ -85,8 +85,8 @@ if ($player == NULL) {
   } elseif ($dispmode == 'standings') {
     Standings::printEventStandings($_GET['event'],Player::loginName());
   } elseif ($dispmode == 'verifymtgo') {
-    // print_verifyMtgoForm($player, $result);
-    print_manualverifyMtgoForm();
+    print_verifyMtgoForm($player, $result);
+    // print_manualverifyMtgoForm();
   } elseif ($dispmode == 'drop_form') {
     print_dropConfirm($_GET['event'], $player);
   } else {
@@ -467,6 +467,7 @@ function print_currentMatchTable() {
 
     if ($match->result != "BYE") {
       $oppplayer = new Player($opp);
+      $player_number = $match->playerLetter($player->name);
       echo "<tr><td></td>";
       echo "<td>vs.</td>\n";
       echo "<td>" . $oppplayer->linkTo() ."</td><td>";

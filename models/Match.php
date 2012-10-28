@@ -76,6 +76,14 @@ class Match {
     return $player_or_name;
   }
 
+  function playerLetter($player) {
+    if ($this->playerA($player)) {
+      return 'a';
+    } else {
+      return 'b';
+    }
+  }
+
   // Returns true if $player has a bye in this match
   function playerBye($player) {
     if ($this->result != 'BYE') {

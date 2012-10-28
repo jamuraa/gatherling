@@ -95,9 +95,10 @@ if (Player::isLoggedIn()) {
 <?php
 
 function mode_is($str) {
-  if (isset($_GET['mode'])) { $mode = $_GET['mode']; }
-  if (isset($_POST['mode'])) { $mode = $_POST['mode']; }
-
+  global $_GET, $_POST;
+  if (isset($_GET['mode']) and $_GET['mode'] != '') { $mode = $_GET['mode']; }
+  if (isset($_POST['mode']) and $_POST['mode'] != '') { $mode = $_POST['mode']; }
+  
   return (bool)(strcmp($mode, $str) == 0);
 }
 
@@ -127,10 +128,9 @@ function content() {
       if (isset($_POST['insert'])) {
         $event = insertEvent();
         eventForm($event);
-        return;
+      } else {
+        eventForm();
       }
-    } elseif (mode_is("Create New Event")) {
-      eventForm();
       return;
     } elseif (mode_is("Create Next Event")) {
       $oldevent = new Event($_POST['name']);
