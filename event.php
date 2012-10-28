@@ -96,9 +96,10 @@ if (Player::isLoggedIn()) {
 
 function mode_is($str) {
   global $_GET, $_POST;
+  $mode = NULL;
   if (isset($_GET['mode']) and $_GET['mode'] != '') { $mode = $_GET['mode']; }
   if (isset($_POST['mode']) and $_POST['mode'] != '') { $mode = $_POST['mode']; }
-  
+
   return (bool)(strcmp($mode, $str) == 0);
 }
 
