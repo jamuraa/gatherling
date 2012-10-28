@@ -25,7 +25,7 @@ $database = Database::getConnection();
 
 // Insert the card set
 $stmt = $database->prepare("INSERT INTO cardsets(released, name, type) values(?, ?, ?)");
-$stmt->bind_param("sss", $releasedate, $set, $name); 
+$stmt->bind_param("sss", $releasedate, $set, $settype);
 
 if (!$stmt->execute()) {
   echo "!!!!!!!!!! Set Insertion Error !!!!!!!!!<br /><br /><br />";
@@ -41,11 +41,11 @@ $stmt = $database->prepare("INSERT INTO cards(cost, convertedcost, name, cardset
 while(!feof($file))
 {
   $line = fgets($file);
-  echo "Grabbing Line: {$line}<br />";
+  ## echo "Grabbing Line: {$line}<br />";
   if(preg_match("/^([^:]*):\s+(.*)$/", $line, $matches))
   {
-    echo "Card Attribute : {$matches[1]}<br />";
-    echo "Attribute Value: {$matches[2]}<br />";
+    ## echo "Card Attribute : {$matches[1]}<br />";
+    ## echo "Attribute Value: {$matches[2]}<br />";
     $card[$matches[1]] = $matches[2];
     if($matches[1] == "Set/Rarity")
     {
@@ -59,7 +59,7 @@ while(!feof($file))
   }
   else
   {
-      echo "Line is not usable content so will be ignored<br />";
+      ## echo "Line is not usable content so will be ignored<br />";
   }
 }
 
@@ -68,35 +68,37 @@ echo "Total Cards Inserted: {$cardsinserted}<br />";
 $stmt->close();
 
 function insertCard($card, $set, $rarity, $stmt) {
-  $cmc = getConvertedCost($card['Cost']);
+  $card['CMC'] = getConvertedCost($card['Cost']);
+  $card['Rarity'] = $rarity;
+  $card['Cardset'] = $set;
   # new gatherer - card type is now a . because of unicode
   $card['Type'] = str_replace('.', '-', $card['Type']);
 
   if (is_null($card['Cost'])) {$card['Cost'] = 0;}
 
-  echo "Card Name:           {$card['Name']}<br />";
-  echo "Card Mana Cost:      {$card['Cost']}<br />";
-  echo "Converted Mana Cost: {$cmc}<br />";
-  echo "Card Type:           {$card['Type']}<br />";
-  echo "Card Rarity:         {$rarity}<br />";
-
+  echo "<table class=\"new_card\">";
+  foreach (array('Name', 'Cost', 'CMC', 'Type', 'Rarity', 'Cardset') as $attr) {
+    echo "<tr><th>{$attr}:</th><td>{$card[$attr]}</td></tr>";
+  }
+  echo "<tr><th>Card Colors:</th><td>";
   $isw = $isu = $isb = $isr = $isg = $isp = 0;
-  if(preg_match("/W/", $card['Cost'])) {$isw = 1;echo "Card is:             White<br />";}
-  if(preg_match("/U/", $card['Cost'])) {$isu = 1;echo "Card is:             Blue<br />";}
-  if(preg_match("/B/", $card['Cost'])) {$isb = 1;echo "Card is:             Black<br />";}
-  if(preg_match("/R/", $card['Cost'])) {$isr = 1;echo "Card is:             Red<br />";}
-  if(preg_match("/G/", $card['Cost'])) {$isg = 1;echo "Card is:             Green<br />";}
-  if(preg_match("/P/", $card['Cost'])) {$isp = 1;echo "Card is:             Phyrexian<br />";}
+  if(preg_match("/W/", $card['Cost'])) {$isw = 1;echo "White ";}
+  if(preg_match("/U/", $card['Cost'])) {$isu = 1;echo "Blue ";}
+  if(preg_match("/B/", $card['Cost'])) {$isb = 1;echo "Black ";}
+  if(preg_match("/R/", $card['Cost'])) {$isr = 1;echo "Red ";}
+  if(preg_match("/G/", $card['Cost'])) {$isg = 1;echo "Green ";}
+  if(preg_match("/P/", $card['Cost'])) {$isp = 1;echo "Phyrexian ";}
+  echo "</td></tr>";
 
-  echo "Card Set:            {$set}<br /><br />";
-
-  $stmt->bind_param("sdsssdddddds", $card['Cost'], $cmc, $card['Name'], $set, $card['Type'], $isw, $isu, $isb, $isr, $isg, $isp, $rarity);
+  $stmt->bind_param("sdsssdddddds", $card['Cost'], $card['CMC'], $card['Name'], $set, $card['Type'], $isw, $isu, $isb, $isr, $isg, $isp, $rarity);
 
   if (!$stmt->execute()) {
-    echo "!!!!!!!!!! Card Insertion Error !!!!!!!!!<br /><br /><br />";
+    echo "<tr><td colspan=\"2\" style=\"background-color: LightRed;\">!!!!!!!!!! Card Insertion Error !!!!!!!!!</td></tr>";
+    echo "</table>";
     die($stmt->error);
   } else {
-    echo "Card Inserted Successfully!<br /><br />";
+    echo "<tr><th colspan=\"2\" style=\"background-color: LightGreen;\">Card Inserted Successfully</th></tr>";
+    echo "</table>";
   }
 }
 
