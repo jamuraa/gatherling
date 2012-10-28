@@ -7,7 +7,7 @@
     <li> Enhancements to the host tools so that they work better. </li>
     <li> Some more enhancements to make things look better. </li>
    </ul>
-</p>
+ </p>
  <p>
   <b> 2012-08-21 </b> -
   I am glad to say that finally, we have a big update to gatherling, and it's thanks to longtimegone and Dabil
