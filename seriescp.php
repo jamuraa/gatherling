@@ -166,7 +166,12 @@ function printPointsRule($rule, $key, $rules, $formtype = 'text', $size = 4) {
 }
 
 function printPointsForm($series) {
-  $chosen_season = (isset($_GET['season']) ? $_GET['season'] : $series->currentSeason());
+  global $_GET, $_POST;
+
+  $chosen_season = $series->currentSeason();
+  if (isset($_GET['season'])) $chosen_season = $_GET['season'];
+  if (isset($_POST['season'])) $chosen_season = $_POST['season'];
+
   echo "<h3><center> Season Points Management </center> </h3>";
   echo "<p style=\"width:75%; text-align: left;\">Here you can edit the way that season points are calculated for each player.  Choose the season that you want your point rules to be active for, and then put in the number of season points for each type of event.  You can adjust the points a player gets for each event individually as well, to take away points for not posting a deck for example or giving extra points for a tiebreaker-miss of top eight.</p>";
   echo "<p style=\"width:75%; text-align: left;\">Points are cumulative, so if someone gets the first place, they will get points for first place, participation, each round they played (in the main event, not the finals), for each match they won, lost, and got a bye, as well as the points for posting a decklist if they do post.  However, The first place to top 8 points are NOT added together, you only get points for where you end up (calculated by the medals).  An event winner doesn't get points for the second place, top 4 or top 8.</p>";
@@ -183,7 +188,7 @@ function printPointsForm($series) {
   echo "<input type=\"hidden\" name=\"series\" value=\"{$series->name}\" />";
   echo "<input type=\"hidden\" name=\"season\" value=\"{$chosen_season}\" />";
   echo "<table class=\"form\" style=\"border-width: 0px;\" align=\"center\">";
-  echo "<tr> <th class=\"top\" colspan=\"2\"> Season {$chosen_season} Settings </th></tr>";
+  echo "<tr> <th class=\"top\" colspan=\"2\"> Season {$chosen_season} Point Rules </th></tr>";
   printPointsRule("First Place", "first_pts", $seasonrules);
   printPointsRule("Second Place", "second_pts", $seasonrules);
   printPointsRule("Top 4", "semi_pts", $seasonrules);
