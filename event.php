@@ -642,6 +642,21 @@ function pointsAdjustmentForm($event) {
   echo "<tr> <td colspan=\"3\" class=\"buttons\"> ";
   echo "<input type=\"submit\" name=\"mode\" value=\"Update Adjustments\" />";
   echo "</td> </tr> </table> </form>";
+
+}
+
+function printUnverifiedPlayerCell($match, $playername) {
+  echo "<td><input type=\"checkbox\" name=\"dropplayer[]\" value=\"{$playername}\">";
+  if (($match->getPlayerWins($playername) > 0) || ($match->getPlayerLosses($playername) > 0)) {
+    if ($match->getPlayerWins($playername) > $match->getPlayerLosses($playername)) {
+      $matchresult = "W ";
+    } else {
+      $matchresult = "L ";
+    }
+    echo "<span class=\"match_{$match->verification}\">{$playername}</span> ({$matchresult}{$match->getPlayerWins($playername)}-{$match->getPlayerLosses($playername)}) </td>";
+  } else {
+    echo "{$playername}</td>";
+  }
 }
 
 function matchList($event) {
@@ -671,6 +686,9 @@ function matchList($event) {
   }
   $first = 1;
   $rndadd = 0;
+  $thisround = 0;  
+  $ezypaste = "";
+  $playersInMatches = array();
   foreach ($matches as $match) {
     if ($first && $match->timing == 1) {
       $rndadd = $match->rounds;
@@ -687,31 +705,23 @@ function matchList($event) {
     }
     // TODO: will need to add some code here for byes.
     $star = ($match->timing > 1) ? "*" : "";
+    if ($printrnd != $thisround) {
+      $thisround = $printrnd;
+      $ezypaste = "";
+      $playersInMatches = array();
+      $extraRoundTitle = "";
+      if ($match->timing > 1) {
+        $extraRoundTitle = "(Finals Round {$match->round})";
+      }
+      echo "<tr><td align=\"center\" colspan=\"7\" style=\"background-color: PaleGreen;\"> ROUND {$thisround} {$extraRoundTitle} </td></tr>";
+    }
     echo "<tr><td align=\"center\">$printrnd$star</td>";
+    $playersInMatches[] = $match->playera;
+    $playersInMatches[] = $match->playerb;
     if (strcasecmp($match->verification, 'verified') != 0 && $event->finalized == 0) {
-      echo "<td><input type=\"checkbox\" name=\"dropplayerA[]\" value=\"{$match->playera}\">";
-      if (($match->getPlayerWins($match->playera) > 0) || ($match->getPlayerLosses($match->playera) > 0)) {
-        if ($match->getPlayerWins($match->playera) > $match->getPlayerLosses($match->playera)) {
-          $matchresult = "Win";
-        } else {
-          $matchresult = "Loss";
-        }
-        echo "<span class=\"match_{$match->verification}\" title=\"{$matchresult} {$match->getPlayerWins($match->playera)} - {$match->getPlayerLosses($match->playera)}\">{$match->playera}</span></td>";
-      } else {
-        echo "{$match->playera}</td>";
-      }
-
-      echo "<td><input type=\"checkbox\" name=\"dropplayerB[]\" value=\"{$match->playerb}\">";
-      if (($match->getPlayerWins($match->playerb) > 0) || ($match->getPlayerLosses($match->playerb) > 0)) {
-        if ($match->getPlayerWins($match->playerb) > $match->getPlayerLosses($match->playerb)) {
-          $matchresult = "Win";
-        } else {
-          $matchresult = "Loss";
-        }
-        echo "<span class=\"match_{$match->verification}\" title=\"{$matchresult} {$match->getPlayerWins($match->playerb)} - {$match->getPlayerLosses($match->playerb)}\">{$match->playerb}</span></td>";
-      } else {
-        echo "{$match->playerb}</td>";
-      }
+      $ezypaste .= "/me {$match->playera} vs. {$match->playerb}<br />";
+      printUnverifiedPlayerCell($match, $match->playera);
+      printUnverifiedPlayerCell($match, $match->playerb);
 
       echo "<input type=\"hidden\" name=\"hostupdatesmatches[]\" value=\"{$match->id}\">";
       echo "<td>";
@@ -724,6 +734,9 @@ function matchList($event) {
       playerWinsDropMenu("B");
       echo "</td>";
     } else {
+      $playerawins = $match->getPlayerWins($match->playera);
+      $playerbwins = $match->getPlayerWins($match->playerb);
+      $ezypaste .= "/me {$match->playera} {$playerawins}-{$playerbwins} {$match->playerb}<br />";
       echo "<td class=\"match_{$match->verification}\">{$match->playera}</td>";
       if ($match->playera == $match->playerb) {
         echo "<td>No Opponent</td>";
@@ -739,8 +752,8 @@ function matchList($event) {
       } else {
         echo "<td>$printplr</td>";
       }
-      echo "<td>{$match->getPlayerWins($match->playera)}</td>";
-      echo "<td>{$match->getPlayerWins($match->playerb)}</td>";
+      echo "<td>{$playerawins}</td>";
+      echo "<td>{$playerbwins}</td>";
     }
     echo "<td align=\"center\">";
     echo "<input type=\"checkbox\" name=\"matchdelete[]\" ";
@@ -752,13 +765,13 @@ function matchList($event) {
     echo "<input type=\"hidden\" name=\"newmatchround\" value=\"{$event->current_round}\">"; 
     echo "<input type=\"hidden\" name=\"newmatchresult\" value=\"P\">"; 
     echo "<td colspan=\"4\">";
-    playerDropMenu($event, "A");
+    playerDropMenu($event, "A", "\n", $playersInMatches);
     echo " vs ";
-    playerDropMenu($event, "B");
+    playerDropMenu($event, "B", "\n", $playersInMatches);
     echo "</td></tr>";
     echo "<tr><td align=\"right\" colspan=\"3\"><b>Award Bye</b></td>";
     echo "<td colspan=\"4\">";
-    playerByeMenu($event);
+    playerByeMenu($event, "\n", $playersInMatches);
     echo "</td></tr>";
   } else {
     echo "<tr><td align=\"center\" colspan=\"7\">";
@@ -778,6 +791,8 @@ function matchList($event) {
   echo "value=\"Update Match Listing\"></td></tr>";
   echo "</form>";
   echo "</table>";
+  echo "<p>Paste stuff:<br />";
+  echo "<code>{$ezypaste}</code></p>";
 }
 
 function standingsList($event) {
@@ -1033,7 +1048,7 @@ function medalDropMenu() {
   echo "</select>";
 }
 
-function playerByeMenu($event, $def="\n") {
+function playerByeMenu($event, $def="\n", $skipPlayers = array()) {
   $playernames = $event->getPlayers();
   echo "<select name=\"newbyeplayer\">";
   if(strcmp("\n", $def) == 0) {
@@ -1042,6 +1057,9 @@ function playerByeMenu($event, $def="\n") {
     echo "<option value=\"\">- None -</option>";
   }
   foreach ($playernames as $player) {
+    if (in_array($player, $skipPlayers)) {
+      continue;
+    }
     $selstr = (strcmp($player, $def) == 0) ? "selected" : "";
     echo "<option value=\"{$player}\" $selstr>";
     echo "{$player}</option>";
@@ -1049,7 +1067,7 @@ function playerByeMenu($event, $def="\n") {
   echo "</select>";
 }
 
-function playerDropMenu($event, $letter, $def="\n") {
+function playerDropMenu($event, $letter, $def="\n", $skipPlayers = array()) {
   $playernames = $event->getPlayers();
   echo "<select name=\"newmatchplayer$letter\">";
   if(strcmp("\n", $def) == 0) {
@@ -1058,6 +1076,9 @@ function playerDropMenu($event, $letter, $def="\n") {
     echo "<option value=\"\">- None -</option>";
   }
   foreach ($playernames as $player) {
+    if (in_array($player, $skipPlayers)) {
+      continue;
+    }
     $selstr = (strcmp($player, $def) == 0) ? "selected" : "";
     echo "<option value=\"{$player}\" $selstr>";
     echo "{$player}</option>";
@@ -1139,15 +1160,9 @@ function updateMatches() {
     }
   }
 
-  if (isset($_POST['dropplayerA'])) {
-    foreach ($_POST['droplayerA'] as $playername) {
-      Standings::dropPlayer ($_POST['eventname'], $playername);
-    }
-  }
-
-  if (isset($_POST['dropplayerB'])) {
-    foreach ($_POST['dropplayerB'] as $playername) {
-      Standings::dropPlayer ($_POST['eventname'], $playername);
+  if (isset($_POST['dropplayer'])) {
+    foreach ($_POST['dropplayer'] as $playername) {
+      Standings::dropPlayer($_POST['eventname'], $playername);
     }
   }
 

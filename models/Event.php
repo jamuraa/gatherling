@@ -455,7 +455,7 @@ class Event {
     $db = Database::getConnection();
     $stmt = $db->prepare("SELECT m.id FROM matches m, subevents s, events e
       WHERE m.subevent = s.id AND s.parent = e.name AND e.name = ?
-      ORDER BY s.timing, m.round");
+      ORDER BY s.timing, m.round, m.verification");
     $stmt->bind_param("s", $this->name);
     $stmt->execute();
     $stmt->bind_result($matchid);

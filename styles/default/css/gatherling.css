@@ -223,7 +223,7 @@ tr#row_new_entry td {
 }
 
 .match_unverified {
-    color: yellow;
+    color: MediumBlue; 
 }
 
 .match_failed {
