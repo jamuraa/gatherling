@@ -682,10 +682,9 @@ function matchList($event) {
   echo "<table align=\"center\" style=\"border-width: 0px;\">";
   if (count($matches) > 0) {
     echo "<tr class=\"lefted\"><th style=\"text-align: center; padding-right: 10px;\">Round</th><th>Player A</th>";
+    echo "<th>Result</th>";
     echo "<th>Player B</th>";
-    echo "<th>Winner</th>";
-    echo "<th>A Wins</th>";
-    echo "<th>B Wins</th><th style=\"text-align: center;\"><b>Delete</th></tr>";
+    echo "<th style=\"text-align: center;\"><b>Delete</th></tr>";
   } else {
     echo "<tr><td align=\"center\" colspan=\"5\"><i>";
     echo "There are no matches listed for this event.</td></tr>";
@@ -727,40 +726,24 @@ function matchList($event) {
     if (strcasecmp($match->verification, 'verified') != 0 && $event->finalized == 0) {
       $ezypaste .= "/me {$match->playera} vs. {$match->playerb}<br />";
       printUnverifiedPlayerCell($match, $match->playera);
-      printUnverifiedPlayerCell($match, $match->playerb);
-
-      echo "<input type=\"hidden\" name=\"hostupdatesmatches[]\" value=\"{$match->id}\">";
       echo "<td>";
-      // matchresult is used to identify Draws
+      echo "<input type=\"hidden\" name=\"hostupdatesmatches[]\" value=\"{$match->id}\">";
       resultDropMenu("matchresult[]");
-      echo "<td align=\"center\">";
-      playerWinsDropMenu("A");
       echo "</td>";
-      echo "<td align=\"center\">"; 
-      playerWinsDropMenu("B");
-      echo "</td>";
+      printUnverifiedPlayerCell($match, $match->playerb);
     } else {
       $playerawins = $match->getPlayerWins($match->playera);
       $playerbwins = $match->getPlayerWins($match->playerb);
       echo "<td class=\"match_{$match->verification}\">{$match->playera}</td>";
       if ($match->playera == $match->playerb) {
         $ezypaste .= "/me {$match->playera} has the BYE<br />";
-        echo "<td>No Opponent</td>";
+        echo "<td>BYE</td>";
+        echo "<td></td>";
       } else {
+        echo "<td>{$playerawins}-{$playerbwins}</td>";
         $ezypaste .= "/me {$match->playera} {$playerawins}-{$playerbwins} {$match->playerb}<br />";
         echo "<td class=\"match_{$match->verification}\">{$match->playerb}</td>";
       }
-      if ($match->round == $event->current_round) {
-        if ($printplr == 'Match in Progress') {
-          echo "<td>Completed</td>";
-        } else {
-          echo "<td>$printplr</td>";
-        }
-      } else {
-        echo "<td>$printplr</td>";
-      }
-      echo "<td>{$playerawins}</td>";
-      echo "<td>{$playerbwins}</td>";
     }
     echo "<td align=\"center\">";
     echo "<input type=\"checkbox\" name=\"matchdelete[]\" ";
@@ -787,10 +770,8 @@ function matchList($event) {
     echo "<tr><td align=\"center\" colspan=\"7\">";
     roundDropMenu($event, $_POST['newmatchround']);
     playerDropMenu($event, "A");
-    playerDropMenu($event, "B");
     resultDropMenu("newmatchresult", array("P" => "In Progress", "BYE" => "BYE"));
-    playerWinsDropMenu("A", true);
-    playerWinsDropMenu("B", true);
+    playerDropMenu($event, "B");
     echo "</td></tr>";
   }
   echo "<tr><td>&nbsp;</td></tr>";
@@ -1110,9 +1091,11 @@ function roundDropMenu($event, $selected) {
 
 function resultDropMenu($name = "newmatchresult", $extra_options = array()) {
   echo "<select name=\"{$name}\">";
-  echo "<option value=\"\">- Winner -</option>";
-  echo "<option value=\"A\">Player A</option>";
-  echo "<option value=\"B\">Player B</option>";
+  echo "<option value=\"\"></option>";
+  echo "<option value=\"2-0\">2-0</option>";
+  echo "<option value=\"2-1\">2-1</option>";
+  echo "<option value=\"1-2\">1-2</option>";
+  echo "<option value=\"0-2\">0-2</option>";
   echo "<option value=\"D\">Draw</option>";
   foreach ($extra_options as $value => $text) {
     echo "<option value=\"{$value}\">{$text}</option>";
@@ -1176,27 +1159,18 @@ function updateMatches() {
 
   if(isset($_POST['hostupdatesmatches'])) {
     for ($ndx = 0; $ndx < sizeof($_POST['hostupdatesmatches']); $ndx++) {
-      $resultForA="notset";
-      $resultForB="notset";
-
-      if ($_POST['playerAwins'][$ndx] == 2 && $_POST['playerBwins'][$ndx] == 0) {
-        $resultForA = "W20";
-        $resultForB = "L20";
-      }
-      if ($_POST['playerAwins'][$ndx] == 2 && $_POST['playerBwins'][$ndx] == 1) {
-        $resultForA = "W21";
-        $resultForB = "L21";
-      }
-      if ($_POST['playerAwins'][$ndx] == 0 && $_POST['playerBwins'][$ndx] == 2) {
-        $resultForA = "L20";
-        $resultForB = "W20";
-      }
-      if ($_POST['playerAwins'][$ndx] == 1 && $_POST['playerBwins'][$ndx] == 2) {
-        $resultForA = "L21";
-        $resultForB = "W21";
-      }
-      if ($_POST['matchresult'][$ndx] == 'Draw') {
-        // todo: need to figure out how to enter a draw
+      $result = $_POST['matchresult'][$ndx];
+      $resultForA="notset"; $resultForB="notset";
+      if ($result == "2-0") {
+        $resultForA = "W20"; $resultForB = "L20";
+      } elseif ($result == "2-1") {
+        $resultForA = "W21"; $resultForB = "L21";
+      } elseif ($result == "1-2") {
+        $resultForA = "L21"; $resultForB = "W21";
+      } elseif ($result == "0-2") {
+        $resultForA = "L20"; $resultForB = "W20";
+      } elseif ($result == 'D') {
+        // TODO: need to figure out how to enter a draw
       }
 
       if ((strcasecmp($resultForA, 'notset') != 0) && (strcasecmp($resultForB, 'notset') != 0)) {
@@ -1209,10 +1183,23 @@ function updateMatches() {
 
   if (isset($_POST['newmatchplayerA'])) { $pA = $_POST['newmatchplayerA']; } else {$pA = "";}
   if (isset($_POST['newmatchplayerB'])) { $pB = $_POST['newmatchplayerB']; } else {$pB = "";}
-  if (isset($_POST['newmatchresult'])) { $res = $_POST['newmatchresult']; } else {$res = "";}
+  if (isset($_POST['newmatchresult'])) {
+    $res = $_POST['newmatchresult'];
+    if ($res == "2-0") {
+      $pAWins = 2; $pBWins = 0; $res = 'A';
+    } elseif ($res == "2-1") {
+      $pAWins = 2; $pBWins = 1; $res = 'A';
+    } elseif ($res == "1-2") {
+      $pAWins = 1; $pBWins = 2; $res = 'B';
+    } elseif ($res == "0-2") {
+      $pAWins = 0; $pBWins = 2; $res = 'B';
+    } elseif ($res == 'D') {
+      $pAWins = 0; $pBWins = 0; $res = 'D';
+    }
+  } else {
+    $res = "";
+  }
   if (isset($_POST['newmatchround'])) { $rnd = $_POST['newmatchround']; } else {$rnd = "";}
-  if (isset($_POST['newmatchplayerAwins'])) { $pAWins = $_POST['newmatchplayerAwins']; } else {$pAWins = "";}
-  if (isset($_POST['newmatchplayerBwins'])) { $pBWins = $_POST['newmatchplayerBwins']; } else {$pBWins = "";}
 
   if ((strcmp($pA, "") != 0) && (strcmp($pB, "") != 0) && (strcmp($res, "") != 0) && (strcmp($rnd, "") != 0)) {
     if ($res == "P") {
