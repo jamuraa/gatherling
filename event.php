@@ -692,7 +692,7 @@ function matchList($event) {
   }
   $first = 1;
   $rndadd = 0;
-  $thisround = 0;  
+  $thisround = 0;
   $ezypaste = "";
   $playersInMatches = array();
   foreach ($matches as $match) {
@@ -713,7 +713,7 @@ function matchList($event) {
     $star = ($match->timing > 1) ? "*" : "";
     if ($printrnd != $thisround) {
       $thisround = $printrnd;
-      $ezypaste = "";
+      $ezypaste = "/me Pairings for Round {$thisround}<br />";
       $playersInMatches = array();
       $extraRoundTitle = "";
       if ($match->timing > 1) {
@@ -742,11 +742,12 @@ function matchList($event) {
     } else {
       $playerawins = $match->getPlayerWins($match->playera);
       $playerbwins = $match->getPlayerWins($match->playerb);
-      $ezypaste .= "/me {$match->playera} {$playerawins}-{$playerbwins} {$match->playerb}<br />";
       echo "<td class=\"match_{$match->verification}\">{$match->playera}</td>";
       if ($match->playera == $match->playerb) {
+        $ezypaste .= "/me {$match->playera} has the BYE<br />";
         echo "<td>No Opponent</td>";
       } else {
+        $ezypaste .= "/me {$match->playera} {$playerawins}-{$playerbwins} {$match->playerb}<br />";
         echo "<td class=\"match_{$match->verification}\">{$match->playerb}</td>";
       }
       if ($match->round == $event->current_round) {
@@ -765,6 +766,7 @@ function matchList($event) {
     echo "<input type=\"checkbox\" name=\"matchdelete[]\" ";
     echo "value=\"{$match->id}\"></td></tr>";
   }
+  $ezypaste .= "/me Good luck everyone!<br />";
   echo "<tr><td>&nbsp;</td></tr>";
   if ($event->active) {
     echo "<tr><td align=\"right\" colspan=\"3\"><b>Add Pairing</b></td>";
