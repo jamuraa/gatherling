@@ -1003,16 +1003,10 @@ class Event {
 
   function resetEvent(){
     $db = Database::getConnection();
-    $stmt = $db->prepare("DELETE FROM standings WHERE event = ?");
-    $stmt->bind_param("s", $this->name);
-    $stmt->execute();
-    $stmt->close();
 
-    $stmt = $db->prepare("DELETE FROM matches WHERE subevent = ? OR subevent = ?");
-    $stmt->bind_param("ss", $this->mainid, $this->finalid);
-    $stmt->execute();
-    $removed = $stmt->affected_rows > 0;
-    $stmt->close();
+    db_query_single("DELETE FROM standings WHERE event = ?", "s", $this->name);
+    db_query_single("DELETE FROM matches WHERE subevent = ? OR subevent = ?", "ss", $this->mainid, $this->finalid);
+    db_query_single("UPDATE entries SET medal = 'dot' WHERE event = ?", "s", $this->name);
 
     $this->current_round = 0;
     $this->active = 0;
