@@ -668,6 +668,12 @@ function matchList($event) {
   echo "<i>* denotes a playoff/finals match.</i><br />";
   echo "<i>To drop a player while entering match results, select the";
   echo " check box next to the players name.</i></p>";
+  // Quick links to rounds
+  echo "<p style=\"text-align: center\">";
+  for ($r = 1; $r < $event->current_round; $r++) {
+    echo "<a href=\"event.php?view=match&name={$event->name}#round-{$r}\">Round {$r}</a> ";
+  }
+  echo "</p>";
   // Start a new form
   echo "<form action=\"event.php\" method=\"post\" enctype=\"multipart/form-data\">";
   echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
@@ -713,7 +719,7 @@ function matchList($event) {
       if ($match->timing > 1) {
         $extraRoundTitle = "(Finals Round {$match->round})";
       }
-      echo "<tr><td align=\"center\" colspan=\"7\" style=\"background-color: PaleGreen;\"> ROUND {$thisround} {$extraRoundTitle} </td></tr>";
+      echo "<tr><td align=\"center\" colspan=\"7\" style=\"background-color: PaleGreen;\"> <a name=\"round-{$thisround}\"></a>ROUND {$thisround} {$extraRoundTitle} </td></tr>";
     }
     echo "<tr><td align=\"center\">$printrnd$star</td>";
     $playersInMatches[] = $match->playera;
