@@ -212,7 +212,7 @@ class Event {
     }
     return $decks;
   }
-  
+
   function getFinalists() {
     $db = Database::getConnection();
     $stmt = $db->prepare("SELECT medal, player, deck FROM entries
@@ -343,18 +343,23 @@ class Event {
     return $players;
   }
 
-/* UNUSED?
-  function isPlayerRegistered($eventname, $playername) {
-      // quick check to see if player is registered
-      // this was part of the reg-decklist feature
-      $entry = new Entry ($eventname, $playername);
-      $result = $entry->findEventAndPlayer($eventname, $playername);
-      if ($result) {
-          return true;
-      }
-      return false;
+  function getActivePlayers() {
+    $db = Database::getConnection();
+    $stmt = $db->prepare("SELECT player FROM standings WHERE event = ? AND active = 1 ORDER BY player");
+    $stmt->bind_param("s", $this->name);
+    $stmt->execute();
+    $stmt->bind_result($playername);
+
+    $active_players = array();
+    while ($stmt->fetch()) {
+      $active_players[] = $playername;
+    }
+    $stmt->close();
+
+    if (count($active_players) == 0) { return $this->getPlayers(); }
+
+    return $active_players;
   }
- */
 
   function hasRegistrant($playername) {
     $db = Database::getConnection();

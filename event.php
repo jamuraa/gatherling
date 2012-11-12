@@ -507,12 +507,13 @@ function playerList($event) {
   echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
   echo "<table id=\"event_player_list\">";
   echo "<tr><th colspan=\"6\" align=\"center\" id=\"player_count\">";
-  if ($numentries > 0) {
-    echo "{$numentries} Registered Players</th></tr>";
-  } else {
-    echo "<b>Registered Players</b></td></tr>";
+  echo "{$numentries} Registered Players";
+  if ($event->active) {
+    $active = $event->getActivePlayers();
+    $numactive = count($active);
+    echo " - {$numactive} still playing";
   }
-  echo "<tr><td>&nbsp;</td><tr>";
+  echo "</th></tr><tr><td>&nbsp;</td><tr>";
   echo "<input type=\"hidden\" name=\"view\" value=\"reg\">";
   if ($numentries > 0) {
     echo "<tr>";
