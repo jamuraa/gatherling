@@ -154,6 +154,12 @@ class Match {
     throw new Exception("Player $playername is not in match {$match->id}");
   }
 
+  function playerDropped($player) {
+    $playername = $this->toName($player);
+    $entry = new Entry($this->eventname, $player);
+    return ($entry->drop_round == $this->round);
+  }
+
   function getWinner() {
     if ($this->playerWon($this->playera)) { return $this->playera; }
     if ($this->playerWon($this->playerb)) { return $this->playerb; }
@@ -391,22 +397,6 @@ class Match {
   public function isReportable() {
     $event = $this->getEvent();
     return ($event->player_reportable == 1);
-  }
-
-  public function getEventNamebyMatchid() {
-    $db = Database::getConnection();
-    $stmt = $db->prepare("SELECT e.name
-    FROM matches m, subevents s, events e
-    WHERE m.id = ? AND m.subevent = s.id AND e.name = s.parent");
-
-    $stmt->bind_param("d", $this->id );
-    $stmt->execute();
-
-    $stmt->bind_result($name);
-    $stmt->fetch();
-
-    $stmt->close();
-    return $name;
   }
 
 }

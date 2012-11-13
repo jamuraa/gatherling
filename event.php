@@ -6,6 +6,8 @@ $verified_url = theme_file("images/verified.png");
 $dot_url = theme_file("images/dot.png");
 $drop_url = $CONFIG['base_url'] + 'event.php?action=undrop';
 
+$drop_icon = "&#x2690;";
+
 $js = <<<EOD
 
 function updatePlayerCount() {
@@ -42,7 +44,7 @@ function delPlayerRow(data) {
 
 function dropPlayer(data) {
   if (!data.success) { return false; }
-  $('#entry_row_' + data.player).find('input[name=dropplayer[]]').parent().html('&#x2690; ' + data.round + ' <a href=\"{$CONFIG['base_url']}event.php?player=' + data.player + '&action=undrop&name=' + data.eventname + '\">(undo)</a>');
+  $('#entry_row_' + data.player).find('input[name=dropplayer[]]').parent().html('{$drop_icon} ' + data.round + ' <a href=\"{$CONFIG['base_url']}event.php?player=' + data.player + '&action=undrop&name=' + data.eventname + '\">(undo)</a>');
 }
 
 function updateRegistration() {
@@ -499,6 +501,7 @@ function eventForm($event = NULL, $forcenew = false) {
 }
 
 function playerList($event) {
+  global $drop_icon;
   $entries = $event->getEntries();
   $numentries = count($entries);
   echo "<form action=\"event.php\" method=\"post\">";
@@ -531,7 +534,7 @@ function playerList($event) {
     echo "<td align=\"center\">";
     if ($event->active == 1){
       if ($entry->dropped()) {
-        echo "&#x2690; {$entry->drop_round} <a href=\"event.php?player=".$entry->player->name."&action=undrop&name=".$event->name."\">(undo)</a>";
+        echo "{$drop_icon} {$entry->drop_round} <a href=\"event.php?player=".$entry->player->name."&action=undrop&name=".$event->name."\">(undo)</a>";
       } else {
         echo "<input type=\"checkbox\" name=\"dropplayer[]\" value=\"{$entry->player->name}\" />";
       }
@@ -644,20 +647,27 @@ function pointsAdjustmentForm($event) {
 }
 
 function printUnverifiedPlayerCell($match, $playername) {
-  echo "<td><input type=\"checkbox\" name=\"dropplayer[]\" value=\"{$playername}\">";
+  global $drop_icon;
+  $dropped = $match->playerDropped($playername);
+  if ($dropped) {
+    echo "<td>{$drop_icon}";
+  } else {
+    echo "<td><input type=\"checkbox\" name=\"dropplayer[]\" value=\"{$playername}\">";
+  }
   if (($match->getPlayerWins($playername) > 0) || ($match->getPlayerLosses($playername) > 0)) {
     if ($match->getPlayerWins($playername) > $match->getPlayerLosses($playername)) {
       $matchresult = "W ";
     } else {
       $matchresult = "L ";
     }
-    echo "<span class=\"match_{$match->verification}\">{$playername}</span> ({$matchresult}{$match->getPlayerWins($playername)}-{$match->getPlayerLosses($playername)}) </td>";
+    echo "<span class=\"match_{$match->verification}\">{$playername}</span> ({$matchresult}{$match->getPlayerWins($playername)}-{$match->getPlayerLosses($playername)})</td>";
   } else {
     echo "{$playername}</td>";
   }
 }
 
 function matchList($event) {
+  global $drop_icon;
   $matches = $event->getMatches();
   // Prevent warnings in php output.  TODO: make this not needed.
   if (!isset($_POST['newmatchround'])) {$_POST['newmatchround'] = '';}
@@ -732,13 +742,15 @@ function matchList($event) {
     } else {
       $playerawins = $match->getPlayerWins($match->playera);
       $playerbwins = $match->getPlayerWins($match->playerb);
+      $playeradropflag = $match->playerDropped($match->playera) ? $drop_icon : "";
+      $playerbdropflag = $match->playerDropped($match->playera) ? $drop_icon : "";
       echo "<td class=\"match_{$match->verification}\">{$match->playera}</td>";
       if ($match->playera == $match->playerb) {
         $ezypaste .= "/me {$match->playera} has the BYE<br />";
         echo "<td>BYE</td>";
         echo "<td></td>";
       } else {
-        echo "<td>{$playerawins}-{$playerbwins}</td>";
+        echo "<td>{$playeradropflag} {$playerawins}-{$playerbwins} {$playerbdropflag}</td>";
         $ezypaste .= "/me {$match->playera} {$playerawins}-{$playerbwins} {$match->playerb}<br />";
         echo "<td class=\"match_{$match->verification}\">{$match->playerb}</td>";
       }
