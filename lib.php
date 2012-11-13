@@ -428,7 +428,7 @@ function not_allowed($reason) {
 }
 
 function version_tagline() {
-  print "Gatherling version 3.2.1 (\"I'm from the future, go to China.\")";
+  print "Gatherling version 3.2.2 (\"Well I guess that is completely inconspicuous.\")";
 }
 
 function redirect($page) {
