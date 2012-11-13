@@ -41,15 +41,15 @@ if ($player == NULL) {
         $result = "Successfully verified your account with MTGO.";
         $success = true;
       } else {
-        $result = "Your challenge is wrong.  Get a new one by sending the message 'ua pdcmagic' to infobot on MTGO!";
+        $result = "Your challenge doesn't match.  Get a new one by sending the message 'ua pdcmagic' to infobot on MTGO!";
       }
     } else if ($_POST['action'] == 'finalize_result') {
       // write results to matches table
       Match::saveReport($_POST['report'], $_POST['match_id'], $_POST['player']);
     } else if ($_POST['action'] == 'drop') {
       // drop player from event
-      echo "Trying to drop";
-      Standings::dropPlayer($_POST['event'], $_POST['player']);
+      $event = new Event($_POST['event']);
+      $event->dropPlayer($player->name);
     }
   }
   // Handle modes
@@ -372,7 +372,7 @@ function print_ActiveEvents() {
   foreach ($events as $event) {
     echo "<tr><td>{$event->name}</td>";
     echo "<td><a href=\"player.php?mode=standings&event={$event->name}\">Current Standings</a></td>";
-    if (Standings::playerActive($event->name, $player->name)){
+    if ($event->hasActivePlayer($player->name)){
       echo "<td><a href=\"player.php?mode=drop_form&event={$event->name}\">Drop From Event</a></td>";
     }
     echo "</tr>";

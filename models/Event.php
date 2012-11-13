@@ -361,6 +361,11 @@ class Event {
     return $active_players;
   }
 
+  function hasActivePlayer($playername) {
+    $count = db_query_single("SELECT COUNT(player) FROM standings WHERE event = ? AND player = ? AND active = 1", "ss", $this->name, $playername);
+    return ($count == 1);
+  }
+
   function hasRegistrant($playername) {
     $db = Database::getConnection();
     $stmt = $db->prepare("SELECT count(player) FROM entries WHERE event = ? AND player = ?");
@@ -454,6 +459,19 @@ class Event {
       $added = true;
     }
     return $added;
+  }
+
+  function dropPlayer($playername, $round = -1) {
+    if ($round == -1) {
+      $round = $this->current_round;
+    }
+    db_query("UPDATE entries SET drop_round = ? WHERE event = ? AND player = ?", "dss", $round, $this->name, $playername);
+    db_query("UPDATE standings SET active = 0 WHERE event = ? AND player = ?", "ss", $this->name, $playername);
+  }
+
+  function undropPlayer($playername) {
+    db_query("UPDATE entries SET drop_round = NULL WHERE event = ? AND player = ?", "ss", $this->name, $playername);
+    db_query("UPDATE standings SET active = 1 WHERE event = ? AND player = ?", "ss", $this->name, $playername);
   }
 
   function getMatches() {

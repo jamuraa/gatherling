@@ -308,6 +308,50 @@ function db_query_single() {
   return $result;
 }
 
+function db_query() {
+  $params = func_get_args();
+  $query = array_shift($params);
+  $paramspec = array_shift($params);
+  $db = Database::getConnection();
+  $stmt = $db->prepare($query);
+  $stmt or die($db->error);
+  if (count($params) == 1) {
+    list($one) = $params;
+    $stmt->bind_param($paramspec, $one);
+  } else if (count($params) == 2) {
+    list($one, $two) = $params;
+    $stmt->bind_param($paramspec, $one, $two);
+  } else if (count($params) == 3) {
+    list($one, $two, $three) = $params;
+    $stmt->bind_param($paramspec, $one, $two, $three);
+  } else if (count($params) == 4) {
+    list($one, $two, $three, $four) = $params;
+    $stmt->bind_param($paramspec, $one, $two, $three, $four);
+  } else if (count($params) == 5) {
+    list($one, $two, $three, $four, $five) = $params;
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five);
+  } else if (count($params) == 6) {
+    list($one, $two, $three, $four, $five, $six) = $params;
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six);
+  } else if (count($params) == 7) {
+    list($one, $two, $three, $four, $five, $six, $seven) = $params;
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven);
+  } else if (count($params) == 8) {
+    list($one, $two, $three, $four, $five, $six, $seven, $eight) = $params;
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven, $eight);
+  } else if (count($params) == 9) {
+    list($one, $two, $three, $four, $five, $six, $seven, $eight, $nine) = $params;
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven, $eight, $nine);
+  } else if (count($params) == 10) {
+    list($one, $two, $three, $four, $five, $six, $seven, $eight, $nine, $ten) = $params;
+    $stmt->bind_param($paramspec, $one, $two, $three, $four, $five, $six, $seven, $eight, $nine, $ten);
+  }
+
+  $stmt->execute() or die($stmt->error);
+  $stmt->close();
+  return true;
+}
+
 function json_headers() {
   header('Content-type: application/json');
   header('Cache-Control: no-cache');

@@ -42,7 +42,7 @@ function delPlayerRow(data) {
 
 function dropPlayer(data) {
   if (!data.success) { return false; }
-  $('#entry_row_' + data.player).find('input[name=dropplayer[]]').parent().html('Dropped <a href=\"{$CONFIG['base_url']}event.php?player=' + data.player + '&action=undrop&name=' + data.eventname + '\">(undrop)</a>');
+  $('#entry_row_' + data.player).find('input[name=dropplayer[]]').parent().html('&#x2690; ' + data.round + ' <a href=\"{$CONFIG['base_url']}event.php?player=' + data.player + '&action=undrop&name=' + data.eventname + '\">(undo)</a>');
 }
 
 function updateRegistration() {
@@ -168,9 +168,7 @@ function content() {
 
   if ($event && $event->authCheck($player)) {
     if (strcmp($_GET['action'], "undrop") == 0) {
-      $player = new Standings($event->name,$_GET['player']);
-      $player->active = 1;
-      $player->save();
+      $event->undropPlayer($_GET['player']);
     }
 
     if (mode_is("Start Event")) {
@@ -532,11 +530,10 @@ function playerList($event) {
     // Show drop box if event is active.
     echo "<td align=\"center\">";
     if ($event->active == 1){
-      if (Standings::playerActive($event->name,$entry->player->name)) {
-        echo "<input type=\"checkbox\" name=\"dropplayer[]\" value=\"{$entry->player->name}\" />";
+      if ($entry->dropped()) {
+        echo "&#x2690; {$entry->drop_round} <a href=\"event.php?player=".$entry->player->name."&action=undrop&name=".$event->name."\">(undo)</a>";
       } else {
-        echo "Dropped <a href=\"event.php?player=".$entry->player->name."&action=undrop&name=".$event->name."\">(undrop)</a>";
-        // TODO: Symbol for dropped, instead of mark
+        echo "<input type=\"checkbox\" name=\"dropplayer[]\" value=\"{$entry->player->name}\" />";
       }
     }
     echo "</td><td>";
@@ -1039,7 +1036,11 @@ function medalDropMenu() {
 }
 
 function playerByeMenu($event, $def="\n", $skipPlayers = array()) {
-  $playernames = $event->getPlayers();
+  if ($event->active) {
+    $playernames = $event->getActivePlayers();
+  } else {
+    $playernames = $event->getPlayers();
+  }
   echo "<select name=\"newbyeplayer\">";
   if(strcmp("\n", $def) == 0) {
     echo "<option value=\"\">- Bye Player -</option>";
@@ -1058,7 +1059,11 @@ function playerByeMenu($event, $def="\n", $skipPlayers = array()) {
 }
 
 function playerDropMenu($event, $letter, $def="\n", $skipPlayers = array()) {
-  $playernames = $event->getPlayers();
+  if ($event->active) {
+    $playernames = $event->getActivePlayers();
+  } else {
+    $playernames = $event->getPlayers();
+  }
   echo "<select name=\"newmatchplayer$letter\">";
   if(strcmp("\n", $def) == 0) {
     echo "<option value=\"\">- Player $letter -</option>";
@@ -1139,13 +1144,14 @@ function updateReg() {
   }
   if(isset($_POST['dropplayer'])) {
     foreach ($_POST['dropplayer'] as $playername) {
-      Standings::dropPlayer($event->name, $playername);
+      $event->dropPlayer($playername);
     }
   }
   $event->addPlayer($_POST['newentry']);
 }
 
 function updateMatches() {
+  $event = new Event($_POST['name']);
   if(isset($_POST['matchdelete'])) {
     foreach ($_POST['matchdelete'] as $matchid) {
       Match::destroy($matchid); 
@@ -1154,7 +1160,7 @@ function updateMatches() {
 
   if (isset($_POST['dropplayer'])) {
     foreach ($_POST['dropplayer'] as $playername) {
-      Standings::dropPlayer($_POST['eventname'], $playername);
+      $event->dropPlayer($playername);
     }
   }
 
@@ -1204,17 +1210,14 @@ function updateMatches() {
 
   if ((strcmp($pA, "") != 0) && (strcmp($pB, "") != 0) && (strcmp($res, "") != 0) && (strcmp($rnd, "") != 0)) {
     if ($res == "P") {
-      $event = new Event($_POST['name']);
       $event->addPairing($pA, $pB, $rnd, $res);
     } else {
-      $event = new Event($_POST['name']);
       $event->addMatch($pA, $pB, $rnd, $res, $pAWins, $pBWins);
     }
   }
 
   if (isset($_POST['newbyeplayer']) && (strcmp($_POST['newbyeplayer'], "") != 0)) {
     $p = $_POST['newbyeplayer'];
-    $event = new Event($_POST['name']);
     $event->addMatch($p, $p, $rnd, 'BYE');
   }
 }

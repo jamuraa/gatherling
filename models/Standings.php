@@ -249,17 +249,6 @@ class Standings
     }
   }
 
-  public static function dropPlayer($eventname, $playername) {
-    $standing= new Standings($eventname, $playername);
-    $standing->active = 0;
-    $standing->save();
-  }
-
-  public static function playerActive($eventname, $playername) {
-    $standing = new Standings($eventname, $playername);
-    return ($standing->active == 1);
-  }
-
   public static function writeSeed($eventname, $playername, $seed) {
     $standing = new Standings($eventname, $playername);
     $standing->seed = $seed;

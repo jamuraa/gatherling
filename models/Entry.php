@@ -5,6 +5,7 @@ class Entry {
   public $player;
   public $deck;
   public $medal;
+  public $drop_round;
 
   static function findByEventAndPlayer($eventname, $playername) {
     $db = Database::getConnection();
@@ -25,33 +26,14 @@ class Entry {
     }
   }
 
-  /* UNUSED?
-  static function findEventAndPlayer($eventname, $playername) {
-      // crude check to see if player is registered for event. Really don't need deck or medal to be selected.
-      // just copied above function for findByEventAndPlayer
-      // this code was part of the reg-decklist feature
-    $db = Database::getConnection();
-    $stmt = $db->prepare("SELECT deck, medal FROM entries WHERE event = ? AND player = ?");
-    $stmt->bind_param("ss", $eventname, $playername);
-    $stmt->store_result();
-    $found = false;
-    if ($stmt->num_rows > 0) {
-      $found = true;
-    }
-    $stmt->close();
-
-    return $found;
-  }
-   */
-
   function __construct($eventname, $playername) {
     $db = Database::getConnection();
-    $stmt = $db->prepare("SELECT deck, medal, ignored FROM entries WHERE event = ? AND player = ?");
+    $stmt = $db->prepare("SELECT deck, medal, ignored, drop_round FROM entries WHERE event = ? AND player = ?");
     $stmt or die($db->error);
     $stmt->bind_param("ss", $eventname, $playername);
     $stmt->execute();
     $this->ignored = 0;
-    $stmt->bind_result($deckid, $this->medal, $this->ignored);
+    $stmt->bind_result($deckid, $this->medal, $this->ignored, $this->drop_round);
 
     if ($stmt->fetch() == NULL) {
       throw new Exception('Entry for '. $playername .' in '. $eventname .' not found');
@@ -97,6 +79,10 @@ class Entry {
   function canDelete() {
     $matches = $this->getMatches();
     return (count($matches) == 0);
+  }
+
+  function dropped() {
+    return ($this->drop_round > 0);
   }
 
   function canCreateDeck($username) {

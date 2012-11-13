@@ -268,10 +268,19 @@ if ($version < 13) {
   echo "Updating to version 13 (add players_editdecks to events)... <br />";
   do_query("ALTER TABLE events ADD COLUMN player_editdecks TINYINT(1) NOT NULL DEFAULT '1'");
   do_query("UPDATE events SET player_editdecks = (finalized != 1)");
-  do_query("UPDATE db_version SET version = 13");
 
+  do_query("UPDATE db_version SET version = 13");
   $db->commit();
   echo "... DB now at version 13! <br />";
+}
+
+if ($version < 14) {
+  echo "Updating to version 14 (add drop_round to entries)... <br />";
+  do_query("ALTER TABLE entries ADD COLUMN drop_round INTEGER");
+
+  do_query("UPDATE db_version SET version = 14");
+  $db->commit();
+  echo "... DB now at version 14! <br />";
 }
 
 $db->autocommit(TRUE);

@@ -49,10 +49,11 @@ if (isset($_GET['deck'])) {
   if ($event->authCheck($_SESSION['username'])) {
     $result = array();
     $playername = $_GET['dropplayer'];
-    Standings::dropPlayer($event->name, $playername);
+    $event->dropPlayer($playername);
     $result['success'] = true;
     $result['player'] = $playername;
     $result['eventname'] = $event->name;
+    $result['round'] = $event->current_round;
     json_headers();
     echo json_encode($result);
   }
