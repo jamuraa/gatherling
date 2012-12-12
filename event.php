@@ -1189,7 +1189,8 @@ function updateMatches() {
       } elseif ($result == "0-2") {
         $resultForA = "L20"; $resultForB = "W20";
       } elseif ($result == 'D') {
-        // TODO: need to figure out how to enter a draw
+        Match::saveReport('D',$_POST['hostupdatesmatches'][$ndx], 'a');
+        Match::saveReport('D',$_POST['hostupdatesmatches'][$ndx], 'b');
       }
 
       if ((strcasecmp($resultForA, 'notset') != 0) && (strcasecmp($resultForB, 'notset') != 0)) {
