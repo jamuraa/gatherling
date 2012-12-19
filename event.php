@@ -743,7 +743,7 @@ function matchList($event) {
       $playerawins = $match->getPlayerWins($match->playera);
       $playerbwins = $match->getPlayerWins($match->playerb);
       $playeradropflag = $match->playerDropped($match->playera) ? $drop_icon : "";
-      $playerbdropflag = $match->playerDropped($match->playera) ? $drop_icon : "";
+      $playerbdropflag = $match->playerDropped($match->playerb) ? $drop_icon : "";
       echo "<td class=\"match_{$match->verification}\">{$match->playera}</td>";
       if ($match->playera == $match->playerb) {
         $ezypaste .= "/me {$match->playera} has the BYE<br />";
