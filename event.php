@@ -660,7 +660,11 @@ function printUnverifiedPlayerCell($match, $playername) {
     } else {
       $matchresult = "L ";
     }
-    echo "<span class=\"match_{$match->verification}\">{$playername}</span> ({$matchresult}{$match->getPlayerWins($playername)}-{$match->getPlayerLosses($playername)})</td>";
+    if (($match->getPlayerWins($playername) == 1) && ($match->getPlayerLosses($playername) == 1)) {
+        echo "<span class=\"match_{$match->verification}\">{$playername}</span> (Draw)</td>";
+    } else {
+        echo "<span class=\"match_{$match->verification}\">{$playername}</span> ({$matchresult}{$match->getPlayerWins($playername)}-{$match->getPlayerLosses($playername)})</td>";
+    }
   } else {
     echo "{$playername}</td>";
   }
@@ -749,6 +753,10 @@ function matchList($event) {
         $ezypaste .= "/me {$match->playera} has the BYE<br />";
         echo "<td>BYE</td>";
         echo "<td></td>";
+      } else if(($match->getPlayerWins($match->playera) == 1) && ($match->getPlayerWins($match->playerb) == 1)){
+          echo "<td>{$playeradropflag} Draw {$playerbdropflag}</td>";
+          $ezypaste .= "/me {$match->playera} {$playerawins}-{$playerbwins} {$match->playerb}<br />";
+          echo "<td class=\"match_{$match->verification}\">{$match->playerb}</td>";
       } else {
         echo "<td>{$playeradropflag} {$playerawins}-{$playerbwins} {$playerbdropflag}</td>";
         $ezypaste .= "/me {$match->playera} {$playerawins}-{$playerbwins} {$match->playerb}<br />";
