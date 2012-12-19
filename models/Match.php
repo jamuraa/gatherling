@@ -237,13 +237,16 @@ class Match {
           //echo "writing a 2-1 loss";
           $stmt->bind_param("ddd", $one, $two, $match_id);
           break;
+        case "D":
+          //writing a draw
+          $stmt->bind_param("ddd", $one, $one, $match_id);
+          break;
       }
 
       $stmt->execute();
       Match::validateReport($match_id);
 
       return NULL;
-
     }
   }
 
