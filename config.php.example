@@ -24,6 +24,6 @@ $CONFIG['calendar_description'] = "a description for the events calendar";
 # === Infobot PARAMETERS ==
 # If you have set it up with infobot to contact the site, you can change the passkey here.
 # If you haven't set it up with infobot, leave this blank.
-$CONFIG['infobot_passkey'] = ""
+$CONFIG['infobot_passkey'] = "";
 
 # THAT'S ALL FOLKS!
