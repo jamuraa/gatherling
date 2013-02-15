@@ -771,8 +771,8 @@ class Event {
       $this->finalized = 1;
       $this->save();
       $this->assignMedals();
-      // need to add code to set medals
-
+     $ratings = new Ratings();
+     $ratings->calcFinalizedEventRatings($this->name, $this->format, $this->start);
     }
     $this->current_round++;
     $this->save();
