@@ -1143,4 +1143,48 @@ class Event {
     }
     $this->setFinalists($win, $sec, $t4, $t8);
   }
+
+  function matchesOfType($type) {
+    $verification = '';
+    if ($type == 'unfinished') {
+      $verification = 'unverified';
+    } elseif ($type == 'finished') {
+      $verification = 'verified';
+    } 
+
+    $db = Database::getConnection();
+    $stmt = $db->prepare("SELECT m.id FROM matches m, subevents s, events e
+      WHERE m.subevent = s.id AND s.parent = e.name AND e.name = ? AND
+      m.verification = ? AND m.round = ? AND s.timing = ? ORDER BY m.verification");
+    $current_round = $this->current_round;
+    $timing = 1;
+    if ($current_round > $this->mainrounds) {
+      $current_round -= $this->mainrounds;
+      $timing = 2;
+    }
+    $stmt->bind_param("ssdd", $this->name, $verification, $current_round, $timing);
+    $stmt->execute();
+    $stmt->bind_result($matchid);
+
+    $mids = array();
+    while ($stmt->fetch()) {
+      $mids[] = $matchid;
+    }
+    $stmt->close();
+
+    $matches = array();
+    foreach ($mids as $mid) {
+      $matches[] = new Match($mid);
+    }
+
+    return $matches;
+  }
+
+  function unfinishedMatches() {
+    matchesOfType('unfinished');
+  }
+
+  function finishedMatches() {
+    matchesOfType('finished');
+  }     
 }
