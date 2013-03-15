@@ -180,22 +180,26 @@ class Standings
     $opponents = $this->getOpponents($eventname, $subevent, $round);
     $OMW = 0;
     $OGW = 0;
-    $number_of_opponents = 0;
+    $number_of_opponents = count($opponents);
     foreach ($opponents as $opponent) {
       // do calc
       if ($opponent->byes > 0){
-        $opp_score = $opponent->matches_won - $opponent->byes;
-        $OMW += ($opp_score / $opponent->matches_played);
+        $opp_score = ($opponent->matches_won - $opponent->byes); //  + ($opponent->draws * 0.33)
+        $opp_win_percent = ($opp_score / $opponent->matches_played);
+        $opp_win_percent = max(0.333, $opp_win_percent);
+        $OMW += $opp_win_percent;
         if ($opponent->games_played == 0) {
           $OGW += 0;
         } else {
           $OGW += ($opponent->games_won / $opponent->games_played);
         }
-        $number_of_opponents++;
       } else {
-        if ($opponent->matches_played != 0) $OMW += ($opponent->matches_won / $opponent->matches_played);
+        if ($opponent->matches_played != 0)  {
+          $OMW += max(0.333, ($opponent->matches_won / $opponent->matches_played));
+        } else {
+          $OMW += 0.333;
+        }
         if ($opponent->games_played != 0) $OGW += ($opponent->games_won / $opponent->games_played);
-        $number_of_opponents++;
       }
     }
     if ($this->games_played == 0){
