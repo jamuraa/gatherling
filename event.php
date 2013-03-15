@@ -348,6 +348,7 @@ function eventForm($event = NULL, $forcenew = false) {
   echo "<form action=\"event.php\" method=\"post\" ";
   echo "enctype=\"multipart/form-data\">";
   echo "<table class=\"form\" style=\"border-width: 0px\" align=\"center\">";
+  $current_year = strftime('%Y', time());
   if ($event->start != NULL) {
     $date = $event->start;
     preg_match('/([0-9]+)-([0-9]+)-([0-9]+) ([0-9]+):([0-9]+):.*/', $date, $datearr);
@@ -382,14 +383,14 @@ function eventForm($event = NULL, $forcenew = false) {
     echo "<input type=\"text\" name=\"name\" value=\"{$event->name}\" ";
     echo "size=\"40\">";
     echo "</td></tr>";
-    $year = strftime('Y', time());
-    $month = strftime('B', time());
-    $day = strftime('Y', time());
-    $hour = strftime('H', time());
-    $minutes = strftime('M', time());
+    $year = strftime('%Y', time());
+    $month = strftime('%B', time());
+    $day = strftime('%e', time());
+    $hour = strftime('%H', time());
+    $minutes = strftime('%M', time());
   }
   echo "<tr><th>Date & Time</th><td>";
-  numDropMenu("year", "- Year -", 2012, $year, 2005);
+  numDropMenu("year", "- Year -", $current_year + 1, $year, 2005);
   monthDropMenu($month);
   numDropMenu("day", "- Day- ", 31, $day, 1);
   timeDropMenu($hour, $minutes);
@@ -678,7 +679,7 @@ function matchList($event) {
   echo " check box next to the players name.</i></p>";
   // Quick links to rounds
   echo "<p style=\"text-align: center\">";
-  for ($r = 1; $r < $event->current_round; $r++) {
+  for ($r = 1; $r <= $event->current_round; $r++) {
     echo "<a href=\"event.php?view=match&name={$event->name}#round-{$r}\">Round {$r}</a> ";
   }
   echo "</p>";
