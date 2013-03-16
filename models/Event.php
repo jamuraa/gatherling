@@ -1181,10 +1181,10 @@ class Event {
   }
 
   function unfinishedMatches() {
-    matchesOfType('unfinished');
+    return $this->matchesOfType('unfinished');
   }
 
   function finishedMatches() {
-    matchesOfType('finished');
+    return $this->matchesOfType('finished');
   }     
 }
