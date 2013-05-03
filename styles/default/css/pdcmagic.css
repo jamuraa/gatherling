@@ -96,7 +96,7 @@ a:hover {
 #mainmenu_submenu ul li.current a {
   border-left: 1px solid black;
   border-right: 2px solid black;
-  width: 131px;
+  width: 134px;
 }
 
 #submenu ul {
@@ -116,6 +116,7 @@ a:hover {
 
 #mainmenu ul li, #mainmenu_submenu ul li, #submenu ul li {
   display: inline;
+  margin-left: 0px;
 }
 
 #mainmenu ul li a, #mainmenu_submenu ul li a, #submenu ul li a {
@@ -145,6 +146,10 @@ div.tabs_5 ul li a {
   width: 187px;
 }
 
+div.tabs_5 ul li.last a {
+  width: 188px;
+}
+
 div.tabs_6 ul li a {
   width: 155px;
 }
@@ -155,6 +160,10 @@ div.tabs_7 ul li a {
 
 div.tabs_8 ul li a {
   width: 116px;
+}
+
+div.tabs_8 ul li.last a {
+  width: 121px;
 }
 
 #mainmenu ul li a:visited, #mainmenu_submenu ul li a:visited, #submenu ul li a:visited {
