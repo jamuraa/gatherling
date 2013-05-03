@@ -721,7 +721,6 @@ function matchList($event) {
     $star = ($match->timing > 1) ? "*" : "";
     if ($printrnd != $thisround) {
       $thisround = $printrnd;
-      $ezypaste = "/me Pairings for Round {$thisround}<br />";
       $playersInMatches = array();
       $extraRoundTitle = "";
       if ($match->timing > 1) {
@@ -733,7 +732,6 @@ function matchList($event) {
     $playersInMatches[] = $match->playera;
     $playersInMatches[] = $match->playerb;
     if (strcasecmp($match->verification, 'verified') != 0 && $event->finalized == 0) {
-      $ezypaste .= "/me {$match->playera} vs. {$match->playerb}<br />";
       printUnverifiedPlayerCell($match, $match->playera);
       echo "<td>";
       echo "<input type=\"hidden\" name=\"hostupdatesmatches[]\" value=\"{$match->id}\">";
@@ -747,12 +745,10 @@ function matchList($event) {
       $playerbdropflag = $match->playerDropped($match->playerb) ? $drop_icon : "";
       echo "<td class=\"match_{$match->verification}\">{$match->playera}</td>";
       if ($match->playera == $match->playerb) {
-        $ezypaste .= "/me {$match->playera} has the BYE<br />";
         echo "<td>BYE</td>";
         echo "<td></td>";
       } else {
         echo "<td>{$playeradropflag} {$playerawins}-{$playerbwins} {$playerbdropflag}</td>";
-        $ezypaste .= "/me {$match->playera} {$playerawins}-{$playerbwins} {$match->playerb}<br />";
         echo "<td class=\"match_{$match->verification}\">{$match->playerb}</td>";
       }
     }
@@ -792,7 +788,25 @@ function matchList($event) {
   echo "</form>";
   echo "</table>";
   echo "<p>Paste stuff:<br />";
-  echo "<code>{$ezypaste}</code></p>";
+  echo "<code>";
+  echo "/me Pairings for Round {$thisround}<br />";
+  foreach ($event->unfinishedMatches() as $match) {
+    echo "/me {$match->playera} vs. {$match->playerb}<br />";
+  }
+  echo "/me Good luck everyone!<br />";
+  echo "<br />";
+  echo "/me [sLizard] Results for ROUND {$thisround} [sSpellS]<br />";
+  foreach ($event->finishedMatches() as $match) {
+    if ($match->isBYE()) {
+      echo "/me {$match->playera} has the BYE<br />";
+    } else {
+      $playerawins = $match->getPlayerWins($match->playera);
+      $playerbwins = $match->getPlayerWins($match->playerb);
+      echo "/me {$match->playera} {$playerawins}-{$playerbwins} {$match->playerb}<br />";
+    }
+  }
+  echo "/me [sLizard] Please check your results for errors!  The next round starts in 2 minutes! [sSpellI]<br />";
+  echo "</code>";
 }
 
 function standingsList($event) {

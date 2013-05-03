@@ -169,11 +169,11 @@ class Match {
     return NULL;
   }
 
-  function isDraw () {
+  function isDraw() {
     return ($this->result == 'D');
   }
 
-  function isBYE () {
+  function isBYE() {
     return ($this->result == 'BYE');
   }
 
