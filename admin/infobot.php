@@ -6,7 +6,7 @@ if (strncmp($_SERVER['HTTP_USER_AGENT'], "infobot", 7) != 0) {
   die("You're not infobot!");
 }
 
-if (md5($_GET['passkey']) != $CONFIG['infobot_passkey']) {
+if ($_GET['passkey'] != $CONFIG['infobot_passkey']) {
   die("Wrong passkey");
 }
 
