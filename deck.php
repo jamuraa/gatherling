@@ -67,9 +67,12 @@ if (strcmp($_GET['mode'], "view") == 0) {
 
   // part of the reg-decklist feature. both "register" and "addregdeck" switches
   if (strcmp($_GET['mode'], "register") == 0) {
-      deckRegisterForm();
+    deckRegisterForm();
   } else if (strcmp($_GET['mode'], "addregdeck") == 0) {
-      $deck = insertDeck();
+    $deck = insertDeck();
+    if (count($deck->errors) == 0) {
+      deckProfile($deck);
+    }
   } else if (checkDeckAuth($_POST['event'], $deck_player, $deck)) {
       if (strcmp($_POST['mode'], "Create Deck") == 0) {
         $deck = insertDeck();
@@ -185,7 +188,7 @@ function deckForm($deck = NULL) {
 function deckRegisterForm($deck = NULL) {
 
   $player = (isset($_POST['player'])) ? $_POST['player'] : $_GET['player'];
-  $event = (isset($_POST['player'])) ? $_POST['event'] : $_GET['event'];
+  $event = (isset($_POST['event'])) ? $_POST['event'] : $_GET['event'];
   $vals = array('contents' => '', 'sideboard' => '');
 
   echo "<form action=\"deck.php?mode=addregdeck\" method=\"post\">\n";
@@ -228,7 +231,7 @@ function deckRegisterForm($deck = NULL) {
   echo "<tr><td colspan=\"2\" align=\"center\">\n";
   echo "<input type=\"submit\" name=\"mode\" value=\"Create Deck\">\n";
   echo "<input type=\"hidden\" name=\"player\" value=\"$player\">";
-  echo "<input type=\"hidden\" name=\"event\" value=\"$event\">";
+  echo "<input type=\"hidden\" name=\"event\" value=\"" . htmlentities($event) . "\">";
   echo "</td></tr></table></form>\n";
 }
 

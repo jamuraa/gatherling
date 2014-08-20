@@ -351,9 +351,9 @@ function print_preRegistration() {
     echo "<tr><td>{$event->name}</td>";
     echo "<td>" . distance_of_time_in_words(time(), strtotime($event->start)) . "</td>";
     if ($event->hasRegistrant($player->name)) {
-      echo "<td>Registered <a href=\"prereg.php?action=unreg&event={$event->name}\">(Unreg)</a></td>";
+      echo "<td>Registered <a href=\"prereg.php?action=unreg&event=" . urlencode($event->name) . "\">(Unreg)</a></td>";
     } else {
-      echo "<td><a href=\"prereg.php?action=reg&event={$event->name}\">Register</a></td>";
+      echo "<td><a href=\"prereg.php?action=reg&event=" . urlencode($event->name) . "\">Register</a></td>";
     }
     echo "</tr>";
   }
@@ -371,9 +371,9 @@ function print_ActiveEvents() {
   }
   foreach ($events as $event) {
     echo "<tr><td>{$event->name}</td>";
-    echo "<td><a href=\"player.php?mode=standings&event={$event->name}\">Current Standings</a></td>";
+    echo "<td><a href=\"player.php?mode=standings&event=" . urlencode($event->name) . "\">Current Standings</a></td>";
     if ($event->hasActivePlayer($player->name)){
-      echo "<td><a href=\"player.php?mode=drop_form&event={$event->name}\">Drop From Event</a></td>";
+      echo "<td><a href=\"player.php?mode=drop_form&event=" . urlencode($event->name) . "\">Drop From Event</a></td>";
     }
     echo "</tr>";
   }
