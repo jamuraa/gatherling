@@ -161,7 +161,7 @@ function deckForm($deck = NULL) {
     echo "</ul></td></tr>";
   }
   echo "<tr><td><b>Name</td>\n<td>";
-  echo "<input id=\"deck-name\" type=\"text\" name=\"name\" value=\"{$vals['name']}\" ";
+  echo "<input id=\"deck-name\" type=\"text\" name=\"name\" value=\"". htmlentities($vals['name']) . "\" ";
   echo "size=\"40\"></td></tr>\n";
   if(!is_null($deck)) {echo "<input type=\"hidden\" name=\"id\" value=\"{$deck->id}\">\n";}
   echo "<tr><td><b>Archetype</td>\n<td>";
@@ -178,9 +178,9 @@ function deckForm($deck = NULL) {
   echo "{$vals['desc']}</textarea></td></tr>\n";
   echo "<tr><td>&nbsp;</td></tr>\n";
   echo "<tr><td colspan=\"2\" align=\"center\">\n";
-  echo "<input type=\"submit\" name=\"mode\" value=\"$mode\">\n";
-  echo "<input type=\"hidden\" name=\"player\" value=\"$player\">";
-  echo "<input type=\"hidden\" name=\"event\" value=\"$event\">";
+  echo "<input type=\"submit\" name=\"mode\" value=\"" . htmlentities($mode) . "\">\n";
+  echo "<input type=\"hidden\" name=\"player\" value=\"" . htmlentities($player) . "\">";
+  echo "<input type=\"hidden\" name=\"event\" value=\"" . htmlentities($event) . "\">";
   echo "</td></tr></table></form>\n";
 }
 
@@ -213,7 +213,7 @@ function deckRegisterForm($deck = NULL) {
   }
   echo "</select></td></tr>";
   echo "<tr><td><b>Name</td>\n<td>";
-  echo "<input id=\"deck-name\" type=\"text\" name=\"name\" value=\"{$vals['name']}\" ";
+  echo "<input id=\"deck-name\" type=\"text\" name=\"name\" value=\"" . htmlentities($vals['name']) . "\" ";
   echo "size=\"40\"></td></tr>\n";
   echo "<tr><td><b>Archetype</td>\n<td>";
   archetypeDropMenu($vals['archetype']);
@@ -230,7 +230,7 @@ function deckRegisterForm($deck = NULL) {
   echo "<tr><td>&nbsp;</td></tr>\n";
   echo "<tr><td colspan=\"2\" align=\"center\">\n";
   echo "<input type=\"submit\" name=\"mode\" value=\"Create Deck\">\n";
-  echo "<input type=\"hidden\" name=\"player\" value=\"$player\">";
+  echo "<input type=\"hidden\" name=\"player\" value=\"" . htmlentities($player) . "\">";
   echo "<input type=\"hidden\" name=\"event\" value=\"" . htmlentities($event) . "\">";
   echo "</td></tr></table></form>\n";
 }
@@ -320,9 +320,9 @@ function deckProfile($deck) {
     return;
   }
   echo "<center><form action=\"deckdl.php\" method=\"post\">\n";
-  echo "<input type=\"hidden\" name=\"id\" value={$deck->id}>\n";
+  echo "<input type=\"hidden\" name=\"id\" value=\"{$deck->id}\" />\n";
   echo "<input type=\"submit\" name=\"mode\" ";
-  echo "value=\"Download deck as .txt file\"></form></center><br>\n";
+  echo "value=\"Download deck as .txt file\" /></form></center><br>\n";
   echo "<div class=\"grid_5 alpha\"><div id=\"gatherling_lefthalf\">\n";
   deckInfoCell($deck);
   maindeckTable($deck);
@@ -346,8 +346,8 @@ function deckProfile($deck) {
   echo "<div class=\"clear\"></div>";
   echo "<center>\n";
   echo "<form action=\"deck.php\" method=\"post\">\n";
-  echo "<input type=\"hidden\" name=\"id\" value=\"$deck->id\">\n";
-  echo "<input type=\"submit\" name=\"mode\" value=\"Edit Deck\">\n";
+  echo "<input type=\"hidden\" name=\"id\" value=\"$deck->id\" />\n";
+  echo "<input type=\"submit\" name=\"mode\" value=\"Edit Deck\" />\n";
   echo "</form></center>\n";
 }
 
