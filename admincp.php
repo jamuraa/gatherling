@@ -47,7 +47,7 @@ function printAddCardSet() {
   echo "<table class=\"form\" style=\"border-width: 0px\" align=\"center\">";
   print_text_input("Cardset Name", "cardsetname");
   print_text_input("Release Date", "releasedate");
-  print_select_input("Set Type", "settype", array("Core", "Block", "Extra"));
+  print_select_input("Set Type", "settype", array("Core" => "Core", "Block" => "Block", "Extra" => "Extra"));
   print_file_input("Cardset Text Spoiler", "cardsetfile");
   print_submit("Install New Cardset");
   echo "</table></form>";

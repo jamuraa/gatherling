@@ -19,9 +19,12 @@ if ($file == FALSE) {
 //$file = fopen("Put spoiler text file name here.txt", "r");
 $card = array();
 $rarity = "Common";
+$cardsparsed = 0;
 $cardsinserted = 0;
 
 $database = Database::getConnection();
+
+echo "Inserting card set ($set, $releasedate, $settype)...<br />";
 
 // Insert the card set
 $stmt = $database->prepare("INSERT INTO cardsets(released, name, type) values(?, ?, ?)");
@@ -51,9 +54,10 @@ while(!feof($file))
     {
       preg_match("/$set (Land|Common|Uncommon|Rare|Mythic Rare)/", $card[$matches[1]], $submatches);
       $card[$matches[1]] = $submatches[1];
-      $cardsinserted++;
+      $cardsparsed++;
       if ($card['Set/Rarity'] == 'Common') {
         insertCard($card, $set, $submatches[1], $stmt);
+        $cardsinserted++;
       }
     }
   }
@@ -64,6 +68,7 @@ while(!feof($file))
 }
 
 echo "End of File Reached<br />";
+echo "Total Cards Parsed: {$cardsparsed}<br />";
 echo "Total Cards Inserted: {$cardsinserted}<br />";
 $stmt->close();
 

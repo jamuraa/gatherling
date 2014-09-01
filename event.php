@@ -28,7 +28,7 @@ function addPlayerRow(data) {
   }
   html += '</td>';
   html += '<td align="center"><img src="$dot_url" alt="dot" /></td>';
-  html += '<td><a class="create_deck_link" href="deck.php?player=' + data.player + '&event=' + event_name + '&mode=create">[Create Deck]</a></td>';
+  html += '<td><a class="create_deck_link" href="deck.php?player=' + encodeURIComponent(data.player) + '&event=' + encodeURIComponent(event_name) + '&mode=create">[Create Deck]</a></td>';
   html += '<td align="center"><input type="checkbox" name="delentries[]" value="' + data.player + '" /></td></tr>';
   $('input[name=newentry]').val("");
   $('#row_new_entry').before(html);
@@ -44,26 +44,26 @@ function delPlayerRow(data) {
 
 function dropPlayer(data) {
   if (!data.success) { return false; }
-  $('#entry_row_' + data.player).find('input[name=dropplayer[]]').parent().html('{$drop_icon} ' + data.round + ' <a href=\"{$CONFIG['base_url']}event.php?player=' + data.player + '&action=undrop&name=' + data.eventname + '\">(undo)</a>');
+  $('#entry_row_' + data.player).find('input[name=dropplayer[]]').parent().html('{$drop_icon} ' + data.round + ' <a href=\"{$CONFIG['base_url']}event.php?player=' + encodeURIComponent(data.player) + '&action=undrop&name=' + encodeURIComponent(data.eventname) + '\">(undo)</a>');
 }
 
 function updateRegistration() {
   event_name = $('input[name=name]').val();
   newentry_name = $('input[name=newentry]').val();
   if (newentry_name != "") {
-    $.ajax({url: 'ajax.php?event=' + event_name
-                       + '&addplayer=' + newentry_name,
+    $.ajax({url: 'ajax.php?event=' + encodeURIComponent(event_name)
+                       + '&addplayer=' + encodeURIComponent(newentry_name),
                        success: addPlayerRow});
   }
   $('input[name=delentries[]]').each(function(x, e) {
     if (e.checked) {
-      $.ajax({url: 'ajax.php?event=' + event_name + '&delplayer=' + e.value,
+      $.ajax({url: 'ajax.php?event=' + encodeURIComponent(event_name) + '&delplayer=' + encodeURIComponent(e.value),
               success: delPlayerRow});
     }
   });
   $('input[name=dropplayer[]]').each(function(x, e) {
     if (e.checked) {
-      $.ajax({url: 'ajax.php?event=' + event_name + '&dropplayer=' + e.value,
+      $.ajax({url: 'ajax.php?event=' + encodeURIComponent(event_name) + '&dropplayer=' + encodeURIComponent(e.value),
              success: dropPlayer});
     }
   });
@@ -304,12 +304,13 @@ function eventList($series = "", $season = "") {
   echo "<td align=\"center\"><b>Finalized</td></tr>";
 
   foreach ($results as $thisEvent) {
+    $event = new Event($thisEvent['name']);
     $dateStr = $thisEvent['start'];
     $dateArr = explode(" ", $dateStr);
     $date = $dateArr[0];
     echo "<tr><td>";
-    echo "<a href=\"event.php?name={$thisEvent['name']}\">";
-    echo "{$thisEvent['name']}</a></td>";
+    echo $event->linkTo();
+    echo "</td>";
     echo "<td>{$thisEvent['format']}</td>";
     echo "<td align=\"center\">{$thisEvent['players']}</td>";
     echo "<td>{$thisEvent['host']}";
@@ -358,8 +359,8 @@ function eventForm($event = NULL, $forcenew = false) {
     $hour = $datearr[4];
     $minutes = $datearr[5];
     echo "<tr><th>Currently Editing</th>";
-    echo "<td><i>{$event->name}</i>";
-    echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
+    echo "<td><i>" . htmlentities($event->name) . "</i>";
+    echo "<input type=\"hidden\" name=\"name\" value=\"" . htmlentities($event->name) . "\">";
     echo "</td>";
     echo "</tr><tr><td>&nbsp;</td><td>";
     $prevevent = $event->findPrev();
@@ -380,7 +381,7 @@ function eventForm($event = NULL, $forcenew = false) {
     echo "Automatically name this event based on Series, Season, and Number.";
     echo "<br /><input type=\"radio\" name=\"naming\" value=\"custom\">";
     echo "Use a custom name: ";
-    echo "<input type=\"text\" name=\"name\" value=\"{$event->name}\" ";
+    echo "<input type=\"text\" name=\"name\" value=\"" . htmlentities($event->name) . "\" ";
     echo "size=\"40\">";
     echo "</td></tr>";
     $year = strftime('%Y', time());
@@ -506,7 +507,7 @@ function playerList($event) {
   $entries = $event->getEntries();
   $numentries = count($entries);
   echo "<form action=\"event.php\" method=\"post\">";
-  echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
+  echo "<input type=\"hidden\" name=\"name\" value=\"" . htmlentities($event->name) . "\" />";
   echo "<table id=\"event_player_list\">";
   echo "<tr><th colspan=\"6\" align=\"center\" id=\"player_count\">";
   echo "{$numentries} Registered Players";
@@ -535,7 +536,7 @@ function playerList($event) {
     echo "<td align=\"center\">";
     if ($event->active == 1){
       if ($entry->dropped()) {
-        echo "{$drop_icon} {$entry->drop_round} <a href=\"event.php?player=".$entry->player->name."&action=undrop&name=".$event->name."\">(undo)</a>";
+        echo "{$drop_icon} {$entry->drop_round} <a href=\"event.php?player=". urlencode($entry->player->name) ."&action=undrop&name=". urlencode($event->name) ."\">(undo)</a>";
       } else {
         echo "<input type=\"checkbox\" name=\"dropplayer[]\" value=\"{$entry->player->name}\" />";
       }
@@ -590,7 +591,7 @@ function playerList($event) {
   echo "<div id=\"event_run_actions\">";
   echo "<form action=\"event.php\" method=\"post\">";
   echo "<input type=\"hidden\" name=\"view\" value=\"reg\" />";
-  echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
+  echo "<input type=\"hidden\" name=\"name\" value=\"" . htmlentities($event->name) . "\" />";
   echo "<p>Round Actions</p>";
   if ($event->active == 0 && $event->finalized == 0) {
     echo "<input id=\"start_event\" type=\"submit\" name=\"mode\" value=\"Start Event\" />";
@@ -612,7 +613,7 @@ function pointsAdjustmentForm($event) {
 
   // Start a new form
   echo "<form action=\"event.php\" method=\"post\">";
-  echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\" />";
+  echo "<input type=\"hidden\" name=\"name\" value=\"" . htmlentities($event->name) . "\" />";
   echo "<table style=\"border-width: 0px\" align=\"center\">";
   echo "<input type=\"hidden\" name=\"view\" value=\"points_adj\">";
   echo "<tr class=\"top\"> <th> Player </th> <th> </th> <th> Deck </th> <th> Points <br /> Adj. </th> <th> Reason </th> </tr>";
@@ -680,13 +681,13 @@ function matchList($event) {
   // Quick links to rounds
   echo "<p style=\"text-align: center\">";
   for ($r = 1; $r <= $event->current_round; $r++) {
-    echo "<a href=\"event.php?view=match&name={$event->name}#round-{$r}\">Round {$r}</a> ";
+    echo "<a href=\"event.php?view=match&name=" . urlencode($event->name) . "#round-{$r}\">Round {$r}</a> ";
   }
   echo "</p>";
   // Start a new form
   echo "<form action=\"event.php\" method=\"post\" enctype=\"multipart/form-data\">";
-  echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
-  echo "<input type=\"hidden\" name=\"eventname\" value=\"{$event->name}\">";
+  echo "<input type=\"hidden\" name=\"name\" value=\"" . htmlentities($event->name) . "\">";
+  echo "<input type=\"hidden\" name=\"eventname\" value=\"" . htmlentities($event->name) . "\">";
   echo "<input type=\"hidden\" name=\"view\" value=\"match\">";
   echo "<table align=\"center\" style=\"border-width: 0px;\">";
   if (count($matches) > 0) {
@@ -837,7 +838,7 @@ function medalList($event) {
   // Start a new form
   echo "<form action=\"event.php\" method=\"post\" ";
   echo "enctype=\"multipart/form-data\">";
-  echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
+  echo "<input type=\"hidden\" name=\"name\" value=\"" . htmlentities($event->name) . "\">";
   echo "<table style=\"border-width: 0px\" align=\"center\">";
 
   echo "<tr><td colspan=\"2\">";
@@ -1013,7 +1014,7 @@ function trophyField($event) {
   if($event->hastrophy) {
     echo "<tr><td>&nbsp;</td></tr>";
     echo "<tr><td colspan=\"2\" align=\"center\">";
-    echo "<img src=\"displayTrophy.php?event={$event->name}\" alt=\"Trophy\" /></td></tr>";
+    echo "<img src=\"displayTrophy.php?event=" . urlencode($event->name) . "\" alt=\"Trophy\" /></td></tr>";
   }
   echo "<tr><th>Trophy Image</th><td>";
   echo "<input type=\"file\" id=\"trophy\" name=\"trophy\">&nbsp";
@@ -1150,7 +1151,7 @@ function playerWinsDropMenu($player = "A", $new = false) {
 }
 
 function controlPanel($event, $cur = "") {
-  $name = $event->name;
+  $name = urlencode($event->name);
   echo "<tr><td colspan=\"2\" align=\"center\">";
   echo "<a href=\"event.php?name=$name&view=reg\">Registration</a>";
   echo " | <a href=\"event.php?name=$name&view=match\">Match Listing</a>";
@@ -1279,7 +1280,7 @@ function autoInputForm($event) {
   // Start a new form
   echo "<form action=\"event.php\" method=\"post\" ";
   echo "enctype=\"multipart/form-data\">";
-  echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
+  echo "<input type=\"hidden\" name=\"name\" value=\"" . htmlentities($event->name) ."\">";
   echo "<table style=\"border-width: 0px\" align=\"center\">";
 
   echo "<tr><td colspan=\"2 align=\"center\">";
@@ -1363,7 +1364,7 @@ function fileInputForm($event) {
   // Start a new form
   echo "<form action=\"event.php\" method=\"post\" ";
   echo "enctype=\"multipart/form-data\">";
-  echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
+  echo "<input type=\"hidden\" name=\"name\" value=\"" . htmlentities($event->name) . "\">";
   echo "<h3><center>DCI version 2</center></h3>";
   echo "<table style=\"border-width: 0px;\" align=\"center\">\n";
   echo "<tr><td><b>*delt.dat</td><td>\n";
@@ -1383,7 +1384,7 @@ function file3InputForm($event) {
   // Start a new form
   echo "<form action=\"event.php\" method=\"post\" ";
   echo "enctype=\"multipart/form-data\">";
-  echo "<input type=\"hidden\" name=\"name\" value=\"{$event->name}\">";
+  echo "<input type=\"hidden\" name=\"name\" value=\"" . htmlentities($event->name) . "\">";
   echo "<h3><center>DCI version 3</center></h3>";
   echo "<table style=\"border-width: 0px;\" align=\"center\">\n";
   echo "<tr><td><b>*302.dat</td><td>\n";
